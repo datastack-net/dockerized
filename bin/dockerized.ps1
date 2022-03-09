@@ -1,16 +1,31 @@
+# CONSTANTS
 $DOCKERIZED_ENV_FILE_NAME = "dockerized.env"
 $DOCKERIZED_ROOT = (get-item $PSScriptRoot).parent.FullName
 $DOCKERIZED_COMPOSE_FILE = "${DOCKERIZED_ROOT}\docker-compose.yml"
 $DOCKERIZED_ENV_FILE = "${DOCKERIZED_ROOT}\${DOCKERIZED_ENV_FILE_NAME}"
-
 $HOST_HOME = "${HOME}"
+
+# OPTIONS
+$DOCKERIZED_OPT_VERBOSE = $false
+
+# RUNTIME VARIABLES
 $HOST_PWD = "${PWD}"
+$SERVICE_ARGS = ""
+
+# PARSE OPTIONS
+if ($args[0] -eq '-v')
+{
+    $DOCKERIZED_OPT_VERBOSE = $true
+    $args[0] = ""
+}
+
+# convert windows paths to unix paths
 $SERVICE_ARGS = ($args | % { $_.replace('\', '/') })
 
 function DotEnv
 {
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         $file
     )
     $lines = (Get-Content $file).Split("\n")
@@ -29,40 +44,32 @@ function DotEnv
     }
 }
 
-# Find file in parent directories, starting with the given directory
 function FindUp
 {
-    param(
-        [Parameter(Mandatory=$true)]
-        $fileName,
-        [Parameter(Mandatory=$true)]
-        $startDirectory
-    )
-    $path = $startDirectory
-    while ($path -ne "")
+    param($FILE, $DIR)
+    $PATH = Get-Item -Path $DIR
+    while ($PATH.FullName -ne $PATH.Root.FullName)
     {
-        if (Test-Path -PathType Leaf $path -Path $fileName)
+        $TARGET_FILE = "${PATH}\${FILE}"
+        if (Test-Path "$TARGET_FILE")
         {
-            return $path
+            return $TARGET_FILE
         }
-        $path = (Get-Item $path).ParentPath
+        $PATH = Get-Item -Path $PATH.Parent.FullName
     }
+    return ""
 }
 
 function LoadEnvironment
 {
     $envFile = FindUp $DOCKERIZED_ENV_FILE_NAME $PWD
-    $envFiles = @()
-    $DIR = Get-Item -Path $PWD
-    while ($DIR.FullName -ne $DIR.Root.FullName)
+    if ($envFile -ne "")
     {
-        $DOCKERIZED_ENV = "${DIR}\dockerized.env"
-        if (Test-Path "$DOCKERIZED_ENV")
+        if ($DOCKERIZED_OPT_VERBOSE)
         {
-            DotEnv $DOCKERIZED_ENV
-            return
+            Write-Host "Loading environment from $envFile" -ForegroundColor Green
         }
-        $DIR = Get-Item -Path $DIR.Parent.FullName
+        DotEnv $envFile
     }
 }
 
@@ -72,6 +79,7 @@ docker-compose `
     --env-file $DOCKERIZED_ENV_FILE `
     -f $DOCKERIZED_COMPOSE_FILE `
     run --rm `
+    -e "HOST_HOME=$HOST_HOME" `
     -v "${PWD}:/host" `
     -w /host `
     ${SERVICE_ARGS}

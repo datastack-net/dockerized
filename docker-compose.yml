@@ -8,8 +8,6 @@ services:
   node: &node
     image: "${NODE_BASE}:${NODE_VERSION}"
     entrypoint: [ "node" ]
-    environment:
-      SHELL: "bash"
     volumes:
       - "node_modules:/usr/local/lib/node_modules"
       - "npm:/root/.npm"
@@ -27,8 +25,6 @@ services:
         PROTOC_VERSION: "${PROTOC_VERSION}"
         PROTOC_BASE: "${PROTOC_BASE}"
         PROTOC_ARCH: "${PROTOC_ARCH}"
-    environment:
-      SHELL: "/usr/bin/bash"
   s3cmd:
     build:
       context: apps/s3cmd
@@ -39,7 +35,6 @@ services:
     environment:
       AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID:-}"
       AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY:-}"
-      SHELL: "sh"
     volumes:
       - "${HOST_HOME}:/root"
   swagger-codegen:
