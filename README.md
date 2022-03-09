@@ -1,5 +1,5 @@
 # Dockerized
-Run popular commandline tools within docker.
+Run specific versions of popular commandline tools within docker, so you don't have to install them.
 
 ## Installation
 
