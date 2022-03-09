@@ -1,12 +1,12 @@
 version: "3"
 
 services:
-  alpine: &alpine
+  alpine:
     image: "alpine:latest"
   jq:
     image: stedolan/jq
   node: &node
-    image: "${NODE_BASE}:${NODE_VERSION}"
+    image: "node:${NODE_VERSION}"
     entrypoint: [ "node" ]
     volumes:
       - "node_modules:/usr/local/lib/node_modules"
@@ -25,6 +25,9 @@ services:
         PROTOC_VERSION: "${PROTOC_VERSION}"
         PROTOC_BASE: "${PROTOC_BASE}"
         PROTOC_ARCH: "${PROTOC_ARCH}"
+  tsc:
+    <<: *node
+    entrypoint: [ "npx", "--package=typescript@${TSC_VERSION}", "tsc" ]
   s3cmd:
     build:
       context: apps/s3cmd
@@ -36,12 +39,13 @@ services:
       AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID:-}"
       AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY:-}"
     volumes:
-      - "${HOST_HOME}:/root"
+      - "${HOME}:/root"
   swagger-codegen:
     image: "swaggerapi/swagger-codegen-cli-v3:${SWAGGER_CODEGEN_VERSION}"
   vue:
     <<: *node
-    entrypoint: [ "npx", "@vue/cli" ]
+    entrypoint: [ "npx", "--package=@vue/cli@${VUE_VERSION}", "vue" ]
+    stop_grace_period: 0s
 volumes:
   node_modules: { }
   npm: { }

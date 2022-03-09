@@ -65,7 +65,6 @@ docker-compose \
  --env-file "$DOCKERIZED_ENV_FILE" \
  -f "$DOCKERIZED_COMPOSE_FILE" \
  run --rm \
- -e "HOST_HOME=$HOST_HOME" \
  -v "$HOST_PWD://host" \
  -w //host \
  $SERVICE_ARGS
