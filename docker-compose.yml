@@ -41,7 +41,7 @@ services:
       AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY:-}"
       SHELL: "sh"
     volumes:
-      - "${HOME}:/root"
+      - "${HOST_HOME}:/root"
   swagger-codegen:
     image: "swaggerapi/swagger-codegen-cli-v3:${SWAGGER_CODEGEN_VERSION}"
   vue:
