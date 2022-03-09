@@ -1,0 +1,52 @@
+version: "3"
+
+services:
+  alpine: &alpine
+    image: "alpine:latest"
+  jq:
+    image: stedolan/jq
+  node: &node
+    image: "${NODE_BASE}:${NODE_VERSION}"
+    entrypoint: [ "node" ]
+    environment:
+      SHELL: "bash"
+    volumes:
+      - "node_modules:/usr/local/lib/node_modules"
+      - "npm:/root/.npm"
+  npm:
+    <<: *node
+    entrypoint: [ "npm" ]
+  npx:
+    <<: *node
+    entrypoint: [ "npx" ]
+  protoc:
+    image: "protoc:${PROTOC_VERSION}"
+    build:
+      context: apps/protoc
+      args:
+        PROTOC_VERSION: "${PROTOC_VERSION}"
+        PROTOC_BASE: "${PROTOC_BASE}"
+        PROTOC_ARCH: "${PROTOC_ARCH}"
+    environment:
+      SHELL: "/usr/bin/bash"
+  s3cmd:
+    build:
+      context: apps/s3cmd
+      args:
+        S3CMD_VERSION: "${S3CMD_VERSION}"
+        S3CMD_BASE: "${S3CMD_BASE}"
+    image: "s3cmd:${S3CMD_VERSION}"
+    environment:
+      AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID:-}"
+      AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY:-}"
+      SHELL: "sh"
+    volumes:
+      - "${HOME}:/root"
+  swagger-codegen:
+    image: "swaggerapi/swagger-codegen-cli-v3:${SWAGGER_CODEGEN_VERSION}"
+  vue:
+    <<: *node
+    entrypoint: [ "npx", "@vue/cli" ]
+volumes:
+  node_modules: { }
+  npm: { }
