@@ -7,6 +7,9 @@ services:
     stop_grace_period: 1s
     tty: true
     stdin_open: true
+  helm:
+    <<: *default
+    image: "alpine/helm:${HELM_VERSION}"
   http:
     <<: *default
     image: "alpine/httpie:${HTTPIE_VERSION}"
