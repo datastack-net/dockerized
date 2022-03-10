@@ -1,5 +1,9 @@
 # Dockerized dotnet
 
+```shell
+dockerized dotnet
+```
+
 ## Example
 
 ```shell

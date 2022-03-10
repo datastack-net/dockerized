@@ -11,16 +11,18 @@ dockerized <command>
   - http
   - jq
   - protoc
-  - s3cmd
   - swagger-codegen
   - wget
+- Cloud
+  - doctl
+  - s3cmd
 - Docker
   - helm
-- Sdks
+- SDKs
   - [dotnet](apps/dotnet/Readme.md)
 - Node
   - node
-  - npm
+  - [npm](apps/npm/Readme.md)
   - npx
   - tsc
   - vue

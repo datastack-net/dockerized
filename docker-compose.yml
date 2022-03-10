@@ -15,6 +15,19 @@ services:
       args:
         ALPINE_VERSION: "${ALPINE_VERSION}"
         ALPINE_PACKAGES: "tree"
+  doctl:
+    <<: *default
+    image: "doctl:${DOCTL_VERSION}"
+    build:
+      context: apps/doctl
+      dockerfile: ../alpine/Dockerfile
+      args:
+        ALPINE_VERSION: "${ALPINE_VERSION}"
+        BUILD_SCRIPT_ARGS: "${DOCTL_VERSION}"
+    entrypoint: [ "doctl" ]
+    volumes:
+      - "${HOME}/.dockerized/apps/doctl:/root"
+
   dotnet:
     <<: *default
     image: "mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION}-alpine"
