@@ -91,7 +91,6 @@ function LoadEnvironment
 LoadEnvironment
 
 docker-compose `
-    --profile dockerized `
     --env-file $DOCKERIZED_ENV_FILE `
     -f $DOCKERIZED_COMPOSE_FILE `
     run --rm `

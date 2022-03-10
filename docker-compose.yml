@@ -3,7 +3,6 @@ version: "3"
 services:
   _: &default
     image: ""
-    profiles: [ dockerized ]
     stop_grace_period: 1s
     tty: true
     stdin_open: true
