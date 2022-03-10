@@ -32,8 +32,6 @@ esac
 
 SERVICE_ARGS="$@"
 
-# if pwd is root
-
 function dotenv() {
   FILE="$1"
 
