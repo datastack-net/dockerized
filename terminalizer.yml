@@ -1,0 +1,742 @@
+# The configurations that used for the recording, feel free to edit them
+config:
+
+  # Specify a command to be executed
+  # like `/bin/bash -l`, `ls`, or any other commands
+  # the default is bash for Linux
+  # or powershell.exe for Windows
+  command: bash -l
+  
+  # Specify the current working directory path
+  # the default is the current working directory path
+  cwd: /home/demo
+  
+  # Export additional ENV variables
+  env:
+    recording: true
+  
+  # Explicitly set the number of columns
+  # or use `auto` to take the current
+  # number of columns of your shell
+  cols: 102
+  
+  # Explicitly set the number of rows
+  # or use `auto` to take the current
+  # number of rows of your shell
+  rows: 29
+  
+  # Amount of times to repeat GIF
+  # If value is -1, play once
+  # If value is 0, loop indefinitely
+  # If value is a positive number, loop n times
+  repeat: 0
+  
+  # Quality
+  # 1 - 100
+  quality: 100
+  
+  # Delay between frames in ms
+  # If the value is `auto` use the actual recording delays
+  frameDelay: auto
+  
+  # Maximum delay between frames in ms
+  # Ignored if the `frameDelay` isn't set to `auto`
+  # Set to `auto` to prevent limiting the max idle time
+  maxIdleTime: 2000
+  
+  # The surrounding frame box
+  # The `type` can be null, window, floating, or solid`
+  # To hide the title use the value null
+  # Don't forget to add a backgroundColor style with a null as type
+  frameBox:
+    type: null
+    title: null
+    style:
+      background: black
+      padding: 8px
+
+  # Add a watermark image to the rendered gif
+  # You need to specify an absolute path for
+  # the image on your machine or a URL, and you can also
+  # add your own CSS styles
+  watermark:
+    imagePath: null
+    style:
+      position: absolute
+      right: 15px
+      bottom: 15px
+      width: 100px
+      opacity: 0.9
+  
+  # Cursor style can be one of
+  # `block`, `underline`, or `bar`
+  cursorStyle: block
+  
+  # Font family
+  # You can use any font that is installed on your machine
+  # in CSS-like syntax
+  fontFamily: "Monaco, Lucida Console, Ubuntu Mono, Monospace"
+  
+  # The size of the font
+  fontSize: 12
+  
+  # The height of lines
+  lineHeight: 1
+  
+  # The spacing between letters
+  letterSpacing: 0
+  
+  # Theme
+  theme:
+    background: "transparent"
+    foreground: "#afafaf"
+    cursor: "#c7c7c7"
+    black: "#232628"
+    red: "#fc4384"
+    green: "#b3e33b"
+    yellow: "#ffa727"
+    blue: "#75dff2"
+    magenta: "#ae89fe"
+    cyan: "#708387"
+    white: "#d5d5d0"
+    brightBlack: "#626566"
+    brightRed: "#ff7fac"
+    brightGreen: "#c8ed71"
+    brightYellow: "#ebdf86"
+    brightBlue: "#75dff2"
+    brightMagenta: "#ae89fe"
+    brightCyan: "#b1c6ca"
+    brightWhite: "#f9f9f4"
+  
+# Records, feel free to edit them
+records:
+  - delay: 463
+    content: "\r\e[0;32mdemo@ubuntu\e[0m:\e[0;34m~\e[0m$ "
+  - delay: 1966
+    content: g
+  - delay: 41
+    content: i
+  - delay: 105
+    content: t
+  - delay: 75
+    content: ' '
+  - delay: 180
+    content: c
+  - delay: 60
+    content: l
+  - delay: 90
+    content: o
+  - delay: 75
+    content: 'n'
+  - delay: 135
+    content: e
+  - delay: 121
+    content: ' '
+  - delay: 494
+    content: g
+  - delay: 105
+    content: i
+  - delay: 76
+    content: t
+  - delay: 224
+    content: '@'
+  - delay: 240
+    content: g
+  - delay: 90
+    content: i
+  - delay: 105
+    content: t
+  - delay: 105
+    content: h
+  - delay: 90
+    content: u
+  - delay: 120
+    content: b
+  - delay: 585
+    content: .
+  - delay: 226
+    content: c
+  - delay: 104
+    content: o
+  - delay: 60
+    content: m
+  - delay: 435
+    content: ':'
+  - delay: 406
+    content: d
+  - delay: 104
+    content: a
+  - delay: 90
+    content: t
+  - delay: 105
+    content: a
+  - delay: 135
+    content: s
+  - delay: 60
+    content: t
+  - delay: 90
+    content: a
+  - delay: 165
+    content: c
+  - delay: 90
+    content: k
+  - delay: 180
+    content: '-'
+  - delay: 360
+    content: 'n'
+  - delay: 105
+    content: e
+  - delay: 60
+    content: t
+  - delay: 570
+    content: /
+  - delay: 270
+    content: d
+  - delay: 135
+    content: o
+  - delay: 150
+    content: c
+  - delay: 105
+    content: k
+  - delay: 165
+    content: e
+  - delay: 60
+    content: r
+  - delay: 105
+    content: i
+  - delay: 150
+    content: z
+  - delay: 30
+    content: e
+  - delay: 120
+    content: d
+  - delay: 225
+    content: .
+  - delay: 390
+    content: g
+  - delay: 91
+    content: i
+  - delay: 119
+    content: t
+  - delay: 690
+    content: "\r\nCloning into 'dockerized'...\r\n"
+  - delay: 1115
+    content: "remote: Enumerating objects: 152, done.\e[K\r\nremote: Counting objects:   0% (1/152)\e[K\rremote: Counting objects:   1% (2/152)\e[K\rremote: Counting objects:   2% (4/152)\e[K\rremote: Counting objects:   3% (5/152)\e[K\rremote: Counting objects:   4% (7/152)\e[K\rremote: Counting objects:   5% (8/152)\e[K\rremote: Counting objects:   6% (10/152)\e[K\rremote: Counting objects:   7% (11/152)\e[K\rremote: Counting objects:   8% (13/152)\e[K\rremote: Counting objects:   9% (14/152)\e[K\rremote: Counting objects:  10% (16/152)\e[K\rremote: Counting objects:  11% (17/152)\e[K\rremote: Counting objects:  12% (19/152)\e[K\rremote: Counting objects:  13% (20/152)\e[K\rremote: Counting objects:  14% (22/152)\e[K\rremote: Counting objects:  15% (23/152)\e[K\rremote: Counting objects:  16% (25/152)\e[K\rremote: Counting objects:  17% (26/152)\e[K\rremote: Counting objects:  18% (28/152)\e[K\rremote: Counting objects:  19% (29/152)\e[K\rremote: Counting objects:  20% (31/152)\e[K\rremote: Counting objects:  21% (32/152)\e[K\rremote: Counting objects:  22% (34/152)\e[K\rremote: Counting objects:  23% (35/152)\e[K\rremote: Counting objects:  24% (37/152)\e[K\rremote: Counting objects:  25% (38/152)\e[K\rremote: Counting objects:  26% (40/152)\e[K\rremote: Counting objects:  27% (42/152)\e[K\rremote: Counting objects:  28% (43/152)\e[K\rremote: Counting objects:  29% (45/152)\e[K\rremote: Counting objects:  30% (46/152)\e[K\rremote: Counting objects:  31% (48/152)\e[K\rremote: Counting objects:  32% (49/152)\e[K\rremote: Counting objects:  33% (51/152)\e[K\rremote: Counting objects:  34% (52/152)\e[K\rremote: Counting objects:  35% (54/152)\e[K\rremote: Counting objects:  36% (55/152)\e[K\rremote: Counting objects:  37% (57/152)\e[K\rremote: Counting objects:  38% (58/152)\e[K\rremote: Counting objects:  39% (60/152)\e[K\rremote: Counting objects:  40% (61/152)\e[K\rremote: Counting objects:  41% (63/152)\e[K\rremote: Counting objects:  42% (64/152)\e[K\rremote: Counting objects:  43% (66/152)\e[K\rremote: Counting objects:  44% (67/152)\e[K\rremote: Counting objects:  45% (69/152)\e[K\rremote: Counting objects:  46% (70/152)\e[K\rremote: Counting objects:  47% (72/152)\e[K\rremote: Counting objects:  48% (73/152)\e[K\rremote: Counting objects:  49% (75/152)\e[K\rremote: Counting objects:  50% (76/152)\e[K\rremote: Counting objects:  51% (78/152)\e[K\rremote: Counting objects:  52% (80/152)\e[K\rremote: Counting objects:  53% (81/152)\e[K\rremote: Counting objects:  54% (83/152)\e[K\rremote: Counting objects:  55% (84/152)\e[K\rremote: Counting objects:  56% (86/152)\e[K\rremote: Counting objects:  57% (87/152)\e[K\rremote: Counting objects:  58% (89/152)\e[K\rremote: Counting objects:  59% (90/152)\e[K\rremote: Counting objects:  60% (92/152)\e[K\rremote: Counting objects:  61% (93/152)\e[K\rremote: Counting objects:  62% (95/152)\e[K\rremote: Counting objects:  63% (96/152)\e[K\rremote: Counting objects:  64% (98/152)\e[K\rremote: Counting objects:  65% (99/152)\e[K\rremote: Counting objects:  66% (101/152)\e[K\rremote: Counting objects:  67% (102/152)\e[K\rremote: Counting objects:  68% (104/152)\e[K\rremote: Counting objects:  69% (105/152)\e[K\rremote: Counting objects:  70% (107/152)\e[K\rremote: Counting objects:  71% (108/152)\e[K\rremote: Counting objects:  72% (110/152)\e[K\rremote: Counting objects:  73% (111/152)\e[K\rremote: Counting objects:  74% (113/152)\e[K\rremote: Counting objects:  75% (114/152)\e[K\rremote: Counting objects:  76% (116/152)\e[K\rremote: Counting objects:  77% (118/152)\e[K\rremote: Counting objects:  78% (119/152)\e[K\rremote: Counting objects:  79% (121/152)\e[K\rremote: Counting objects:  80% (122/152)\e[K\rremote: Counting objects:  81% (124/152)\e[K\rremote: Counting objects:  82% (125/152)\e[K\rremote: Counting objects:  83% (127/152)\e[K\rremote: Counting objects:  84% (128/152)\e[K\rremote: Counting objects:  85% (130/152)\e[K\rremote: Counting objects:  86% (131/152)\e[K\rremote: Counting objects:  87% (133/152)\e[K\rremote: Counting objects:  88% (134/152)\e[K\rremote: Counting objects:  89% (136/152)\e[K\rremote: Counting objects:  90% (137/152)\e[K\rremote: Counting objects:  91% (139/152)\e[K\rremote: Counting objects:  92% (140/152)\e[K\rremote: Counting objects:  93% (142/152)\e[K\rremote: Counting objects:  94% (143/152)\e[K\rremote: Counting objects:  95% (145/152)\e[K\rremote: Counting objects:  96% (146/152)\e[K\rremote: Counting objects:  97% (148/152)\e[K\rremote: Counting objects:  98% (149/152)\e[K\rremote: Counting objects:  99% (151/152)\e[K\rremote: Counting objects: 100% (152/152)\e[K\rremote: Counting objects: 100% (152/152), done.\e[K\r\nremote: Compressing objects:   1% (1/89)\e[K\rremote: Compressing objects:   2% (2/89)\e[K\rremote: Compressing objects:   3% (3/89)\e[K\rremote: Compressing objects:   4% (4/89)\e[K\rremote: Compressing objects:   5% (5/89)\e[K\rremote: Compressing objects:   6% (6/89)\e[K\rremote: Compressing objects:   7% (7/89)\e[K\rremote: Compressing objects:   8% (8/89)\e[K\rremote: Compressing objects:  10% (9/89)\e[K\rremote: Compressing objects:  11% (10/89)\e[K\rremote: Compressing objects:  12% (11/89)\e[K\rremote: Compressing objects:  13% (12/89)\e[K\rremote: Compressing objects:  14% (13/89)\e[K\rremote: Compressing objects:  15% (14/89)\e[K\r"
+  - delay: 77
+    content: "remote: Compressing objects:  16% (15/89)\e[K\rremote: Compressing objects:  17% (16/89)\e[K\rremote: Compressing objects:  19% (17/89)\e[K\rremote: Compressing objects:  20% (18/89)\e[K\rremote: Compressing objects:  21% (19/89)\e[K\rremote: Compressing objects:  22% (20/89)\e[K\rremote: Compressing objects:  23% (21/89)\e[K\rremote: Compressing objects:  24% (22/89)\e[K\rremote: Compressing objects:  25% (23/89)\e[K\rremote: Compressing objects:  26% (24/89)\e[K\rremote: Compressing objects:  28% (25/89)\e[K\rremote: Compressing objects:  29% (26/89)\e[K\rremote: Compressing objects:  30% (27/89)\e[K\rremote: Compressing objects:  31% (28/89)\e[K\rremote: Compressing objects:  32% (29/89)\e[K\rremote: Compressing objects:  33% (30/89)\e[K\rremote: Compressing objects:  34% (31/89)\e[K\rremote: Compressing objects:  35% (32/89)\e[K\rremote: Compressing objects:  37% (33/89)\e[K\rremote: Compressing objects:  38% (34/89)\e[K\rremote: Compressing objects:  39% (35/89)\e[K\rremote: Compressing objects:  40% (36/89)\e[K\rremote: Compressing objects:  41% (37/89)\e[K\rremote: Compressing objects:  42% (38/89)\e[K\rremote: Compressing objects:  43% (39/89)\e[K\rremote: Compressing objects:  44% (40/89)\e[K\rremote: Compressing objects:  46% (41/89)\e[K\rremote: Compressing objects:  47% (42/89)\e[K\rremote: Compressing objects:  48% (43/89)\e[K\rremote: Compressing objects:  49% (44/89)\e[K\rremote: Compressing objects:  50% (45/89)\e[K\rremote: Compressing objects:  51% (46/89)\e[K\rremote: Compressing objects:  52% (47/89)\e[K\rremote: Compressing objects:  53% (48/89)\e[K\rremote: Compressing objects:  55% (49/89)\e[K\rremote: Compressing objects:  56% (50/89)\e[K\rremote: Compressing objects:  57% (51/89)\e[K\rremote: Compressing objects:  58% (52/89)\e[K\rremote: Compressing objects:  59% (53/89)\e[K\rremote: Compressing objects:  60% (54/89)\e[K\rremote: Compressing objects:  61% (55/89)\e[K\rremote: Compressing objects:  62% (56/89)\e[K\rremote: Compressing objects:  64% (57/89)\e[K\rremote: Compressing objects:  65% (58/89)\e[K\rremote: Compressing objects:  66% (59/89)\e[K\rremote: Compressing objects:  67% (60/89)\e[K\rremote: Compressing objects:  68% (61/89)\e[K\rremote: Compressing objects:  69% (62/89)\e[K\rremote: Compressing objects:  70% (63/89)\e[K\rremote: Compressing objects:  71% (64/89)\e[K\rremote: Compressing objects:  73% (65/89)\e[K\rremote: Compressing objects:  74% (66/89)\e[K\rremote: Compressing objects:  75% (67/89)\e[K\rremote: Compressing objects:  76% (68/89)\e[K\rremote: Compressing objects:  77% (69/89)\e[K\rremote: Compressing objects:  78% (70/89)\e[K\rremote: Compressing objects:  79% (71/89)\e[K\rremote: Compressing objects:  80% (72/89)\e[K\rremote: Compressing objects:  82% (73/89)\e[K\rremote: Compressing objects:  83% (74/89)\e[K\rremote: Compressing objects:  84% (75/89)\e[K\rremote: Compressing objects:  85% (76/89)\e[K\rremote: Compressing objects:  86% (77/89)\e[K\rremote: Compressing objects:  87% (78/89)\e[K\rremote: Compressing objects:  88% (79/89)\e[K\rremote: Compressing objects:  89% (80/89)\e[K\rremote: Compressing objects:  91% (81/89)\e[K\rremote: Compressing objects:  92% (82/89)\e[K\rremote: Compressing objects:  93% (83/89)\e[K\rremote: Compressing objects:  94% (84/89)\e[K\rremote: Compressing objects:  95% (85/89)\e[K\rremote: Compressing objects:  96% (86/89)\e[K\rremote: Compressing objects:  97% (87/89)\e[K\rremote: Compressing objects:  98% (88/89)\e[K\rremote: Compressing objects: 100% (89/89)\e[K\rremote: Compressing objects: 100% (89/89), done.\e[K\r\nReceiving objects:   0% (1/152)\rReceiving objects:   1% (2/152)\rReceiving objects:   2% (4/152)\rReceiving objects:   3% (5/152)\rReceiving objects:   4% (7/152)\rReceiving objects:   5% (8/152)\rReceiving objects:   6% (10/152)\rReceiving objects:   7% (11/152)\rReceiving objects:   8% (13/152)\rReceiving objects:   9% (14/152)\rReceiving objects:  10% (16/152)\rReceiving objects:  11% (17/152)\rReceiving objects:  12% (19/152)\rReceiving objects:  13% (20/152)\rReceiving objects:  14% (22/152)\rReceiving objects:  15% (23/152)\rReceiving objects:  16% (25/152)\rReceiving objects:  17% (26/152)\rReceiving objects:  18% (28/152)\rReceiving objects:  19% (29/152)\rReceiving objects:  20% (31/152)\rReceiving objects:  21% (32/152)\rReceiving objects:  22% (34/152)\rReceiving objects:  23% (35/152)\rReceiving objects:  24% (37/152)\rReceiving objects:  25% (38/152)\rReceiving objects:  26% (40/152)\rReceiving objects:  27% (42/152)\rReceiving objects:  28% (43/152)\rReceiving objects:  29% (45/152)\rReceiving objects:  30% (46/152)\rReceiving objects:  31% (48/152)\rReceiving objects:  32% (49/152)\rReceiving objects:  33% (51/152)\rReceiving objects:  34% (52/152)\rReceiving objects:  35% (54/152)\rReceiving objects:  36% (55/152)\rReceiving objects:  37% (57/152)\rReceiving objects:  38% (58/152)\rReceiving objects:  39% (60/152)\rReceiving objects:  40% (61/152)\rReceiving objects:  41% (63/152)\rReceiving objects:  42% (64/152)\rReceiving objects:  43% (66/152)\rReceiving objects:  44% (67/152)\rReceiving objects:  45% (69/152)\rReceiving objects:  46% (70/152)\rReceiving objects:  47% (72/152)\rReceiving objects:  48% (73/152)\rReceiving objects:  49% (75/152)\rReceiving objects:  50% (76/152)\rReceiving objects:  51% (78/152)\rReceiving objects:  52% (80/152)\rReceiving objects:  53% (81/152)\rReceiving objects:  54% (83/152)\rReceiving objects:  55% (84/152)\rReceiving objects:  56% (86/152)\rReceiving objects:  57% (87/152)\rReceiving objects:  58% (89/152)\rReceiving objects:  59% (90/152)\rReceiving objects:  60% (92/152)\r"
+  - delay: 42
+    content: "remote: Total 152 (delta 79), reused 123 (delta 53), pack-reused 0\e[K\r\nReceiving objects:  61% (93/152)\rReceiving objects:  62% (95/152)\rReceiving objects:  63% (96/152)\rReceiving objects:  64% (98/152)\rReceiving objects:  65% (99/152)\rReceiving objects:  66% (101/152)\rReceiving objects:  67% (102/152)\rReceiving objects:  68% (104/152)\rReceiving objects:  69% (105/152)\rReceiving objects:  70% (107/152)\rReceiving objects:  71% (108/152)\rReceiving objects:  72% (110/152)\rReceiving objects:  73% (111/152)\rReceiving objects:  74% (113/152)\rReceiving objects:  75% (114/152)\rReceiving objects:  76% (116/152)\rReceiving objects:  77% (118/152)\rReceiving objects:  78% (119/152)\rReceiving objects:  79% (121/152)\rReceiving objects:  80% (122/152)\rReceiving objects:  81% (124/152)\rReceiving objects:  82% (125/152)\rReceiving objects:  83% (127/152)\rReceiving objects:  84% (128/152)\rReceiving objects:  85% (130/152)\rReceiving objects:  86% (131/152)\rReceiving objects:  87% (133/152)\rReceiving objects:  88% (134/152)\rReceiving objects:  89% (136/152)\rReceiving objects:  90% (137/152)\rReceiving objects:  91% (139/152)\rReceiving objects:  92% (140/152)\rReceiving objects:  93% (142/152)\rReceiving objects:  94% (143/152)\rReceiving objects:  95% (145/152)\rReceiving objects:  96% (146/152)\rReceiving objects:  97% (148/152)\rReceiving objects:  98% (149/152)\rReceiving objects:  99% (151/152)\rReceiving objects: 100% (152/152)\rReceiving objects: 100% (152/152), 22.64 KiB | 526.00 KiB/s, done.\r\nResolving deltas:   0% (0/79)\rResolving deltas:   3% (3/79)\rResolving deltas:   7% (6/79)\rResolving deltas:   8% (7/79)\rResolving deltas:  11% (9/79)\rResolving deltas:  12% (10/79)\rResolving deltas:  13% (11/79)\rResolving deltas:  21% (17/79)\rResolving deltas:  41% (33/79)\rResolving deltas:  43% (34/79)\rResolving deltas:  45% (36/79)\rResolving deltas:  48% (38/79)\rResolving deltas:  51% (41/79)\rResolving deltas:  65% (52/79)\rResolving deltas:  67% (53/79)\rResolving deltas:  69% (55/79)\rResolving deltas:  70% (56/79)\rResolving deltas:  73% (58/79)\rResolving deltas:  77% (61/79)\rResolving deltas:  84% (67/79)\rResolving deltas:  89% (71/79)\rResolving deltas:  92% (73/79)\rResolving deltas: 100% (79/79)\rResolving deltas: 100% (79/79), done.\r\n"
+  - delay: 6
+    content: "\e[0;32mdemo@ubuntu\e[0m:\e[0;34m~\e[0m$ "
+  - delay: 990
+    content: ex
+  - delay: 116
+    content: p
+  - delay: 46
+    content: o
+  - delay: 194
+    content: r
+  - delay: 30
+    content: t
+  - delay: 135
+    content: ' '
+  - delay: 255
+    content: P
+  - delay: 105
+    content: A
+  - delay: 90
+    content: T
+  - delay: 30
+    content: H
+  - delay: 300
+    content: '='
+  - delay: 435
+    content: $
+  - delay: 450
+    content: "\b\e[K"
+  - delay: 180
+    content: '"'
+  - delay: 90
+    content: $
+  - delay: 391
+    content: P
+  - delay: 89
+    content: A
+  - delay: 90
+    content: T
+  - delay: 76
+    content: H
+  - delay: 419
+    content: ':'
+  - delay: 810
+    content: '~'
+  - delay: 855
+    content: /
+  - delay: 241
+    content: d
+  - delay: 74
+    content: o
+  - delay: 135
+    content: c
+  - delay: 90
+    content: k
+  - delay: 91
+    content: e
+  - delay: 59
+    content: r
+  - delay: 120
+    content: i
+  - delay: 120
+    content: z
+  - delay: 45
+    content: e
+  - delay: 75
+    content: d
+  - delay: 165
+    content: /
+  - delay: 210
+    content: b
+  - delay: 105
+    content: i
+  - delay: 90
+    content: 'n'
+  - delay: 270
+    content: '"'
+  - delay: 1290
+    content: "\r\n\e[0;32mdemo@ubuntu\e[0m:\e[0;34m~\e[0m$ "
+  - delay: 1740
+    content: m
+  - delay: 210
+    content: d
+  - delay: 840
+    content: "\b\e[K"
+  - delay: 195
+    content: k
+  - delay: 195
+    content: d
+  - delay: 120
+    content: i
+  - delay: 149
+    content: r
+  - delay: 615
+    content: ' '
+  - delay: 315
+    content: t
+  - delay: 225
+    content: 'y'
+  - delay: 105
+    content: p
+  - delay: 45
+    content: e
+  - delay: 165
+    content: s
+  - delay: 31
+    content: c
+  - delay: 134
+    content: r
+  - delay: 91
+    content: i
+  - delay: 44
+    content: p
+  - delay: 60
+    content: t
+  - delay: 345
+    content: '-'
+  - delay: 120
+    content: d
+  - delay: 61
+    content: e
+  - delay: 74
+    content: m
+  - delay: 60
+    content: o
+  - delay: 345
+    content: "\r\n\e[0;32mdemo@ubuntu\e[0m:\e[0;34m~\e[0m$ "
+  - delay: 479
+    content: c
+  - delay: 61
+    content: d
+  - delay: 105
+    content: ' '
+  - delay: 359
+    content: typescript-demo
+  - delay: 390
+    content: "\r\n\e[0;32mdemo@ubuntu\e[0m:\e[0;34m~/typescript-demo\e[0m$ "
+  - delay: 3185
+    content: v
+  - delay: 105
+    content: i
+  - delay: 60
+    content: m
+  - delay: 60
+    content: ' '
+  - delay: 330
+    content: h
+  - delay: 105
+    content: e
+  - delay: 30
+    content: l
+  - delay: 165
+    content: l
+  - delay: 76
+    content: o
+  - delay: 119
+    content: w
+  - delay: 75
+    content: o
+  - delay: 90
+    content: r
+  - delay: 120
+    content: l
+  - delay: 120
+    content: d
+  - delay: 105
+    content: .
+  - delay: 300
+    content: t
+  - delay: 76
+    content: s
+  - delay: 1000
+    content: "\r\n"
+  - delay: 1000
+    content: "\e[?1049h\e[22;0;0t\e[>4;2m\e[?1h\e=\e[?2004h\e[1;29r\e[?12h\e[?12l\e[22;2t\e[22;1t\e[27m\e[23m\e[29m\e[m\e[H\e[2J\e[?25l\e[29;1H\"helloworld.ts\" [New File]"
+  - delay: 5
+    content: "\e[2;1H▽\e[6n\e[2;1H  \e[1;1H\e[>c\e]10;?\a\e]11;?\a\e[2;1H\e[94m~                                                                                                     \e[3;1H~                                                                                                     \e[4;1H~                                                                                                     \e[5;1H~                                                                                                     \e[6;1H~                                                                                                     \e[7;1H~                                                                                                     \e[8;1H~                                                                                                     \e[9;1H~                                                                                                     \e[10;1H~                                                                                                     \e[11;1H~                                                                                                     \e[12;1H~                                                                                                     \e[13;1H~                                                                                                     \e[14;1H~                                                                                                     \e[15;1H~                                                                                                     \e[16;1H~                                                                                                     \e[17;1H~                                                                                                     \e[18;1H~                                                                                                     \e[19;1H~                                                                                                     \e[20;1H~                                                                                                     \e[21;1H~                                                                                                     \e[22;1H~                                                                                                     \e[23;1H~                                                                                                     \e[24;1H~                                                                                                     \e[25;1H~                                                                                                     \e[26;1H~                                                                                                     \e[27;1H~                                                                                                     \e[28;1H~                                                                                                     \e[m\e[29;85H0,0-1\e[9CAll\e[1;1H\e[?25h"
+  - delay: 779
+    content: "\e[?25l\e[29;75Hi\e[1;1H\e[29;75H \e[1;1H\e[29;1H\e[1m-- INSERT --\e[m\e[29;13H\e[K\e[29;85H0,1\e[11CAll\e[1;1H\e[?25h"
+  - delay: 841
+    content: "\e[?25lc\e[29;85H1,2\e[1;2H\e[?25h"
+  - delay: 104
+    content: "\e[?25lo\e[29;87H3\e[1;3H\e[?25h"
+  - delay: 46
+    content: "\e[?25ln\e[29;87H4\e[1;4H\e[?25h"
+  - delay: 89
+    content: "\e[?25ls\e[29;87H5\e[1;5H\e[?25h"
+  - delay: 45
+    content: "\e[?25l\r\e[36mconst\e[m\e[29;87H6\e[1;6H\e[?25h"
+  - delay: 77
+    content: "\e[?25l\e[29;87H7\e[1;7H\e[?25h"
+  - delay: 404
+    content: "\e[?25lm\e[29;87H8\e[1;8H\e[?25h"
+  - delay: 89
+    content: "\e[?25ls\e[29;87H9\e[1;9H\e[?25h"
+  - delay: 45
+    content: "\e[?25lg\e[29;87H10\e[1;10H\e[?25h"
+  - delay: 376
+    content: "\e[?25l:\e[29;88H1\e[1;11H\e[?25h"
+  - delay: 390
+    content: "\e[?25l\e[29;88H2\e[1;12H\e[?25h"
+  - delay: 120
+    content: "\e[?25l\e[36ms\e[m\e[29;88H3\e[1;13H\e[?25h"
+  - delay: 134
+    content: "\e[?25l\e[36mr\e[m\e[29;88H4\e[1;14H\e[?25h"
+  - delay: 435
+    content: "\e[?25l\e[1;13H\e[K\e[29;88H3\e[1;13H\e[?25h"
+  - delay: 76
+    content: "\e[?25l\e[36mt\e[m\e[29;88H4\e[1;14H\e[?25h"
+  - delay: 59
+    content: "\e[?25l\e[36mr\e[m\e[29;88H5\e[1;15H\e[?25h"
+  - delay: 61
+    content: "\e[?25l\e[36mi\e[m\e[29;88H6\e[1;16H\e[?25h"
+  - delay: 74
+    content: "\e[?25l\e[36mn\e[m\e[29;88H7\e[1;17H\e[?25h"
+  - delay: 60
+    content: "\e[?25l\b\b\b\b\b\e[32mstring\e[m\e[29;88H8\e[1;18H\e[?25h"
+  - delay: 315
+    content: "\e[?25l\e[29;88H9\e[1;19H\e[?25h"
+  - delay: 60
+    content: "\e[?25l=\e[29;87H20\e[1;20H\e[?25h"
+  - delay: 91
+    content: "\e[?25l\e[29;88H1\e[1;21H\e[?25h"
+  - delay: 211
+    content: "\e[?25l\e[31m\"\e[m\e[29;88H2\e[1;22H\e[?25h"
+  - delay: 329
+    content: "\e[?25l\e[31mh\e[m\e[29;88H3\e[1;23H\e[?25h"
+  - delay: 120
+    content: "\e[?25l\e[31me\e[m\e[29;88H4\e[1;24H\e[?25h"
+  - delay: 74
+    content: "\e[?25l\e[31ml\e[m\e[29;88H5\e[1;25H\e[?25h"
+  - delay: 135
+    content: "\e[?25l\e[31ml\e[m\e[29;88H6\e[1;26H\e[?25h"
+  - delay: 46
+    content: "\e[?25l\e[31mo\e[m\e[29;88H7\e[1;27H\e[?25h"
+  - delay: 59
+    content: "\e[?25l\e[31m \e[m\e[29;88H8\e[1;28H\e[?25h"
+  - delay: 105
+    content: "\e[?25l\e[31mw\e[m\e[29;88H9\e[1;29H\e[?25h"
+  - delay: 76
+    content: "\e[?25l\e[31mo\e[m\e[29;87H30\e[1;30H\e[?25h"
+  - delay: 104
+    content: "\e[?25l\e[31mr\e[m\e[29;88H1\e[1;31H\e[?25h"
+  - delay: 75
+    content: "\e[?25l\e[31ml\e[m\e[29;88H2\e[1;32H\e[?25h"
+  - delay: 136
+    content: "\e[?25l\e[31md\e[m\e[29;88H3\e[1;33H\e[?25h"
+  - delay: 255
+    content: "\e[?25l\e[31m\"\e[m\e[29;88H4\e[1;34H\e[?25h"
+  - delay: 180
+    content: "\e[?25l;\e[29;88H5\e[1;35H\e[?25h"
+  - delay: 360
+    content: "\e[?25l\e[2;1H\e[K\e[29;85H2,1 \e[2;1H\e[?25h"
+  - delay: 120
+    content: "\e[?25l\e[3;1H\e[K\e[29;85H3\e[3;1H\e[?25h"
+  - delay: 390
+    content: "\e[?25lc\e[29;87H2\e[3;2H\e[?25h"
+  - delay: 75
+    content: "\e[?25lo\e[29;87H3\e[3;3H\e[?25h"
+  - delay: 44
+    content: "\e[?25ln\e[29;87H4\e[3;4H\e[?25h"
+  - delay: 120
+    content: "\e[?25ls\e[29;87H5\e[3;5H\e[?25h"
+  - delay: 46
+    content: "\e[?25lo\e[29;87H6\e[3;6H\e[?25h"
+  - delay: 179
+    content: "\e[?25ll\e[29;87H7\e[3;7H\e[?25h"
+  - delay: 105
+    content: "\e[?25l\r\e[32mconsole\e[m\e[29;87H8\e[3;8H\e[?25h"
+  - delay: 76
+    content: "\e[?25l.\e[29;87H9\e[3;9H\e[?25h"
+  - delay: 194
+    content: "\e[?25ll\e[29;87H10\e[3;10H\e[?25h"
+  - delay: 75
+    content: "\e[?25lo\e[29;88H1\e[3;11H\e[?25h"
+  - delay: 92
+    content: "\e[?25l\b\b\e[38;5;130mlog\e[m\e[29;88H2\e[3;12H\e[?25h"
+  - delay: 179
+    content: "\e[?25l(\e[29;88H3\e[3;13H\e[?25h"
+  - delay: 433
+    content: "\e[?25lm\e[29;88H4\e[3;14H\e[?25h"
+  - delay: 271
+    content: "\e[?25ls\e[29;88H5\e[3;15H\e[?25h"
+  - delay: 45
+    content: "\e[?25lg\e[29;88H6\e[3;16H\e[?25h"
+  - delay: 210
+    content: "\e[?25l)\b\b\b\b\b\e[106m(\e[mmsg\e[106m)\e[m\e[29;88H7\e[3;17H\e[?25h"
+  - delay: 240
+    content: "\e[?25l;\b\b\b\b\b\b(msg)\e[29;88H8\e[3;18H\e[?25h"
+  - delay: 1075
+    content: "\e[29;1H\e[K\e[3;17H\e[?25l\e[29;75H^[\e[3;17H"
+  - delay: 100
+    content: "\e[29;75H  \e[3;18H\e[29;85H3,17\e[10CAll\e[3;17H\e[?25h"
+  - delay: 99
+    content: "\e[?25l\e[29;75H:\e[3;17H\e[29;75H\e[K\e[29;1H:\e[?2004h\e[?25h"
+  - delay: 181
+    content: w
+  - delay: 300
+    content: q
+  - delay: 3000
+    content: "\r\e[?25l\e[?2004l\"helloworld.ts\" [New] 3L, 54C written\r\e[23;2t\e[23;1t\r\r\n\e[?2004l\e[?1l\e>\e[?25h\e[>4;m\e[?1049l\e[23;0;0t\e[0;32mdemo@ubuntu\e[0m:\e[0;34m~/typescript-demo\e[0m$ "
+  - delay: 1993
+    content: d
+  - delay: 74
+    content: o
+  - delay: 105
+    content: c
+  - delay: 122
+    content: k
+  - delay: 433
+    content: e
+  - delay: 60
+    content: r
+  - delay: 180
+    content: i
+  - delay: 150
+    content: z
+  - delay: 60
+    content: e
+  - delay: 75
+    content: d
+  - delay: 195
+    content: ' '
+  - delay: 315
+    content: t
+  - delay: 436
+    content: s
+  - delay: 44
+    content: c
+  - delay: 420
+    content: ' '
+  - delay: 121
+    content: '-'
+  - delay: 164
+    content: '-'
+  - delay: 300
+    content: i
+  - delay: 210
+    content: 'n'
+  - delay: 150
+    content: i
+  - delay: 135
+    content: t
+  - delay: 5020
+    content: "\r\n"
+  - delay: 312
+    content: "Pulling tsc (node:16.13.0)...\r\n"
+  - delay: 3865
+    content: "\e[2K\r16.13.0: Pulling from library/node\r\r\n"
+  - delay: 498
+    content: "\r\n\e[1A\e[2K\r1230f17f526c: Pulling fs layer\r\e[1B\r\n\e[1A\e[2K\rd17d0de332ca: Pulling fs layer\r\e[1B\r\n\e[1A\e[2K\r7474d56348f5: Pulling fs layer\r\e[1B\r\n\e[1A\e[2K\r211c565de405: Pulling fs layer\r\e[1B\r\n\e[1A\e[2K\r71337a3dfc6f: Pulling fs layer\r\e[1B\r\n\e[1A\e[2K\r21a74e6891c8: Pulling fs layer\r\e[1B\r\n\e[1A\e[2K\r41ad039b69fa: Pulling fs layer\r\e[1B\r\n\e[1A\e[2K\r9a62e27eca59: Pulling fs layer\r\e[1B\r\n\e[1A\e[2K\r1dbf89daa7ca: Pulling fs layer\r\e[1B\e[6A\e[2K\r211c565de405: Waiting\r\e[6B\e[2A\e[2K\r9a62e27eca59: Waiting\r\e[2B\e[1A\e[2K\r1dbf89daa7ca: Waiting\r\e[1B\e[5A\e[2K\r71337a3dfc6f: Waiting\r\e[5B\e[4A\e[2K\r21a74e6891c8: Waiting\r\e[4B\e[3A\e[2K\r41ad039b69fa: Waiting\r\e[3B"
+  - delay: 102
+    content: "\e[5A\e[2K\r71337a3dfc6f: Extracting [============================================>      ]  172.1MB/192.4MB\r\e[5B"
+  - delay: 101
+    content: "\e[5A\e[2K\r71337a3dfc6f: Extracting [==============================================>    ]  179.4MB/192.4MB\r\e[5B"
+  - delay: 103
+    content: "\e[5A\e[2K\r71337a3dfc6f: Extracting [================================================>  ]  186.1MB/192.4MB\r\e[5B"
+  - delay: 122
+    content: "\e[5A\e[2K\r71337a3dfc6f: Extracting [=================================================> ]  190.5MB/192.4MB\r\e[5B"
+  - delay: 101
+    content: "\e[5A\e[2K\r71337a3dfc6f: Extracting [=================================================> ]  192.2MB/192.4MB\r\e[5B"
+  - delay: 17
+    content: "\e[5A\e[2K\r71337a3dfc6f: Extracting [==================================================>]  192.4MB/192.4MB\r\e[5B"
+  - delay: 58
+    content: "\e[5A\e[2K\r71337a3dfc6f: Pull complete\r\e[5B\e[4A\e[2K\r21a74e6891c8: Extracting [==================================================>]  4.201kB/4.201kB\r\e[4B\e[4A\e[2K\r21a74e6891c8: Extracting [==================================================>]  4.201kB/4.201kB\r\e[4B"
+  - delay: 36
+    content: "\e[4A\e[2K\r21a74e6891c8: Pull complete\r\e[4B"
+  - delay: 31
+    content: "\e[3A\e[2K\r41ad039b69fa: Extracting [>                                                  ]  360.4kB/33.35MB\r\e[3B"
+  - delay: 102
+    content: "\e[3A\e[2K\r41ad039b69fa: Extracting [==================>                                ]  12.26MB/33.35MB\r\e[3B"
+  - delay: 103
+    content: "\e[3A\e[2K\r41ad039b69fa: Extracting [====================================>              ]  24.51MB/33.35MB\r\e[3B"
+  - delay: 115
+    content: "\e[3A\e[2K\r41ad039b69fa: Extracting [==============================================>    ]     31MB/33.35MB\r\e[3B"
+  - delay: 107
+    content: "\e[3A\e[2K\r41ad039b69fa: Extracting [=================================================> ]  33.16MB/33.35MB\r\e[3B"
+  - delay: 16
+    content: "\e[3A\e[2K\r41ad039b69fa: Extracting [==================================================>]  33.35MB/33.35MB\r\e[3B"
+  - delay: 39
+    content: "\e[3A\e[2K\r41ad039b69fa: Pull complete\r\e[3B\e[2A\e[2K\r9a62e27eca59: Extracting [>                                                  ]  32.77kB/2.273MB\r\e[2B"
+  - delay: 53
+    content: "\e[2A\e[2K\r9a62e27eca59: Extracting [==================================================>]  2.273MB/2.273MB\r\e[2B"
+  - delay: 10
+    content: "\e[2A\e[2K\r9a62e27eca59: Pull complete\r\e[2B\e[1A\e[2K\r1dbf89daa7ca: Extracting [==================================================>]     453B/453B\r\e[1B\e[1A\e[2K\r1dbf89daa7ca: Extracting [==================================================>]     453B/453B\r\e[1B"
+  - delay: 34
+    content: "\e[1A\e[2K\r1dbf89daa7ca: Pull complete\r\e[1B"
+  - delay: 8
+    content: "\e[2K\rDigest: sha256:580a0850049c59a48f06090edd48c9f966c5e6572bbbabc369ba3ecbc4855dba\r\r\n\e[2K\rStatus: Downloaded newer image for node:16.13.0\r\r\n"
+  - delay: 6
+    content: "Creating dockerized_tsc_run ... \r\r\n"
+  - delay: 3168
+    content: "\e[1A\e[2K\rCreating dockerized_tsc_run ... \e[32mdone\e[0m\r\e[1B"
+  - delay: 808
+    content: "\r\nCreated a new tsconfig.json with:                                                                \e[44m     \e[39;49m\r\n                                                                                                 \e[44m\e[97m  TS \e[39m\e[39;49m\r\n  target: es2016\r\n  module: commonjs\r\n  strict: true\r\n  esModuleInterop: true\r\n  skipLibCheck: true\r\n  forceConsistentCasingInFileNames: true\r\n\r\n\r\nYou can learn more at https://aka.ms/tsconfig.json\r\n"
+  - delay: 204
+    content: "\e[0;32mdemo@ubuntu\e[0m:\e[0;34m~/typescript-demo\e[0m$ "
+  - delay: 3327
+    content: d
+  - delay: 131
+    content: o
+  - delay: 180
+    content: c
+  - delay: 135
+    content: k
+  - delay: 104
+    content: e
+  - delay: 45
+    content: r
+  - delay: 121
+    content: i
+  - delay: 135
+    content: z
+  - delay: 29
+    content: e
+  - delay: 91
+    content: d
+  - delay: 120
+    content: ' '
+  - delay: 210
+    content: t
+  - delay: 209
+    content: s
+  - delay: 45
+    content: c
+  - delay: 4485
+    content: "\r\n"
+  - delay: 369
+    content: "Creating dockerized_tsc_run ... \r\r\n"
+  - delay: 28
+    content: "\e[1A\e[2K\rCreating dockerized_tsc_run ... \e[32mdone\e[0m\r\e[1B"
+  - delay: 1303
+    content: "\e[0;32mdemo@ubuntu\e[0m:\e[0;34m~/typescript-demo\e[0m$ "
+  - delay: 3077
+    content: c
+  - delay: 83
+    content: a
+  - delay: 90
+    content: t
+  - delay: 90
+    content: ' '
+  - delay: 1724
+    content: h
+  - delay: 165
+    content: e
+  - delay: 60
+    content: l
+  - delay: 165
+    content: l
+  - delay: 60
+    content: o
+  - delay: 226
+    content: "world."
+  - delay: 1034
+    content: j
+  - delay: 90
+    content: s
+  - delay: 3056
+    content: "\r\n\"use strict\";\r\nconst msg = \"hello world\";\r\nconsole.log(msg);\r\n\e[0;32mdemo@ubuntu\e[0m:\e[0;34m~/typescript-demo\e[0m$ "
+  - delay: 4024
+    content: d
+  - delay: 90
+    content: o
+  - delay: 150
+    content: c
+  - delay: 90
+    content: k
+  - delay: 195
+    content: e
+  - delay: 74
+    content: r
+  - delay: 196
+    content: i
+  - delay: 150
+    content: z
+  - delay: 45
+    content: e
+  - delay: 90
+    content: d
+  - delay: 195
+    content: ' '
+  - delay: 420
+    content: 'n'
+  - delay: 75
+    content: o
+  - delay: 134
+    content: d
+  - delay: 76
+    content: e
+  - delay: 90
+    content: ' '
+  - delay: 100
+    content: h
+  - delay: 26
+    content: e
+  - delay: 90
+    content: l
+  - delay: 213
+    content: "loworld."
+  - delay: 883
+    content: j
+  - delay: 120
+    content: s
+  - delay: 5015
+    content: "\r\n"
+  - delay: 320
+    content: "Creating dockerized_node_run ... \r\r\n"
+  - delay: 31
+    content: "\e[1A\e[2K\rCreating dockerized_node_run ... \e[32mdone\e[0m\r\e[1B"
+  - delay: 1085
+    content: "hello world"
+  - delay: 10000
+    content: "\r\n"
+
+

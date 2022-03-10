@@ -5,6 +5,8 @@ Run popular commandline tools without installing them.
 dockerized <command>
 ```
 
+![demo](terminalizer.gif)
+
 ## Supported commands
 
 - Web Development
