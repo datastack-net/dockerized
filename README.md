@@ -14,7 +14,7 @@ dockerized <command>
   - swagger-codegen
   - wget
 - Cloud
-  - doctl
+  - [doctl](apps/doctl/Readme.md)
   - s3cmd
 - Docker
   - helm

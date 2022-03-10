@@ -88,7 +88,7 @@ services:
       AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID:-}"
       AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY:-}"
     volumes:
-      - "${HOME}:/root"
+      - "${HOME}/.dockerized/apps/s3cmd:/root"
   swagger-codegen:
     <<: *default
     image: "swaggerapi/swagger-codegen-cli-v3:${SWAGGER_CODEGEN_VERSION}"

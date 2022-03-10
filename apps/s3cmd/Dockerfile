@@ -5,4 +5,3 @@ ARG S3CMD_VERSION=""
 RUN pip install s3cmd==$S3CMD_VERSION
 
 ENTRYPOINT ["s3cmd"]
-CMD ["--version"]
