@@ -9,7 +9,9 @@ $Env:HOME = "${HOME}"
 $DOCKERIZED_OPT_VERBOSE = $false
 
 # RUNTIME VARIABLES
+$_PWD_PATH = Get-Item -Path $HOST_PWD
 $HOST_PWD = "${PWD}"
+$HOST_DIR_NAME = If ($_PWD_PATH.Root.FullName -eq $_PWD_PATH.FullName) {""} Else {$_PWD_PATH.Name}
 $SERVICE_ARGS = ""
 
 # PARSE OPTIONS
@@ -81,6 +83,6 @@ docker-compose `
     -f $DOCKERIZED_COMPOSE_FILE `
     run --rm `
     -e "HOST_HOME=$HOST_HOME" `
-    -v "${PWD}:/host" `
-    -w /host `
+    -v "${PWD}:/host/${HOST_DIR_NAME}" `
+    -w /host/${HOST_DIR_NAME} `
     ${SERVICE_ARGS}

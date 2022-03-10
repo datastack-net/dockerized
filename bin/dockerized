@@ -11,6 +11,8 @@ DOCKERIZED_OPT_VERBOSE=
 
 # RUNTIME VARIABLES
 HOST_PWD=
+HOST_DIR_NAME=$(basename "$PWD")
+HOST_DIR_NAME=${HOST_DIR_NAME%/}
 SERVICE_ARGS=
 
 # PARSE OPTIONS
@@ -29,6 +31,8 @@ CYGWIN* | MINGW32* | MSYS* | MINGW*)
 esac
 
 SERVICE_ARGS="$@"
+
+# if pwd is root
 
 function dotenv() {
   FILE="$1"
@@ -66,6 +70,6 @@ docker-compose \
  --env-file "$DOCKERIZED_ENV_FILE" \
  -f "$DOCKERIZED_COMPOSE_FILE" \
  run --rm \
- -v "$HOST_PWD://host" \
- -w //host \
+ -v "$HOST_PWD://host/$HOST_DIR_NAME" \
+ -w "//host/$HOST_DIR_NAME" \
  $SERVICE_ARGS
