@@ -1,14 +1,53 @@
 # Dockerized
-Run specific versions of popular commandline tools within docker, so you don't have to install them.
+Run popular commandline tools without installing them.
+
+```shell
+dockerized <command>
+```
+
+## Supported commands
+
+- Web Development
+  - http
+  - jq
+  - protoc
+  - s3cmd
+  - swagger-codegen
+  - wget
+- Docker
+  - helm
+- Sdks
+  - [dotnet](apps/dotnet/Readme.md)
+- Node
+  - node
+  - npm
+  - npx
+  - tsc
+  - vue
+  - yarn
+- Python
+  - pip
+  - python
+  - python2
+- Unix
+  - tree
+
 
 ## Installation
 
+- Install [Docker](https://docs.docker.com/get-docker/)
 - Clone this repo anywhere: `git clone git@github.com:datastack-net/dockerized.git`
 - Add the `bin` directory to your path
 
 ## Usage
 
 Run any supported command, but within Docker.
+
+```shell
+dockerized <command>
+```
+
+Examples:
 
 ```bash
 dockerized node --version             # v16.13.0
@@ -35,55 +74,71 @@ dockerized npm install                # install packages.json
 - Suitable for ad-hoc usage (i.e. you quickly need to run a command, that is not on your system).
 - Configurability: for use within a project or CI/CD pipeline.
 
-## Specify command version
+## Switching command versions 
 
 Each command has a `<COMMAND>_VERSION` environment variable which you can override.
 
-**Ad-hoc (Unix)**
-```bash
-NODE_VERSION=15.0.0 dockerized node --version
-15.0.0: Pulling from library/node
-0400ac8f7460: Downloading [=============================================>     ]  40.93MB/45.37MB
-# ...
-v15.0.0
-```
+- `python`: `PYTHON_VERSION`
+- `node`: `NODE_VERSION`
+- `tsc`: `TSC_VERSION`
 
-**Per directory**
+Notes:
+- Versions of some commands are determined by other commands.  
+  For example, to configure the version of `npm`, you should override `NODE_VERSION`.
+- See [dockerized.env](dockerized.env) for a list of configurable versions.
 
-You can specify the versions per directory. This allows you to "lock" your tools to specific versions for your project.
 
-Create a `dockerized.env` file in your project root, containing your versions:
-
-```env
-NODE_VERSION=15.0.0
-```
-
-From anywhere within the project directory, you will get node 15 when calling `dockerized node`.
-
-**Windows**
-
-- Create a `dockerized.env` file in your project for local configuration.
 
 **Global**
 
-- Create a `dockerized.env` file in your home directory for global configuration.
+- Create a `dockerized.env` file in your home directory for global configuration.   
 
-## Supported commands
+    ```shell
+    # dockerized.env (example)
+    NODE_VERSION=16.13.0
+    PYTHON_VERSION=3.8.5
+    TYPESCRIPT_VERSION=4.6.2
+    ```
+  
+- List of configuration variables, and defaults:
+  - [dockerized.env](dockerized.env)
 
-- [dotnet](apps/dotnet/Readme.md)
-- http
-- jq
-- node
-- npm
-- npx
-- protoc
-- pip
-- python
-- python2
-- s3cmd
-- tsc
-- tree
-- swagger-codegen
-- vue
-- wget
-- yarn
+
+**Per directory**
+
+You can also specify version and other settings per directory.
+This allows you to "lock" your tools to specific versions for your project.
+
+- Create a `dockerized.env` file in your project directory.
+- All commands executed within this directory will use the settings specified in this file.
+
+**Ad-hoc (Unix)**
+
+- Override the environment variable before the command, to specify the version for that command.
+
+    ```shell
+    NODE_VERSION=15.0.0 dockerized node
+    ```
+
+**Ad-hoc (Windows Command Prompt)**
+
+- Set the environment variable in the current session, before the command.
+
+    ```cmd
+    set NODE_VERSION=15.0.0
+    dockerized node
+    ```
+
+**Ad-hoc (Windows Powershell)**
+
+It's currently not known how to specify the version of a command in a Powershell script through environment variables.
+
+As an alternative, you can create a `dockerized.env` file in the current directory.
+
+
+## Limitations
+
+- It's not currently possible to access parent directories. (i.e. `dockerized tree ../dir` will not work)
+  - Workaround: Execute the command from the parent directory. (i.e. `cd .. && dockerized tree dir`)
+- Commands will not persist changes outside the working directory, unless specifically supported by `dockerized`.
+- 
