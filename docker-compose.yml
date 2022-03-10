@@ -1,11 +1,17 @@
 version: "3"
 
 services:
-  alpine:
-    image: "alpine:latest"
+  _: &default
+    image: ""
+    profiles: [ dockerized ]
+    stop_grace_period: 1s
+    tty: true
+    stdin_open: true
   jq:
+    <<: *default
     image: stedolan/jq
   node: &node
+    <<: *default
     image: "node:${NODE_VERSION}"
     entrypoint: [ "node" ]
     volumes:
@@ -18,6 +24,7 @@ services:
     <<: *node
     entrypoint: [ "npx" ]
   protoc:
+    <<: *default
     image: "protoc:${PROTOC_VERSION}"
     build:
       context: apps/protoc
@@ -29,6 +36,7 @@ services:
     <<: *node
     entrypoint: [ "npx", "--package=typescript@${TSC_VERSION}", "tsc" ]
   s3cmd:
+    <<: *default
     build:
       context: apps/s3cmd
       args:
@@ -41,11 +49,19 @@ services:
     volumes:
       - "${HOME}:/root"
   swagger-codegen:
+    <<: *default
     image: "swaggerapi/swagger-codegen-cli-v3:${SWAGGER_CODEGEN_VERSION}"
   vue:
     <<: *node
     entrypoint: [ "npx", "--package=@vue/cli@${VUE_VERSION}", "vue" ]
-    stop_grace_period: 0s
+  wget:
+    <<: *default
+    image: "${DEFAULT_BASE}"
+    entrypoint: [ "wget" ]
+  http:
+    <<: *default
+    image: "alpine/httpie:${HTTPIE_VERSION}"
+    entrypoint: [ "http" ]
 volumes:
   node_modules: { }
   npm: { }
