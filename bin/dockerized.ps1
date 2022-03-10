@@ -9,7 +9,7 @@ $Env:HOME = "${HOME}"
 $DOCKERIZED_OPT_VERBOSE = $false
 
 # RUNTIME VARIABLES
-$_PWD_PATH = Get-Item -Path $HOST_PWD
+$_PWD_PATH = Get-Item -Path $PWD
 $HOST_PWD = "${PWD}"
 $HOST_DIR_NAME = If ($_PWD_PATH.Root.FullName -eq $_PWD_PATH.FullName) {""} Else {$_PWD_PATH.Name}
 $SERVICE_ARGS = ""
