@@ -20,6 +20,7 @@ dockerized <command>
 - Docker
   - helm
 - SDKs
+  - go
   - [dotnet](apps/dotnet/Readme.md)
 - Node
   - node

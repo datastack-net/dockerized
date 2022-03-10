@@ -40,6 +40,10 @@ services:
     <<: *default
     image: "mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION}-alpine"
     entrypoint: [ "dotnet" ]
+  go:
+    <<: *default
+    image: "golang:${GO_VERSION}"
+    entrypoint: [ "go" ]
   helm:
     <<: *default
     image: "alpine/helm:${HELM_VERSION}"
