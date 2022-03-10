@@ -39,6 +39,18 @@ services:
         PROTOC_VERSION: "${PROTOC_VERSION}"
         PROTOC_BASE: "${PROTOC_BASE}"
         PROTOC_ARCH: "${PROTOC_ARCH}"
+  python: &python
+    <<: *default
+    image: "python:${PYTHON_VERSION}"
+    entrypoint: [ "python" ]
+    volumes:
+      - "python_modules:/usr/local/lib/python${PYTHON_VERSION}/site-packages"
+  python2:
+    <<: *default
+    image: "python:${PYTHON2_VERSION}"
+  pip:
+    <<: *python
+    entrypoint: [ "pip" ]
   tsc:
     <<: *node
     entrypoint: [ "npx", "--package=typescript@${TSC_VERSION}", "tsc" ]
@@ -71,3 +83,4 @@ services:
 volumes:
   node_modules: { }
   npm: { }
+  python_modules: {}
