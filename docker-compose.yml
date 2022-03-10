@@ -7,6 +7,10 @@ services:
     stop_grace_period: 1s
     tty: true
     stdin_open: true
+  http:
+    <<: *default
+    image: "alpine/httpie:${HTTPIE_VERSION}"
+    entrypoint: [ "http" ]
   jq:
     <<: *default
     image: stedolan/jq
@@ -58,10 +62,9 @@ services:
     <<: *default
     image: "${DEFAULT_BASE}"
     entrypoint: [ "wget" ]
-  http:
-    <<: *default
-    image: "alpine/httpie:${HTTPIE_VERSION}"
-    entrypoint: [ "http" ]
+  yarn:
+    <<: *node
+    entrypoint: [ "yarn" ]
 volumes:
   node_modules: { }
   npm: { }

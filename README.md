@@ -53,6 +53,7 @@ Coming soon.
 
 ## Supported commands
 
+- http
 - jq
 - node
 - npm
@@ -62,3 +63,5 @@ Coming soon.
 - s3cmd
 - swagger-codegen
 - vue
+- wget
+- yarn
