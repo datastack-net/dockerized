@@ -1,7 +1,7 @@
-# Dockerized s3cmd
+# dockerized aws (aws-cli)
 
 ```shell
-dockerized s3cmd
+dockerized aws
 ```
 
 ## Setup
@@ -11,15 +11,10 @@ dockerized s3cmd
   AWS_ACCESS_KEY_ID=****
   AWS_SECRET_ACCESS_KEY=****
   ```
-- Configure s3cmd
-  ```shell
-  dockerized s3cmd --configure
-  ```
-- Configuration will be saved to `~/.dockerized/apps/s3cmd/.s3cfg`
 
 ## Usage
 
 ```shell
-dockerized s3cmd --help
-dockerized s3cmd ls
+dockerized aws s3 ls
+dockerized aws s3 --endpoint-url=https://ams3.digitaloceanspaces.com ls
 ```

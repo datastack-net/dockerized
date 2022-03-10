@@ -15,6 +15,14 @@ services:
       args:
         ALPINE_VERSION: "${ALPINE_VERSION}"
         ALPINE_PACKAGES: "tree"
+  aws:
+    <<: *default
+    image: "amazon/aws-cli:${AWS_VERSION}"
+    volumes:
+      - "${HOME}/.aws:/root/.aws"
+    environment:
+      AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID}"
+      AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY}"
   doctl:
     <<: *default
     image: "doctl:${DOCTL_VERSION}"
