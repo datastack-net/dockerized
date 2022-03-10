@@ -7,6 +7,18 @@ services:
     stop_grace_period: 1s
     tty: true
     stdin_open: true
+  alpine: &alpine
+    <<: *default
+    image: "alpine_${ALPINE_VERSION}"
+    build:
+      context: apps/alpine
+      args:
+        ALPINE_VERSION: "${ALPINE_VERSION}"
+        ALPINE_PACKAGES: "tree"
+  dotnet:
+    <<: *default
+    image: "mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION}-alpine"
+    entrypoint: [ "dotnet" ]
   helm:
     <<: *default
     image: "alpine/helm:${HELM_VERSION}"
@@ -51,9 +63,6 @@ services:
   pip:
     <<: *python
     entrypoint: [ "pip" ]
-  tsc:
-    <<: *node
-    entrypoint: [ "npx", "--package=typescript@${TSC_VERSION}", "tsc" ]
   s3cmd:
     <<: *default
     build:
@@ -70,6 +79,12 @@ services:
   swagger-codegen:
     <<: *default
     image: "swaggerapi/swagger-codegen-cli-v3:${SWAGGER_CODEGEN_VERSION}"
+  tree:
+    <<: *alpine
+    entrypoint: [ "tree" ]
+  tsc:
+    <<: *node
+    entrypoint: [ "npx", "--package=typescript@${TSC_VERSION}", "tsc" ]
   vue:
     <<: *node
     entrypoint: [ "npx", "--package=@vue/cli@${VUE_VERSION}", "vue" ]
@@ -83,4 +98,4 @@ services:
 volumes:
   node_modules: { }
   npm: { }
-  python_modules: {}
+  python_modules: { }

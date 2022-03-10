@@ -1,0 +1,5 @@
+ARG ALPINE_VERSION=""
+FROM alpine:$ALPINE_VERSION
+ARG ALPINE_PACKAGES=""
+# Install packages
+RUN apk add --no-cache $ALPINE_PACKAGES

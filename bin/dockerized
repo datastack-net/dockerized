@@ -36,6 +36,15 @@ SERVICE_ARGS="$@"
 
 function dotenv() {
   FILE="$1"
+
+  if [ ! -f "$FILE" ]; then
+    return
+  fi
+
+  if [ "$DOCKERIZED_OPT_VERBOSE" ]; then
+    echo -e "\033[0;32mLoading environment from $FILE\033[0m"
+  fi
+
   set -o allexport
   source "$FILE"
   set +o allexport
@@ -55,12 +64,8 @@ function findUp() {
 
 function loadEnvironment() {
   local CUSTOM_ENV_FILE=$(findUp "$DOCKERIZED_ENV_FILE_NAME" "$HOST_PWD")
-  if [ -f "$CUSTOM_ENV_FILE" ]; then
-    if [ "$DOCKERIZED_OPT_VERBOSE" ]; then
-      echo -e "\033[0;32mLoading environment from $CUSTOM_ENV_FILE\033[0m"
-    fi
-    dotenv "$CUSTOM_ENV_FILE"
-  fi
+  dotenv "$HOME/$DOCKERIZED_ENV_FILE_NAME"
+  dotenv "$CUSTOM_ENV_FILE"
 }
 
 loadEnvironment

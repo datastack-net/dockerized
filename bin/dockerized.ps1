@@ -30,7 +30,26 @@ function DotEnv
         [Parameter(Mandatory = $true)]
         $file
     )
-    $lines = (Get-Content $file).Split("\n")
+
+    # exit if file is not found
+    if ($file -eq "" -or !(Test-Path $file))
+    {
+        return
+    }
+
+    if ($DOCKERIZED_OPT_VERBOSE)
+    {
+        Write-Host "Loading environment from $file" -ForegroundColor Green
+    }
+
+    $content = (Get-Content $file)
+
+    if ($content.Length -eq 0)
+    {
+        return
+    }
+
+    $lines = $content.Split("\n")
     foreach ($line in $lines)
     {
         if (! $line.StartsWith("#"))
@@ -65,14 +84,8 @@ function FindUp
 function LoadEnvironment
 {
     $envFile = FindUp $DOCKERIZED_ENV_FILE_NAME $PWD
-    if ($envFile -ne "")
-    {
-        if ($DOCKERIZED_OPT_VERBOSE)
-        {
-            Write-Host "Loading environment from $envFile" -ForegroundColor Green
-        }
-        DotEnv $envFile
-    }
+    DotEnv "${HOME}\${DOCKERIZED_ENV_FILE_NAME}"
+    DotEnv $envFile
 }
 
 LoadEnvironment
