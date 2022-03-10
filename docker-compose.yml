@@ -1,12 +1,14 @@
 version: "3"
 
 services:
-  _: &default
+  _:
+    &default
     image: ""
     stop_grace_period: 1s
     tty: true
     stdin_open: true
-  alpine: &alpine
+  alpine:
+    &alpine
     <<: *default
     image: "alpine_${ALPINE_VERSION}"
     build:
@@ -53,13 +55,14 @@ services:
   jq:
     <<: *default
     image: stedolan/jq
-  node: &node
+  node:
+    &node
     <<: *default
     image: "node:${NODE_VERSION}"
     entrypoint: [ "node" ]
     volumes:
       - "node_modules:/usr/local/lib/node_modules"
-      - "npm:/root/.npm"
+      - "${HOME}/.dockerized/apps/node:/root"
   npm:
     <<: *node
     entrypoint: [ "npm" ]
@@ -75,7 +78,8 @@ services:
         PROTOC_VERSION: "${PROTOC_VERSION}"
         PROTOC_BASE: "${PROTOC_BASE}"
         PROTOC_ARCH: "${PROTOC_ARCH}"
-  python: &python
+  python:
+    &python
     <<: *default
     image: "python:${PYTHON_VERSION}"
     entrypoint: [ "python" ]
@@ -120,6 +124,5 @@ services:
     <<: *node
     entrypoint: [ "yarn" ]
 volumes:
-  node_modules: { }
-  npm: { }
-  python_modules: { }
+  node_modules: {}
+  python_modules: {}
