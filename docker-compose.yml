@@ -49,11 +49,14 @@ services:
       dockerfile: ../alpine/Dockerfile
       args:
         ALPINE_VERSION: "${ALPINE_VERSION}"
-        ALPINE_PACKAGES: "git"
+        ALPINE_PACKAGES: "git openssh-client"
         BUILD_SCRIPT_ARGS: "${GH_VERSION}"
-    entrypoint: [ "/gh/bin/gh" ]
+    entrypoint: [ "/init.sh", "/gh/bin/gh" ]
     volumes:
       - "${HOME}/.dockerized/apps/gh:/root"
+      - "./apps/gh/init.sh:/init.sh"
+    environment:
+      BROWSER: "echo"
   go:
     <<: *default
     image: "golang:${GO_VERSION}"
