@@ -14,6 +14,7 @@ HOST_PWD=
 HOST_HOSTNAME=$(hostname)
 HOST_DIR_NAME=$(basename "$PWD")
 HOST_DIR_NAME=${HOST_DIR_NAME%/}
+SERVICE_NAME=
 SERVICE_ARGS=
 
 # PARSE OPTIONS
@@ -32,6 +33,7 @@ CYGWIN* | MINGW32* | MSYS* | MINGW*)
 esac
 
 SERVICE_ARGS="$@"
+SERVICE_NAME="$1"
 
 function dotenv() {
   FILE="$1"
@@ -68,6 +70,23 @@ function loadEnvironment() {
 }
 
 loadEnvironment
+
+SERVICE_EXISTS=$(docker-compose -f "$DOCKERIZED_COMPOSE_FILE" config --services | grep -w $SERVICE_NAME)
+
+if [ -z "$SERVICE_EXISTS" ]; then
+  echo -e "\033[0;31mCommand $1 is not fully supported. Trying r.j3ss.co/$SERVICE_NAME instead." >&2
+  echo -e "See https://github.com/jessfraz/dockerfiles/blob/master/README.md for more information.\033[0m" >&2
+  shift
+  docker \
+    run --rm -it \
+    -w "//host/$HOST_DIR_NAME" \
+    -v "$HOST_PWD://host/$HOST_DIR_NAME" \
+    -e "HOST_HOSTNAME=$HOST_HOSTNAME" \
+    r.j3ss.co/$SERVICE_NAME \
+    "$@"
+
+  exit $?
+fi
 
 docker-compose \
  --env-file "$DOCKERIZED_ENV_FILE" \
