@@ -15,6 +15,8 @@ dockerized <command>
   - protoc
   - swagger-codegen
   - wget
+- Git
+  - [gh](apps/gh/Readme.md) 
 - Cloud
   - [aws](apps/aws/Readme.md) 
   - [doctl](apps/doctl/Readme.md)

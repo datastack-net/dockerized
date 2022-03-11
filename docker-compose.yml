@@ -41,6 +41,22 @@ services:
     <<: *default
     image: "mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION}-alpine"
     entrypoint: [ "dotnet" ]
+  gh:
+    <<: *default
+    image: "gh:${GH_VERSION}"
+    build:
+      context: apps/gh
+      dockerfile: ../alpine/Dockerfile
+      args:
+        ALPINE_VERSION: "${ALPINE_VERSION}"
+        ALPINE_PACKAGES: "git openssh-client"
+        BUILD_SCRIPT_ARGS: "${GH_VERSION}"
+    entrypoint: [ "/init.sh", "/gh/bin/gh" ]
+    volumes:
+      - "${HOME}/.dockerized/apps/gh:/root"
+      - "./apps/gh/init.sh:/init.sh"
+    environment:
+      BROWSER: "echo"
   go:
     <<: *default
     image: "golang:${GO_VERSION}"
