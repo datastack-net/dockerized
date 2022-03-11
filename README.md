@@ -9,6 +9,8 @@ dockerized <command>
 
 ## Supported commands
 
+> If your favorite command is not included, it can be added very easily. See [Add a command](DEV.md).
+
 - Web Development
   - http
   - jq
