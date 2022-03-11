@@ -12,7 +12,7 @@ Dockerized gh supports SSH out of the box, using its own SSH key.
 dockerized gh auth login
 ```
 - Protocol: SSH
-- SSH key: `/root/.ssh/dockerized.pub`  
-  > This key is generated for you, you can view it at `~/.dockerized/apps/gh/.ssh/dockerized.pub`
+- SSH key: `/root/.ssh/id_rsa.pub`  
+  > This key is generated for you, you can view it at `~/.dockerized/apps/gh/.ssh/id_rsa.pub`
 - Authenticate using Web Browser
   > As `gh` cannot access your host machine's browser, please open the urls by (Ctrl-) clicking them or copy-pasting them into your browser.
