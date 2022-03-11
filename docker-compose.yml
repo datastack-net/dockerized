@@ -49,8 +49,11 @@ services:
       dockerfile: ../alpine/Dockerfile
       args:
         ALPINE_VERSION: "${ALPINE_VERSION}"
+        ALPINE_PACKAGES: "git"
         BUILD_SCRIPT_ARGS: "${GH_VERSION}"
     entrypoint: [ "/gh/bin/gh" ]
+    volumes:
+      - "${HOME}/.dockerized/apps/gh:/root"
   go:
     <<: *default
     image: "golang:${GO_VERSION}"
