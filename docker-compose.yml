@@ -57,6 +57,15 @@ services:
       - "./apps/gh/init.sh:/init.sh"
     environment:
       BROWSER: "echo"
+  git:
+    <<: *default
+    image: "git"
+    build:
+      context: apps/alpine
+      args:
+        ALPINE_VERSION: "${ALPINE_VERSION}"
+        ALPINE_PACKAGES: "git"
+    entrypoint: [ "git" ]
   go:
     <<: *default
     image: "golang:${GO_VERSION}"
@@ -85,6 +94,9 @@ services:
   npx:
     <<: *node
     entrypoint: [ "npx" ]
+  php:
+    <<: *default
+    image: "php:${PHP_VERSION}"
   protoc:
     <<: *default
     image: "protoc:${PROTOC_VERSION}"
