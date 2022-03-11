@@ -9,7 +9,8 @@ dockerized <command>
 
 ## Supported commands
 
-> If your favorite command is not included, it can be added very easily. See [Add a command](DEV.md).
+> If your favorite command is not included, it can be added very easily. See [Add a command](DEV.md).  
+> Dockerized will also fall back to over 150 commands defined in [jessfraz/dockerfiles](https://github.com/jessfraz/dockerfiles).
 
 - Web Development
   - http
