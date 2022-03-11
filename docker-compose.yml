@@ -64,7 +64,7 @@ services:
       context: apps/alpine
       args:
         ALPINE_VERSION: "${ALPINE_VERSION}"
-        ALPINE_PACKAGES: "git"
+        ALPINE_PACKAGES: "git openssh-client"
     entrypoint: [ "git" ]
   go:
     <<: *default
