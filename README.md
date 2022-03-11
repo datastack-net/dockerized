@@ -18,6 +18,7 @@ dockerized <command>
   - swagger-codegen
   - wget
 - Git
+  - git 
   - [gh](apps/gh/Readme.md) 
 - Cloud
   - [aws](apps/aws/Readme.md) 
@@ -25,20 +26,20 @@ dockerized <command>
   - [s3cmd](apps/s3cmd/Readme.md)
 - Docker
   - helm
-- SDKs
-  - go
+- Languages & SDKs
   - [dotnet](apps/dotnet/Readme.md)
-- Node
+  - go
+  - php
   - node
-  - [npm](apps/npm/Readme.md)
-  - npx
-  - tsc
-  - vue
-  - yarn
-- Python
-  - pip
+    - [npm](apps/npm/Readme.md)
+    - npx
+    - tsc
+    - vue
+    - yarn
   - python
-  - python2
+    - pip
+    - python
+    - python2
 - Unix
   - tree
 
