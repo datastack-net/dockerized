@@ -47,9 +47,16 @@ dockerized <command>
 
 ## Installation
 
-- Install [Docker](https://docs.docker.com/get-docker/)
-- Clone this repo anywhere: `git clone git@github.com:datastack-net/dockerized.git`
+- Make sure [Git](https://git-scm.com/downloads), and [Docker](https://docs.docker.com/get-docker/) has installed on your machine.
+- Clone this repo anywhere by using 
+  ```shell
+  git clone git@github.com:datastack-net/dockerized.git
+  ```
 - Add the `bin` directory to your path
+  ```bash
+  # In the linux systems
+  export PATH=$PATH:`pwd`/bin
+  ```
 
 ## Usage
 
