@@ -119,6 +119,10 @@ services:
   pip:
     <<: *python
     entrypoint: [ "pip" ]
+  ruby:
+    <<: *default
+    image: "ruby:${RUBY_VERSION}"
+    entrypoint: [ "ruby" ]
   s3cmd:
     <<: *default
     build:
