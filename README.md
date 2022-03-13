@@ -41,22 +41,26 @@ dockerized <command>
     - pip
     - python
     - python2
+  - ruby
 - Unix
   - tree
 
 
 ## Installation
 
-- Make sure [Git](https://git-scm.com/downloads), and [Docker](https://docs.docker.com/get-docker/) has installed on your machine.
-- Clone this repo anywhere by using 
+- Make sure [Docker](https://docs.docker.com/get-docker/) is installed on your machine.
+- Clone this repo anywhere. For example into your home directory:
   ```shell
-  git clone git@github.com:datastack-net/dockerized.git
+  docker run --rm -it alpine/git clone https://github.com/datastack-net/dockerized.git
   ```
-- Add the `bin` directory to your path
-  ```bash
-  # In the linux systems
-  export PATH=$PATH:`pwd`/bin
-  ```
+- Add the `dockerized/bin` directory to your `PATH`:
+  - Linux / MacOS:
+    ```bash
+    export PATH="$PATH:$HOME/dockerized/bin"
+    ```
+  - Windows
+    > See: [How to add a folder to `PATH` environment variable in Windows 10](https://stackoverflow.com/questions/44272416)
+
 
 ## Usage
 
