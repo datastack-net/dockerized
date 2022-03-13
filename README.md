@@ -153,4 +153,3 @@ As an alternative, you can create a `dockerized.env` file in the current directo
 - It's not currently possible to access parent directories. (i.e. `dockerized tree ../dir` will not work)
   - Workaround: Execute the command from the parent directory. (i.e. `cd .. && dockerized tree dir`)
 - Commands will not persist changes outside the working directory, unless specifically supported by `dockerized`.
-- 
