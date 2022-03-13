@@ -48,10 +48,10 @@ dockerized <command>
 
 ## Installation
 
-- Make sure [Docker](https://docs.docker.com/get-docker/) is installed on your machine.
+- Make sure [Git](https://git-scm.com/downloads) and [Docker](https://docs.docker.com/get-docker/) are installed on your machine.
 - Clone this repo anywhere. For example into your home directory:
   ```shell
-  docker run --rm -it alpine/git clone https://github.com/datastack-net/dockerized.git
+  git clone https://github.com/datastack-net/dockerized.git
   ```
 - Add the `dockerized/bin` directory to your `PATH`:
   - Linux / MacOS:
