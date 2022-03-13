@@ -36,7 +36,6 @@ services:
     entrypoint: [ "doctl" ]
     volumes:
       - "${HOME}/.dockerized/apps/doctl:/root"
-
   dotnet:
     <<: *default
     image: "mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION}-alpine"
@@ -59,12 +58,7 @@ services:
       BROWSER: "echo"
   git:
     <<: *default
-    image: "git"
-    build:
-      context: apps/alpine
-      args:
-        ALPINE_VERSION: "${ALPINE_VERSION}"
-        ALPINE_PACKAGES: "git openssh-client"
+    image: "alpine/git:v${GIT_VERSION}"
     entrypoint: [ "git" ]
   go:
     <<: *default
