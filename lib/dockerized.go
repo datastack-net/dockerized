@@ -107,8 +107,6 @@ func main() {
 
 	homeDir, _ := os.UserHomeDir()
 
-	// find the first .env file above the current directory
-
 	userGlobalDockerizedEnvFile := filepath.Join(homeDir, dockerizedEnvFileName)
 	localDockerizedEnvFile, err := findLocalEnvFile(hostCwd)
 
@@ -119,10 +117,6 @@ func main() {
 	}
 	if err == nil && !contains(envFiles, localDockerizedEnvFile) {
 		envFiles = append(envFiles, localDockerizedEnvFile)
-		//if optionVerbose {
-		//	fmt.Println("Loading dockerized.env from", localDockerizedEnvFile)
-		//}
-		//godotenv.Load(localDockerizedEnvFile)
 	}
 
 	if optionVerbose {
@@ -135,6 +129,8 @@ func main() {
 	for i := len(envFiles) - 1; i >= 0; i-- {
 		godotenv.Load(envFiles[i])
 	}
+
+	dockerCompose(composeRunArgs)
 }
 
 func help(dockerComposeFilePath string) {
