@@ -7,6 +7,14 @@ services:
     stop_grace_period: 1s
     tty: true
     stdin_open: true
+  _compile:
+    image: golang
+    entrypoint: go
+    command: "build -o /build/ lib/dockerized.go"
+    working_dir: /src
+    volumes:
+      - ".:/src"
+      - "./build:/build"
   alpine:
     &alpine
     <<: *default
