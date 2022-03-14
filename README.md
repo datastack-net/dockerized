@@ -20,19 +20,19 @@ dockerized <command>
   - wget
 - Git
   - git 
-  - [gh](apps/gh/Readme.md) 
+  - [gh](apps/gh/README.md) 
 - Cloud
-  - [aws](apps/aws/Readme.md) 
-  - [doctl](apps/doctl/Readme.md)
-  - [s3cmd](apps/s3cmd/Readme.md)
+  - [aws](apps/aws/README.md) 
+  - [doctl](apps/doctl/README.md)
+  - [s3cmd](apps/s3cmd/README.md)
 - Docker
   - helm
 - Languages & SDKs
-  - [dotnet](apps/dotnet/Readme.md)
+  - [dotnet](apps/dotnet/README.md)
   - go
   - php
   - node
-    - [npm](apps/npm/Readme.md)
+    - [npm](apps/npm/README.md)
     - npx
     - tsc
     - vue
