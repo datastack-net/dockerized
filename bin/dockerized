@@ -38,42 +38,6 @@ case "$(uname -m)" in
     ;;
 esac
 
-function dotenv() {
-  FILE="$1"
-
-  if [ ! -f "$FILE" ]; then
-    return
-  fi
-
-  if [ "$DOCKERIZED_OPT_VERBOSE" ]; then
-    echo -e "\033[0;32mLoading environment from $FILE\033[0m"
-  fi
-
-  set -o allexport
-  source "$FILE"
-  set +o allexport
-}
-
-function findUp() {
-  local FILE="$1"
-  local DIR="$2"
-  while [ ! -f "$DIR/$FILE" ]; do
-    DIR=$(dirname "$DIR")
-    if [ "$(realpath "$DIR")" == "$(realpath "$(dirname "$DIR")")" ]; then
-      return 1
-    fi
-  done
-  echo "$DIR/$FILE"
-}
-
-function loadEnvironment() {
-  local CUSTOM_ENV_FILE=$(findUp "$DOCKERIZED_ENV_FILE_NAME" "$HOST_PWD")
-  dotenv "$HOME/$DOCKERIZED_ENV_FILE_NAME"
-  dotenv "$CUSTOM_ENV_FILE"
-}
-
-loadEnvironment
-
 DOCKERIZED_COMPILE=
 if [ "$1" == "--compile" ]; then
   DOCKERIZED_COMPILE=1
@@ -81,7 +45,7 @@ if [ "$1" == "--compile" ]; then
 fi
 
 if [ $DOCKERIZED_COMPILE ] || [ ! -f "$DOCKERIZED_ROOT/$DOCKERIZED_BINARY" ]; then
-  echo "$DOCKERIZED_ROOT/build/$DOCKERIZED_BINARY"
+  echo "Compiling dockerized..." > /dev/stderr
   docker-compose \
    -f "$DOCKERIZED_COMPOSE_FILE" \
    run --rm \
