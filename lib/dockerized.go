@@ -106,6 +106,9 @@ func main() {
 	// fmt.Printf("composeRunArgs: %v\n", composeRunArgs)
 
 	homeDir, _ := os.UserHomeDir()
+	if os.Getenv("HOME") == "" {
+		os.Setenv("HOME", homeDir)
+	}
 
 	userGlobalDockerizedEnvFile := filepath.Join(homeDir, dockerizedEnvFileName)
 	localDockerizedEnvFile, err := findLocalEnvFile(hostCwd)
