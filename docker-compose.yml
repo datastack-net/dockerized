@@ -15,6 +15,7 @@ services:
     volumes:
       - ".:/src"
       - "./build:/build"
+      - "dockerized_compile:/go/pkg"
   alpine:
     &alpine
     <<: *default
@@ -160,3 +161,5 @@ services:
 volumes:
   node_modules: {}
   python_modules: {}
+  pip_cache: {}
+  dockerized_compile: {}
