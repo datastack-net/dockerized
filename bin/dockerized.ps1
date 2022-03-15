@@ -29,13 +29,13 @@ if ($args[0] -eq "--compile") {
 if (($DOCKERIZED_COMPILE -eq $true) -Or !(Test-Path "$DOCKERIZED_BINARY"))
 {
     Write-StdErr "Compiling dockerized..."
-      docker run `
+    docker run `
         --rm `
         --entrypoint=go `
         -e "GOOS=windows" `
         -v "${DOCKERIZED_ROOT}:/src" `
-        -v "${DOCKERIZED_ROOT}/build:/build" `
-        -v "${DOCKERIZED_ROOT}/.cache:/go/pkg" `
+        -v "${DOCKERIZED_ROOT}\build:/build" `
+        -v "${DOCKERIZED_ROOT}\.cache:/go/pkg" `
         -w /src `
         "golang:1.17.8" `
         build -o /build/ lib/dockerized.go
