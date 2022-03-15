@@ -64,6 +64,7 @@ if [ $DOCKERIZED_COMPILE ] || [ ! -f "$DOCKERIZED_BINARY" ]; then
       _compile
   else
     echo "running docker compose..." >/dev/stderr
+    docker compose --help
     docker compose \
       run \
       -f "$DOCKERIZED_COMPOSE_FILE" \
