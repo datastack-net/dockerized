@@ -20,7 +20,7 @@ jobs:
       - name: Checkout Dockerized
         uses: actions/checkout@v2
       - name: "dockerized --help"
-        shell: ${{ matrix.shell }}
+        shell: ${{ runner.shell }}
         run: bin/dockerized --help
       - name: "dockerized go version"
         run:  bin/dockerized go version
