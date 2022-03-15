@@ -3,7 +3,7 @@ version: "3"
 services:
   _:
     &default
-    image: ""
+    image: "_"
     stop_grace_period: 1s
     tty: true
     stdin_open: true
