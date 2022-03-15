@@ -5,11 +5,6 @@ DOCKERIZED_ROOT=$(dirname "$SCRIPT_DIR")
 DOCKERIZED_COMPOSE_FILE="${DOCKERIZED_ROOT}/docker-compose.yml"
 DOCKERIZED_BINARY="${DOCKERIZED_ROOT}/build/dockerized"
 
-if which PowerShell >/dev/null 2>&1; then
-  "$DOCKERIZED_ROOT/bin/dockerized.bat" "$@"
-  exit $?
-fi
-
 # region COMPILE DOCKERIZED
 DOCKERIZED_COMPILE=
 if [ "$1" == "--compile" ]; then
@@ -18,6 +13,10 @@ if [ "$1" == "--compile" ]; then
 fi
 
 case "$OSTYPE" in
+msys | cygwin)
+  GOOS=windows
+  PWD_ARGS="-W"
+  ;;
 darwin*)
   GOOS=darwin
   ;;
@@ -56,13 +55,13 @@ if [ $DOCKERIZED_COMPILE ] || [ ! -f "$DOCKERIZED_BINARY" ]; then
   echo "Compiling dockerized..." >&2
   (
     cd "$DOCKERIZED_ROOT"
-    docker run \
+    echo docker run \
       --rm \
       --entrypoint=go \
       -e "GOOS=${GOOS}" \
-      -v "${PWD}:/src" \
-      -v "${PWD}/build:/build" \
-      -v "${PWD}/.cache:/go/pkg" \
+      -v "$(pwd $PWD_ARGS):/src" \
+      -v "$(pwd $PWD_ARGS)/build:/build" \
+      -v "$(pwd $PWD_ARGS)/.cache:/go/pkg" \
       -w //src \
       "golang:1.17.8" \
       build -o //build/ lib/dockerized.go
