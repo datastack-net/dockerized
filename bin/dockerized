@@ -55,13 +55,15 @@ esac
 if [ $DOCKERIZED_COMPILE ] || [ ! -f "$DOCKERIZED_BINARY" ]; then
   echo "Compiling dockerized..." >/dev/stderr
 
-  if command -v docker-compose >/dev/null 2>&1; then
+  if which docker-compose >/dev/null 2>&1; then
+    echo "running docker-compose..." >/dev/stderr
     docker-compose \
       -f "$DOCKERIZED_COMPOSE_FILE" \
       run --rm \
       -e "GOOS=$GOOS" \
       _compile
   else
+    echo "running docker compose..." >/dev/stderr
     docker compose \
       run \
       -f "$DOCKERIZED_COMPOSE_FILE" \
