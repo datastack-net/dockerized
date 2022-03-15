@@ -7,6 +7,9 @@ jobs:
       - name: Install docker for mac
         run: |
           brew install docker
+      - name: Start docker
+        run: |
+          docker ps
       - run: brew install docker-compose
 #      - name: Cache Docker Image
 #        uses: actions/cache@v1
