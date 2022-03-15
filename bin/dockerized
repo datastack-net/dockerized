@@ -16,25 +16,26 @@ msys | cygwin | linux-gnu)
   GOOS=windows
   DOCKERIZED_BINARY="${DOCKERIZED_BINARY}.exe"
   ;;
-#openbsd*)
-#  GOOS=openbsd
-#  ;;
-#freebsd*)
-#  GOOS=freebsd
-#  ;;
-#darwin*)
-#  GOOS=darwin
-#  ;;
-#netbsd*)
-#  GOOS=netbsd
-#  ;;
-#solaris*)
-#  GOOS=solaris
-#  ;;
-#*)
-#  GOOS=linux
-#  ;;
-
+# operating systems below not tested.
+openbsd*)
+  GOOS=openbsd
+  ;;
+freebsd*)
+  GOOS=freebsd
+  ;;
+darwin*)
+  GOOS=darwin
+  ;;
+netbsd*)
+  GOOS=netbsd
+  ;;
+solaris*)
+  GOOS=solaris
+  ;;
+# default
+*)
+  GOOS=linux
+  ;;
 esac
 
 case "$(uname -m)" in
