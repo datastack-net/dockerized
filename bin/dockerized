@@ -41,13 +41,6 @@ solaris*)
   ;;
 esac
 
-# region COMPILE DOCKERIZED
-DOCKERIZED_COMPILE=
-if [ "$1" == "--compile" ]; then
-  DOCKERIZED_COMPILE=1
-  shift
-fi
-
 case "$(uname -m)" in
 x86_64)
   GOARCH=amd64
