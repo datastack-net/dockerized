@@ -7,21 +7,26 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-20.04, windows-2022, macos-10.15]
-        shell: [bash]
-        include:
-          - os: windows-2022
-            shell: [pwsh, cmd]
       max-parallel: 1
       fail-fast: true
     steps:
-      - if:  runner.os == 'macOS'
-        name: Install Docker
+      # region mac
+      - name: Install Docker
+        if:  runner.os == 'macOS'
         uses: docker-practice/actions-setup-docker@master
+      # endregion
+
       - name: Checkout Dockerized
         uses: actions/checkout@v2
-      - name: "dockerized --help"
-        shell: ${{ runner.shell }}
-        run: bin/dockerized --help
-      - name: "dockerized go version"
-        shell: ${{ runner.shell }}
-        run:  bin/dockerized go version
+
+      # region windows
+      - if: runner.os == 'windows'
+        shell: bash
+        run: bin/dockerized --compile
+      - if: runner.os == 'windows'
+        shell: cmd
+        run: bin/dockerized --compile
+      # endregion
+
+      - run: bin/dockerized --compile --help
+      - run: bin/dockerized go version
