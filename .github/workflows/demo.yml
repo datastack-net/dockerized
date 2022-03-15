@@ -6,7 +6,7 @@ jobs:
     steps:
       - name: Install docker for mac
         run: |
-          brew cask install docker
+          brew install docker
 #      - name: Cache Docker Image
 #        uses: actions/cache@v1
 #        id: cache-docker-image
