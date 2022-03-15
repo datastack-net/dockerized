@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # CONSTANTS
-DOCKERIZED_ROOT=$(dirname "$BASH_SOURCE")/..
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
+DOCKERIZED_ROOT=$(dirname "$SCRIPT_DIR")
 DOCKERIZED_COMPOSE_FILE="${DOCKERIZED_ROOT}/docker-compose.yml"
 DOCKERIZED_BINARY="${DOCKERIZED_ROOT}/build/dockerized"
 
