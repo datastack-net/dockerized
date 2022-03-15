@@ -63,8 +63,8 @@ if [ $DOCKERIZED_COMPILE ] || [ ! -f "$DOCKERIZED_BINARY" ]; then
       _compile
   else
     docker compose \
-      -f "$DOCKERIZED_COMPOSE_FILE" \
       run \
+      -f "$DOCKERIZED_COMPOSE_FILE" \
       --rm \
       -e "GOOS=$GOOS" \
       _compile
