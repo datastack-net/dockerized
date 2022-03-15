@@ -16,7 +16,7 @@ services:
 - `image: golang:latest` specifies the docker image to use. You can find these on [Docker Hub](https://hub.docker.com/).
 - `entrypoint` is the command to run when the service starts.
 
-That's it. Now you can run `dockerize go`.
+That's it. Now you can run `dockerized go`.
 
 ## Configurable version
 
@@ -25,7 +25,7 @@ Let's make sure users can choose the version of the command.
 Check the current version of the command. Often with `<command> --version` or `<command> version`.
 
 ```shell
-dockerize go version
+dockerized go version
 > go version go1.17.8 linux/amd64
 ```
 
@@ -38,7 +38,7 @@ Replace the version tag `latest` with `${GO_VERSION}`:
     entrypoint: [ "go" ]
 ```
 
-Set the global default version in [dockerized.env](dockerized.env):
+Set the global default version in [.env](.env):
 
 ```dotenv
 GO_VERSION=1.17.8
@@ -50,13 +50,13 @@ GO_VERSION=1.17.8
 
 ```bash
 # Create a branch:
-dockerize git checkout -b fork
+dockerized git checkout -b fork
 
 # Commit your changes:
-dockerize git commit -am "Add go"
+dockerized git commit -am "Add go"
 
 # Authenticate to github:
-dockerize gh auth login
+dockerized gh auth login
 ```
 
 - Choose SSH, and Browser authentication
@@ -64,24 +64,5 @@ dockerize gh auth login
 
 ```bash
 # Create a PR:
-dockerize gh pr create
+dockerized gh pr create
 ```
-
-
-----
-aix 	✅
-android 	✅
-darwin 	✅
-dragonfly 	✅
-freebsd 	✅
-hurd 	
-illumos 	✅
-ios 	✅
-js 	✅
-linux 	✅
-nacl 	
-netbsd 	✅
-openbsd 	✅
-plan9 	✅
-solaris 	✅
-windows
