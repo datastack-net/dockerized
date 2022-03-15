@@ -19,14 +19,19 @@ jobs:
       - name: Checkout Dockerized
         uses: actions/checkout@v2
 
+      - run: bin/dockerized --compile --help
+        shell: bash
+
+      - run: bin/dockerized go version
+        shell: bash
+
       # region windows
       - if: runner.os == 'windows'
-        shell: bash
+        name: "dockerized --compile (cmd)"
+        shell: cmd
         run: bin/dockerized --compile
       - if: runner.os == 'windows'
+        name: "dockerized --compile (powershell)"
         shell: cmd
         run: bin/dockerized --compile
       # endregion
-
-      - run: bin/dockerized --compile --help
-      - run: bin/dockerized go version
