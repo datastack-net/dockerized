@@ -55,7 +55,7 @@ if [ $DOCKERIZED_COMPILE ] || [ ! -f "$DOCKERIZED_BINARY" ]; then
   echo "Compiling dockerized..." >&2
   (
     cd "$DOCKERIZED_ROOT"
-    echo docker run \
+    docker run \
       --rm \
       --entrypoint=go \
       -e "GOOS=${GOOS}" \
