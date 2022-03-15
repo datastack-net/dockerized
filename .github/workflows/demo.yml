@@ -16,7 +16,7 @@ jobs:
         if: steps.cache-docker-image.outputs.cache-hit != 'true'
         run: |
           curl -Lo ~/Downloads/Docker.dmg https://desktop.docker.com/mac/main/amd64/Docker.dmg
-          hdiutil attach Docker.dmg
+          hdiutil attach ~/Downloads/Docker.dmg
           ls -lah /Volumes/Docker
         # sudo installer -pkg /Volumes/Docker/Docker.pkg -target /
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
