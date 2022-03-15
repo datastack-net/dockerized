@@ -4,22 +4,25 @@ jobs:
   Explore-GitHub-Actions:
     runs-on: macos-10.15
     steps:
-      - name: Cache Docker Image
-        uses: actions/cache@v1
-        id: cache-docker-image
-        with:
-          path: ~/Downloads
-          key: ${{ runner.OS }}-docker-cache-${{ hashFiles('~/Downloads/Docker.dmg') }}
-          restore-keys: |
-            ${{ runner.OS }}-docker-cache-
-      - name: Download docker
-        if: steps.cache-docker-image.outputs.cache-hit != 'true'
-        run: curl -Lo ~/Downloads/Docker.dmg https://desktop.docker.com/mac/main/amd64/Docker.dmg
-      - name: Install Docker
+      - name: Install docker for mac
         run: |
-          hdiutil attach ~/Downloads/Docker.dmg
-          ls -lah /Volumes/Docker
-        # sudo installer -pkg /Volumes/Docker/Docker.pkg -target /
+          brew cask install docker
+#      - name: Cache Docker Image
+#        uses: actions/cache@v1
+#        id: cache-docker-image
+#        with:
+#          path: ~/Downloads
+#          key: ${{ runner.OS }}-docker-cache-${{ hashFiles('~/Downloads/Docker.dmg') }}
+#          restore-keys: |
+#            ${{ runner.OS }}-docker-cache-
+#      - name: Download docker
+#        if: steps.cache-docker-image.outputs.cache-hit != 'true'
+#        run: curl -Lo ~/Downloads/Docker.dmg https://desktop.docker.com/mac/main/amd64/Docker.dmg
+#      - name: Install Docker
+#        run: |
+#          hdiutil attach ~/Downloads/Docker.dmg
+#          ls -lah /Volumes/Docker
+#        # sudo installer -pkg /Volumes/Docker/Docker.pkg -target /
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
       - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
       - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
