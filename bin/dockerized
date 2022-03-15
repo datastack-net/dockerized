@@ -50,22 +50,25 @@ i*86)
 
 esac
 
-if command -v docker-compose >/dev/null 2>&1; then
-  DOCKER_COMPOSE_CMD="docker-compose"
-else
-  DOCKER_COMPOSE_CMD="docker compose"
-fi
+
 
 if [ $DOCKERIZED_COMPILE ] || [ ! -f "$DOCKERIZED_BINARY" ]; then
   echo "Compiling dockerized..." >/dev/stderr
 
-  # Pass compose-file through env-var instead of -f, because the -f position differs between `docker-compose` and `docker compose`.
-  # See: https://github.com/docker/compose/issues/8986
-  COMPOSE_FILE=$"$DOCKERIZED_COMPOSE_FILE"
-  $DOCKER_COMPOSE_CMD \
-    run --rm \
-    -e "GOOS=$GOOS" \
-    _compile
+  if command -v docker-compose >/dev/null 2>&1; then
+    docker-compose \
+      -f "$DOCKERIZED_COMPOSE_FILE" \
+      run --rm \
+      -e "GOOS=$GOOS" \
+      _compile
+  else
+    docker compose \
+      -f "$DOCKERIZED_COMPOSE_FILE" \
+      run \
+      --rm \
+      -e "GOOS=$GOOS" \
+      _compile
+  fi
 
   if [ $? -ne 0 ]; then
     echo "Failed to compile dockerized" >/dev/stderr
