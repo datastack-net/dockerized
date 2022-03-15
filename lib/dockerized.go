@@ -86,7 +86,11 @@ func main() {
 
 	if command == "" || optionHelp {
 		help(dockerizedDockerComposeFilePath)
-		os.Exit(1)
+		if optionHelp {
+			os.Exit(0)
+		} else {
+			os.Exit(1)
+		}
 	}
 
 	hostCwd, _ := os.Getwd()
