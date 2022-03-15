@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
+	"github.com/compose-spec/compose-go/loader"
 	"github.com/joho/godotenv"
+	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"sort"
-	"strings"
 )
 
 var options = []string{
@@ -47,7 +48,16 @@ func findLocalEnvFile(path string) (string, error) {
 	return "", fmt.Errorf("no local %s found", dockerizedEnvFileName)
 }
 
+func normalizeEnvironment() {
+	homeDir, _ := os.UserHomeDir()
+	if os.Getenv("HOME") == "" {
+		os.Setenv("HOME", homeDir)
+	}
+}
+
 func main() {
+	normalizeEnvironment()
+
 	command := ""
 	var commandArgs []string
 	var dockerizedOptions []string
@@ -98,11 +108,15 @@ func main() {
 			"$(which bash sh zsh | head -n 1)",
 		}
 	} else if contains(dockerizedOptions, "--build") {
-		dockerCompose([]string{
+		err := dockerCompose([]string{
 			"-f", dockerizedDockerComposeFilePath,
 			"build",
 			command,
 		})
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
 	}
 	composeRunArgs = append(composeRunArgs, command)
 	composeRunArgs = append(composeRunArgs, commandArgs...)
@@ -110,14 +124,10 @@ func main() {
 	// fmt.Printf("composeRunArgs: %v\n", composeRunArgs)
 
 	homeDir, _ := os.UserHomeDir()
-	if os.Getenv("HOME") == "" {
-		os.Setenv("HOME", homeDir)
-	}
-
 	userGlobalDockerizedEnvFile := filepath.Join(homeDir, dockerizedEnvFileName)
 	localDockerizedEnvFile, err := findLocalEnvFile(hostCwd)
 
-	envFiles := []string{}
+	var envFiles []string
 
 	if _, err := os.Stat(userGlobalDockerizedEnvFile); err == nil {
 		envFiles = append(envFiles, userGlobalDockerizedEnvFile)
@@ -137,42 +147,71 @@ func main() {
 		godotenv.Load(envFiles[i])
 	}
 
-	dockerCompose(composeRunArgs)
+	err = dockerCompose(composeRunArgs)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }
 
-func help(dockerComposeFilePath string) {
+func help(dockerComposeFilePath string) error {
 	fmt.Println("Usage: dockerized [options] <command> [args]")
 	fmt.Println("")
 	fmt.Println("Commands:")
-	//fmt.Println("  ")
-	cmd := exec.Command("docker-compose", "-f", dockerComposeFilePath, "config", "--service")
-	output, err := cmd.CombinedOutput()
+
+	services, err := getServices(dockerComposeFilePath)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
-	services := strings.Split(string(output), "\n")
 	sort.Strings(services)
-
-	for _, line := range services {
-		if line != "" && line[0] != '_' {
-			fmt.Printf("  %s\n", line)
+	for _, service := range services {
+		if service[0] == '_' {
+			continue
 		}
+		fmt.Printf("  %s\n", service)
 	}
 
 	fmt.Println("")
 
 	fmt.Println("Options:")
 	fmt.Println("  --help, -h Show this help")
-	fmt.Println("")
 	fmt.Println("  --shell    Start a shell inside the command container. Similar to `docker run --entrypoint=sh`.")
 	fmt.Println("  --build    Rebuild the container before running it.")
+
+	fmt.Println()
+	fmt.Println("Args:")
+	fmt.Println("  <command> [args]  Arguments are passed to the command within the container.")
+
+	return nil
 }
 
-func dockerCompose(composeRunArgs []string) {
+func getServices(dockerComposeFilePath string) ([]string, error) {
+	dockerComposeFileBytes, err := ioutil.ReadFile(dockerComposeFilePath)
+	if err != nil {
+		return nil, err
+	}
+	config, err := loader.ParseYAML(dockerComposeFileBytes)
+	if err != nil {
+		return nil, err
+	}
+
+	serviceMaps := config["services"].(map[string]interface{})
+	var services []string
+	for service := range serviceMaps {
+		services = append(services, service)
+	}
+	return services, nil
+}
+
+func dockerCompose(composeRunArgs []string) error {
 	cmd := exec.Command("docker-compose", composeRunArgs...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	cmd.Run()
+	err := cmd.Run()
+	if err != nil {
+		return err
+	}
+	return nil
 }
