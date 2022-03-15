@@ -1,4 +1,4 @@
-name: GitHub Actions Demo
+name: Compile and Test
 on: [push]
 
 jobs:
@@ -13,7 +13,7 @@ jobs:
       - if:  runner.os == 'macOS'
         name: Install Docker
         uses: docker-practice/actions-setup-docker@master
-      - name: Check out repository code
+      - name: Check Dockerized
         uses: actions/checkout@v2
       - name: "dockerized --help"
         run: bin/dockerized --help

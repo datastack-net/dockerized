@@ -62,9 +62,9 @@ if [ $DOCKERIZED_COMPILE ] || [ ! -f "$DOCKERIZED_BINARY" ]; then
     --rm \
     --entrypoint=go \
     -e "GOOS=${GOOS}" \
-    -v "$DOCKERIZED_ROOT:/src" \
-    -v "$DOCKERIZED_ROOT/build:/build" \
-    -v "$DOCKERIZED_ROOT/.cache:/go/pkg" \
+    -v "${DOCKERIZED_ROOT}:/src" \
+    -v "${DOCKERIZED_ROOT}/build:/build" \
+    -v "${DOCKERIZED_ROOT}/.cache:/go/pkg" \
     -w //src \
     "golang:1.17.8" \
     build -o //build/ lib/dockerized.go

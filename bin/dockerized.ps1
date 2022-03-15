@@ -29,11 +29,16 @@ if ($args[0] -eq "--compile") {
 if (($DOCKERIZED_COMPILE -eq $true) -Or !(Test-Path "$DOCKERIZED_BINARY"))
 {
     Write-StdErr "Compiling dockerized..."
-    docker-compose `
-        -f "$DOCKERIZED_COMPOSE_FILE" `
-        run --rm `
+      docker run `
+        --rm `
+        --entrypoint=go `
         -e "GOOS=windows" `
-        _compile
+        -v "${DOCKERIZED_ROOT}:/src" `
+        -v "${DOCKERIZED_ROOT}/build:/build" `
+        -v "${DOCKERIZED_ROOT}/.cache:/go/pkg" `
+        -w /src `
+        "golang:1.17.8" `
+        build -o /build/ lib/dockerized.go
 
     if ($LASTEXITCODE -ne 0) {
         Write-StdErr "Failed to compile dockerized."
