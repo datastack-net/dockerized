@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
+case "$OSTYPE" in
+msys | cygwin)
+  PWD_ARGS="-W"
+  ;;
+esac
+
 # CONSTANTS
-SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd $PWD_ARGS)
 DOCKERIZED_ROOT=$(dirname "$SCRIPT_DIR")
 DOCKERIZED_COMPOSE_FILE="${DOCKERIZED_ROOT}/docker-compose.yml"
 DOCKERIZED_BINARY="${DOCKERIZED_ROOT}/build/dockerized"
@@ -15,7 +21,6 @@ fi
 case "$OSTYPE" in
 msys | cygwin)
   GOOS=windows
-  PWD_ARGS="-W"
   ;;
 darwin*)
   GOOS=darwin
@@ -53,19 +58,16 @@ esac
 
 if [ $DOCKERIZED_COMPILE ] || [ ! -f "$DOCKERIZED_BINARY" ]; then
   echo "Compiling dockerized..." >&2
-  (
-    cd "$DOCKERIZED_ROOT"
-    docker run \
-      --rm \
-      --entrypoint=go \
-      -e "GOOS=${GOOS}" \
-      -v "$(pwd $PWD_ARGS):/src" \
-      -v "$(pwd $PWD_ARGS)/build:/build" \
-      -v "$(pwd $PWD_ARGS)/.cache:/go/pkg" \
-      -w //src \
-      "golang:1.17.8" \
-      build -o //build/ lib/dockerized.go
-  )
+  docker run \
+    --rm \
+    --entrypoint=go \
+    -e "GOOS=${GOOS}" \
+    -v "$DOCKERIZED_ROOT:/src" \
+    -v "$DOCKERIZED_ROOT/build:/build" \
+    -v "$DOCKERIZED_ROOT/.cache:/go/pkg" \
+    -w //src \
+    "golang:1.17.8" \
+    build -o //build/ lib/dockerized.go
 
   if [ $? -ne 0 ]; then
     echo "Failed to compile dockerized" >&2
