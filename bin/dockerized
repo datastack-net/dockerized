@@ -4,12 +4,10 @@ DOCKERIZED_ROOT=$(dirname "$BASH_SOURCE")/..
 DOCKERIZED_COMPOSE_FILE="${DOCKERIZED_ROOT}/docker-compose.yml"
 DOCKERIZED_BINARY="${DOCKERIZED_ROOT}/build/dockerized"
 
-case "$OSTYPE" in
-msys | cygwin | linux-gnu)
+if which PowerShell >/dev/null 2>&1; then
   "$DOCKERIZED_ROOT/bin/dockerized.bat" "$@"
   exit $?
-  ;;
-esac
+fi
 
 # region COMPILE DOCKERIZED
 DOCKERIZED_COMPILE=
