@@ -23,4 +23,5 @@ jobs:
         shell: ${{ runner.shell }}
         run: bin/dockerized --help
       - name: "dockerized go version"
+        shell: ${{ runner.shell }}
         run:  bin/dockerized go version
