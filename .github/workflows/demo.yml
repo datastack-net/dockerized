@@ -12,10 +12,11 @@ jobs:
           key: ${{ runner.OS }}-docker-cache-${{ hashFiles('~/Downloads/Docker.dmg') }}
           restore-keys: |
             ${{ runner.OS }}-docker-cache-
-      - name: Install docker
+      - name: Download docker
         if: steps.cache-docker-image.outputs.cache-hit != 'true'
+        run: curl -Lo ~/Downloads/Docker.dmg https://desktop.docker.com/mac/main/amd64/Docker.dmg
+      - name: Install Docker
         run: |
-          curl -Lo ~/Downloads/Docker.dmg https://desktop.docker.com/mac/main/amd64/Docker.dmg
           hdiutil attach ~/Downloads/Docker.dmg
           ls -lah /Volumes/Docker
         # sudo installer -pkg /Volumes/Docker/Docker.pkg -target /
