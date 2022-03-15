@@ -58,8 +58,10 @@ fi
 
 if [ $DOCKERIZED_COMPILE ] || [ ! -f "$DOCKERIZED_BINARY" ]; then
   echo "Compiling dockerized..." >/dev/stderr
+
+  # Pass compose-file through env-var instead of -f, because the -f position differs between `docker-compose` and `docker compose`.
+  COMPOSE_FILE=$"$DOCKERIZED_COMPOSE_FILE"
   $DOCKER_COMPOSE_CMD \
-    -f "$DOCKERIZED_COMPOSE_FILE" \
     run --rm \
     -e "GOOS=$GOOS" \
     _compile
