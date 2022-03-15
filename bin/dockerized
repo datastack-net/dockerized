@@ -16,7 +16,9 @@ msys | cygwin | linux-gnu)
   GOOS=windows
   DOCKERIZED_BINARY="${DOCKERIZED_BINARY}.exe"
   ;;
-# operating systems below not tested.
+# Operating systems below not tested. Logic based on:
+#  - https://github.com/dylanaraps/neofetch/issues/433
+#  - https://gist.github.com/asukakenji/f15ba7e588ac42795f421b48b8aede63
 openbsd*)
   GOOS=openbsd
   ;;
