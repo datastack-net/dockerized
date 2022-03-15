@@ -4,6 +4,13 @@ DOCKERIZED_ROOT=$(dirname "$BASH_SOURCE")/..
 DOCKERIZED_COMPOSE_FILE="${DOCKERIZED_ROOT}/docker-compose.yml"
 DOCKERIZED_BINARY="${DOCKERIZED_ROOT}/build/dockerized"
 
+case "$OSTYPE" in
+msys | cygwin | linux-gnu)
+  "$DOCKERIZED_ROOT/bin/dockerized.bat" "$@"
+  exit $?
+  ;;
+esac
+
 # region COMPILE DOCKERIZED
 DOCKERIZED_COMPILE=
 if [ "$1" == "--compile" ]; then
@@ -12,9 +19,8 @@ if [ "$1" == "--compile" ]; then
 fi
 
 case "$OSTYPE" in
-msys | cygwin | linux-gnu)
-  GOOS=windows
-  DOCKERIZED_BINARY="${DOCKERIZED_BINARY}.exe"
+darwin*)
+  GOOS=darwin
   ;;
 # Operating systems below not tested. Logic based on:
 #  - https://github.com/dylanaraps/neofetch/issues/433
@@ -24,9 +30,6 @@ openbsd*)
   ;;
 freebsd*)
   GOOS=freebsd
-  ;;
-darwin*)
-  GOOS=darwin
   ;;
 netbsd*)
   GOOS=netbsd
@@ -40,6 +43,13 @@ solaris*)
   ;;
 esac
 
+# region COMPILE DOCKERIZED
+DOCKERIZED_COMPILE=
+if [ "$1" == "--compile" ]; then
+  DOCKERIZED_COMPILE=1
+  shift
+fi
+
 case "$(uname -m)" in
 x86_64)
   GOARCH=amd64
@@ -50,33 +60,29 @@ i*86)
 
 esac
 
-
-
 if [ $DOCKERIZED_COMPILE ] || [ ! -f "$DOCKERIZED_BINARY" ]; then
-  if which docker-compose2 >/dev/null 2>&1; then
-    echo "Compiling dockerized (using docker-compose)..." >/dev/stderr
-    docker-compose \
-      -f "$DOCKERIZED_COMPOSE_FILE" \
-      run --rm \
-      -e "GOOS=$GOOS" \
-      _compile
-  else
-    echo "Compiling dockerized (using docker)..." >/dev/stderr
-    docker compose \
-      -f "$DOCKERIZED_COMPOSE_FILE" \
-      run \
+  echo "Compiling dockerized..." >&2
+  (
+    cd "$DOCKERIZED_ROOT"
+    docker run \
       --rm \
-      -e "GOOS=$GOOS" \
-      _compile
-  fi
+      --entrypoint=go \
+      -e "GOOS=${GOOS}" \
+      -v "${PWD}:/src" \
+      -v "${PWD}/build:/build" \
+      -v "${PWD}/.cache:/go/pkg" \
+      -w //src \
+      "golang:1.17.8" \
+      build -o //build/ lib/dockerized.go
+  )
 
   if [ $? -ne 0 ]; then
-    echo "Failed to compile dockerized" >/dev/stderr
+    echo "Failed to compile dockerized" >&2
     exit 1
   fi
 
   if [ $# -eq 0 ]; then
-    echo "Compiled dockerized" >/dev/stderr
+    echo "Compiled dockerized" >&2
     exit 0
   fi
 fi
