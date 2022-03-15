@@ -2,7 +2,7 @@ name: GitHub Actions Demo
 on: [push]
 jobs:
   MacOs:
-    runs-on: macos-latest
+    runs-on: macos-10.15
     steps:
       - uses: docker-practice/actions-setup-docker@master
         name: Setup Docker
