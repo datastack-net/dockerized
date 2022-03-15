@@ -55,7 +55,13 @@ if [ $DOCKERIZED_COMPILE ] || [ ! -f "$DOCKERIZED_BINARY" ]; then
     -e "GOOS=$GOOS" \
     _compile
 
-  if [ $BASH_ -eq 0 ]; then
+  if [ $? -ne 0 ]; then
+    echo "Failed to compile dockerized" >/dev/stderr
+    exit 1
+  fi
+
+  if [ $# -eq 0 ]; then
+    echo "Compiled dockerized" >/dev/stderr
     exit 0
   fi
 fi
