@@ -1,0 +1,21 @@
+name: GitHub Actions Demo
+on: [push]
+
+jobs:
+  CompileAndTest:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-20.04, windows-2022, macos-10.15]
+      max-parallel: 1
+      fail-fast: true
+    steps:
+      - if:  runner.os == 'macOS'
+        name: Install Docker
+        uses: docker-practice/actions-setup-docker@master
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - name: "dockerized --help"
+        run: bin/dockerized --help
+      - name: "dockerized go version"
+        run:  bin/dockerized go version
