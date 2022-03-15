@@ -72,7 +72,7 @@ func main() {
 	dockerizedDockerComposeFilePath := filepath.Join(dockerizedRoot, "docker-compose.yml")
 
 	var optionHelp = contains(dockerizedOptions, "--help") || contains(dockerizedOptions, "-h")
-	var optionVerbose = contains(options, "--verbose") || contains(options, "-v")
+	var optionVerbose = contains(dockerizedOptions, "--verbose") || contains(dockerizedOptions, "-v")
 
 	if command == "" || optionHelp {
 		help(dockerizedDockerComposeFilePath)
@@ -87,6 +87,10 @@ func main() {
 		"-v", hostCwd + ":" + "/host/" + hostCwdDirName,
 		"-w", "/host/" + hostCwdDirName,
 	}
+
+	hostName, _ := os.Hostname()
+	composeRunArgs = append(composeRunArgs, "-e", "HOST_HOSTNAME="+hostName)
+
 	if contains(dockerizedOptions, "--shell") {
 		composeRunArgs = append(composeRunArgs, "--entrypoint=sh")
 		commandArgs = []string{

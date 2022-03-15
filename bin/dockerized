@@ -1,56 +1,65 @@
 #!/usr/bin/env bash
 # CONSTANTS
-DOCKERIZED_ENV_FILE_NAME="dockerized.env"
 DOCKERIZED_ROOT=$(realpath $(dirname "$BASH_SOURCE")/..)
 DOCKERIZED_COMPOSE_FILE="${DOCKERIZED_ROOT}/docker-compose.yml"
-DOCKERIZED_ENV_FILE="${DOCKERIZED_ROOT}/${DOCKERIZED_ENV_FILE_NAME}"
-HOST_HOME="$HOME"
+DOCKERIZED_BINARY="${DOCKERIZED_ROOT}/build/dockerized"
 
-# OPTIONS
-DOCKERIZED_OPT_VERBOSE=
-
-# RUNTIME VARIABLES
-HOST_PWD=
-HOST_HOSTNAME=$(hostname)
-HOST_DIR_NAME=$(basename "$PWD")
-HOST_DIR_NAME=${HOST_DIR_NAME%/}
-SERVICE_NAME=
-SERVICE_ARGS=
-
-case "$(uname -s)" in
-CYGWIN* | MINGW32* | MSYS* | MINGW*)
-  HOST_PWD=$(pwd -W)
-  GOOS=windows
-  DOCKERIZED_BINARY="build/dockerized.exe"
-  ;;
-*)
-  HOST_PWD=$(pwd)
-  DOCKERIZED_BINARY="build/dockerized"
-  ;;
-esac
-
-case "$(uname -m)" in
-  x86_64)
-    GOARCH=amd64
-    ;;
-  i*86)
-    GOARCH=386
-    ;;
-esac
-
+# region COMPILE DOCKERIZED
 DOCKERIZED_COMPILE=
 if [ "$1" == "--compile" ]; then
   DOCKERIZED_COMPILE=1
   shift
 fi
 
-if [ $DOCKERIZED_COMPILE ] || [ ! -f "$DOCKERIZED_ROOT/$DOCKERIZED_BINARY" ]; then
-  echo "Compiling dockerized..." > /dev/stderr
-  docker-compose \
-   -f "$DOCKERIZED_COMPOSE_FILE" \
-   run --rm \
-   -e "GOOS=$GOOS" \
-   _compile
-fi
+case "$OSTYPE" in
+msys | cygwin | linux-gnu)
+  GOOS=windows
+  DOCKERIZED_BINARY="${DOCKERIZED_BINARY}.exe"
+  ;;
+#openbsd*)
+#  GOOS=openbsd
+#  ;;
+#freebsd*)
+#  GOOS=freebsd
+#  ;;
+#darwin*)
+#  GOOS=darwin
+#  ;;
+#netbsd*)
+#  GOOS=netbsd
+#  ;;
+#solaris*)
+#  GOOS=solaris
+#  ;;
+#*)
+#  GOOS=linux
+#  ;;
 
-"$DOCKERIZED_ROOT/build/dockerized" "$@"
+esac
+
+case "$(uname -m)" in
+x86_64)
+  GOARCH=amd64
+  ;;
+i*86)
+  GOARCH=386
+  ;;
+
+esac
+
+if [ $DOCKERIZED_COMPILE ] || [ ! -f "$DOCKERIZED_BINARY" ]; then
+  echo "Compiling dockerized..." >/dev/stderr
+  docker-compose \
+    -f "$DOCKERIZED_COMPOSE_FILE" \
+    run --rm \
+    -e "GOOS=$GOOS" \
+    _compile
+
+  if [ $BASH_ -eq 0 ]; then
+    exit 0
+  fi
+fi
+# endregion
+
+# RUN DOCKERIZED:
+"$DOCKERIZED_BINARY" "$@"

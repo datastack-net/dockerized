@@ -66,3 +66,22 @@ dockerize gh auth login
 # Create a PR:
 dockerize gh pr create
 ```
+
+
+----
+aix 	✅
+android 	✅
+darwin 	✅
+dragonfly 	✅
+freebsd 	✅
+hurd 	
+illumos 	✅
+ios 	✅
+js 	✅
+linux 	✅
+nacl 	
+netbsd 	✅
+openbsd 	✅
+plan9 	✅
+solaris 	✅
+windows
