@@ -7,7 +7,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-20.04, windows-2022, macos-10.15]
-      max-parallel: 1
+      max-parallel: 2
       fail-fast: true
     steps:
       # region mac
@@ -17,8 +17,10 @@ jobs:
       # endregion
       # region windows
       - name: Switch Docker to Linux
+        if:  runner.os == 'windows'
         run: |
           DockerCli -SwitchLinuxEngine
+      # endregion
 
       - name: Checkout Dockerized
         uses: actions/checkout@v2
