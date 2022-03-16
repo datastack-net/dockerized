@@ -15,6 +15,10 @@ jobs:
         if:  runner.os == 'macOS'
         uses: docker-practice/actions-setup-docker@master
       # endregion
+      # region windows
+      - name: Switch Docker to Linux
+        run: |
+          DockerCli -SwitchLinuxEngine
 
       - name: Checkout Dockerized
         uses: actions/checkout@v2
