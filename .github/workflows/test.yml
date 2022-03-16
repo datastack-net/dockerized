@@ -16,10 +16,10 @@ jobs:
         uses: docker-practice/actions-setup-docker@master
       # endregion
       # region windows
-      - name: Switch Docker to Linux
-        if:  runner.os == 'windows'
-        run: |
-          DockerCli -SwitchLinuxEngine
+#      - name: Switch Docker to Linux
+#        if:  runner.os == 'windows'
+#        run: |
+#          DockerCli -SwitchLinuxEngine
       # endregion
 
       - name: Checkout Dockerized
