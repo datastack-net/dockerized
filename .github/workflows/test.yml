@@ -7,19 +7,13 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-20.04, windows-2022, macos-10.15]
-      max-parallel: 2
+      max-parallel: 1
       fail-fast: true
     steps:
       # region mac
       - name: Install Docker
         if:  runner.os == 'macOS'
         uses: docker-practice/actions-setup-docker@master
-      # endregion
-      # region windows
-#      - name: Switch Docker to Linux
-#        if:  runner.os == 'windows'
-#        run: |
-#          DockerCli -SwitchLinuxEngine
       # endregion
 
       - name: Checkout Dockerized
