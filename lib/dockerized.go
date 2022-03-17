@@ -11,7 +11,6 @@ import (
 	"github.com/docker/compose/v2/pkg/compose"
 	"github.com/joho/godotenv"
 	"os"
-	"os/exec"
 	"os/signal"
 	"path/filepath"
 	"sort"
@@ -34,6 +33,8 @@ func main() {
 
 	var optionHelp = contains(dockerizedOptions, "--help") || contains(dockerizedOptions, "-h")
 	var optionVerbose = contains(dockerizedOptions, "--verbose") || contains(dockerizedOptions, "-v")
+	var optionShell = contains(dockerizedOptions, "--shell")
+	var optionBuild = contains(dockerizedOptions, "--build")
 
 	dockerizedRoot := getDockerizedRoot()
 	dockerizedDockerComposeFilePath := os.Getenv("COMPOSE_FILE")
@@ -64,7 +65,6 @@ func main() {
 	containerCwd := "/host/" + hostCwdDirName
 
 	runOptions := api.RunOptions{
-		Name:    "dockerized",
 		Service: commandName,
 		Environment: []string{
 			"HOST_HOSTNAME=" + hostName,
@@ -82,19 +82,30 @@ func main() {
 			Target: containerCwd,
 		}}
 
-	if contains(dockerizedOptions, "--shell") {
-		runOptions.Entrypoint = []string{"/bin/sh"}
-		runOptions.Command = []string{"-c", "$(which bash sh zsh | head -n 1)"}
-	} else if contains(dockerizedOptions, "--build") {
-		err := dockerCompose([]string{
-			"-f", dockerizedDockerComposeFilePath,
-			"build",
-			commandName,
+	if optionBuild {
+		if optionVerbose {
+			fmt.Printf("Building container image for %s...\n", commandName)
+		}
+		err := dockerComposeBuild(dockerizedDockerComposeFilePath, api.BuildOptions{
+			Services: []string{commandName},
 		})
+
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
+	}
+
+	if optionShell {
+		if optionVerbose {
+			fmt.Printf("Opening shell in container for %s...\n", commandName)
+
+			if len(commandArgs) > 0 {
+				fmt.Printf("Ignoring arguments: %s\n", commandArgs[0])
+			}
+		}
+		runOptions.Entrypoint = []string{"/bin/sh"}
+		runOptions.Command = []string{"-c", "$(which bash sh zsh | head -n 1)"}
 	}
 
 	homeDir, _ := os.UserHomeDir()
@@ -126,7 +137,10 @@ func main() {
 
 	err = dockerComposeRun(dockerizedDockerComposeFilePath, runOptions, volumes)
 	if err != nil {
-		panic(err)
+		if optionVerbose {
+			fmt.Println(err)
+		}
+		os.Exit(1)
 	}
 }
 
@@ -231,12 +245,21 @@ func getBackend() (*api.ServiceProxy, error) {
 	return backend, nil
 }
 
-func dockerComposeRun(dockerComposeFilePath string, runOptions api.RunOptions, volumes []types.ServiceVolumeConfig) error {
-	backend, err := getBackend()
+func dockerComposeBuild(dockerComposeFilePath string, buildOptions api.BuildOptions) error {
+	project, err := getProject(dockerComposeFilePath)
 	if err != nil {
 		return err
 	}
 
+	backend, err := getBackend()
+	if err != nil {
+		return err
+	}
+	ctx, _ := newSigContext()
+	return backend.Build(ctx, project, buildOptions)
+}
+
+func dockerComposeRun(dockerComposeFilePath string, runOptions api.RunOptions, volumes []types.ServiceVolumeConfig) error {
 	project, err := getProject(dockerComposeFilePath)
 	if err != nil {
 		return err
@@ -250,8 +273,12 @@ func dockerComposeRun(dockerComposeFilePath string, runOptions api.RunOptions, v
 	if service.CustomLabels == nil {
 		service.CustomLabels = map[string]string{}
 	}
-	service.Hostname = "dockerized-" + serviceName
 	service.Volumes = append(service.Volumes, volumes...)
+
+	backend, err := getBackend()
+	if err != nil {
+		return err
+	}
 
 	err = dockerComposeUpNetworkOnly(backend, ctx, project)
 	if err != nil {
@@ -276,7 +303,7 @@ func help(dockerComposeFilePath string) error {
 		return err
 	}
 
-	fmt.Println("Usage: dockerized [options] <command> [args]")
+	fmt.Println("Usage: dockerized [options] <command> [arguments]")
 	fmt.Println("")
 	fmt.Println("Commands:")
 
@@ -292,13 +319,14 @@ func help(dockerComposeFilePath string) error {
 	fmt.Println("")
 
 	fmt.Println("Options:")
-	fmt.Println("  --help, -h Show this help")
-	fmt.Println("  --shell    Start a shell inside the command container. Similar to `docker run --entrypoint=sh`.")
-	fmt.Println("  --build    Rebuild the container before running it.")
+	fmt.Println("      --build    Rebuild the container before running it.")
+	fmt.Println("      --shell    Start a shell inside the command container. Similar to `docker run --entrypoint=sh`.")
+	fmt.Println("  -v, --verbose  Log what dockerized is doing.")
+	fmt.Println("  -h, --help     Show this help.")
 
 	fmt.Println()
-	fmt.Println("Args:")
-	fmt.Println("  <command> [args]  Arguments are passed to the command within the container.")
+	fmt.Println("Arguments:")
+	fmt.Println("  All arguments after <command> are passed to the command itself.")
 
 	return nil
 }
@@ -324,16 +352,4 @@ func parseArguments() ([]string, string, []string) {
 		}
 	}
 	return dockerizedOptions, commandName, commandArgs
-}
-
-func dockerCompose(composeRunArgs []string) error {
-	cmd := exec.Command("docker-compose", composeRunArgs...)
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	err := cmd.Run()
-	if err != nil {
-		return err
-	}
-	return nil
 }
