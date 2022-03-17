@@ -107,27 +107,32 @@ func dockerComposeUpNetworkOnly(backend *api.ServiceProxy, ctx context.Context, 
 	return err
 }
 
-func dockerComposeRun(dockerComposeFilePath string, runOptions api.RunOptions) error {
+func getBackend() (*api.ServiceProxy, error) {
 	dockerCli, err := command.NewDockerCli()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	dockerCliOpts := flags.NewClientOptions()
 	err = dockerCli.Initialize(dockerCliOpts)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	var backend = api.NewServiceProxy()
 	composeService := compose.NewComposeService(dockerCli)
 	backend.WithService(composeService)
+	return backend, nil
+}
 
-	//s.apiClient().NetworkInspect(ctx, n.Name, dockerTypes.NetworkInspectOptions{})
-	//dockerCli.
+func dockerComposeRun(dockerComposeFilePath string, runOptions api.RunOptions) error {
+	backend, err := getBackend()
+	if err != nil {
+		return err
+	}
 
 	project, err := getProject(dockerComposeFilePath)
 	if err != nil {
