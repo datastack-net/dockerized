@@ -30,7 +30,11 @@ replace (
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp => github.com/tonistiigi/opentelemetry-go-contrib/instrumentation/net/http/otelhttp v0.0.0-20210714055410-d010b05b4939
 )
 
-require github.com/docker/cli v20.10.12+incompatible
+require (
+	github.com/compose-spec/compose-go v1.1.0
+	github.com/docker/cli v20.10.12+incompatible
+	github.com/joho/godotenv v1.3.0
+)
 
 require (
 	github.com/AlecAivazis/survey/v2 v2.3.2 // indirect
@@ -40,7 +44,6 @@ require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/buger/goterm v1.0.4 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
-	github.com/compose-spec/compose-go v1.1.0 // indirect
 	github.com/containerd/console v1.0.3 // indirect
 	github.com/containerd/containerd v1.6.1 // indirect
 	github.com/containerd/continuity v0.2.2 // indirect

@@ -9,6 +9,7 @@ import (
 	"github.com/docker/cli/cli/flags"
 	"github.com/docker/compose/v2/pkg/api"
 	"github.com/docker/compose/v2/pkg/compose"
+	"github.com/joho/godotenv"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -87,20 +88,23 @@ func getProject(dockerComposeFilePath string) (*types.Project, error) {
 	return cli.ProjectFromOptions(options)
 }
 
-func test(dockerComposeFilePath string) {
+func dockerComposeRun(dockerComposeFilePath string, runOptions api.RunOptions) error {
 	//apiCli, err := client.NewClientWithOpts(client.FromEnv)
 	//if err != nil {
 	//	panic(err)
 	//}
 	dockerCli, err := command.NewDockerCli()
+	if err != nil {
+		return err
+	}
 	dockerCliOpts := flags.NewClientOptions()
 	err = dockerCli.Initialize(dockerCliOpts)
 	if err != nil {
-		return
+		return err
 	}
 
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	// call compose
@@ -111,70 +115,45 @@ func test(dockerComposeFilePath string) {
 
 	project, err := getProject(dockerComposeFilePath)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	ctx, _ := newSigContext()
 
-	serviceName := "go"
+	serviceName := runOptions.Service
 
 	// find service with name "go"
 	service, err := project.GetService(serviceName)
 	service.CustomLabels = map[string]string{}
 	project.Services = []types.ServiceConfig{service}
 
-	opts := api.RunOptions{
-		//Name:              "",
-		Service: serviceName,
-		Command: []string{"version"},
-		//Entrypoint:        nil,
-		Detach:     false,
-		AutoRemove: true,
-		Tty:        true,
-		//WorkingDir:        "",
-		//User:              "",
-		//Environment:       nil,
-		//Labels:            nil,
-		//Privileged:        false,
-		//UseNetworkAliases: false,
-		//NoDeps:            false,
-		//QuietPull:         false,
-		//Index:             0,
+	project.Services = []types.ServiceConfig{}
+	upOptions := api.UpOptions{
+		Create: api.CreateOptions{
+			Services:      []string{},
+			RemoveOrphans: true,
+		},
 	}
-
-	createOptions := api.CreateOptions{
-		Services:      []string{serviceName},
-		RemoveOrphans: true,
-	}
-	lazyInit.Create(ctx, project, createOptions)
-	exitCode, err := lazyInit.RunOneOffContainer(ctx, project, opts)
+	lazyInit.Up(ctx, project, upOptions)
+	project.Services = []types.ServiceConfig{service}
+	exitCode, err := lazyInit.RunOneOffContainer(ctx, project, runOptions)
 	if err != nil {
-		fmt.Println(err)
-		return
+		return err
 	}
 	if exitCode != 0 {
-		panic(fmt.Errorf("docker-compose exited with code %d", exitCode))
+		return fmt.Errorf("docker-compose exited with code %d", exitCode)
 	}
-
-	//containers, err := cli.ContainerList(context.Background(), types.ContainerListOptions{})
-	//if err != nil {
-	//	panic(err)
-	//}
-	//
-	//for _, container := range containers {
-	//	fmt.Printf("%s %s\n", container.ID[:10], container.Image)
-	//}
+	return nil
 }
 
 func main() {
-
 	normalizeEnvironment()
 
-	command := ""
+	commandName := ""
 	var commandArgs []string
 	var dockerizedOptions []string
 	for _, arg := range os.Args[1:] {
-		if arg[0] == '-' && command == "" {
+		if arg[0] == '-' && commandName == "" {
 			if contains(options, arg) {
 				dockerizedOptions = append(dockerizedOptions, arg)
 			} else {
@@ -182,30 +161,41 @@ func main() {
 				os.Exit(1)
 			}
 		} else {
-			if command == "" {
-				command = arg
+			if commandName == "" {
+				commandName = arg
 			} else {
 				commandArgs = append(commandArgs, arg)
 			}
 		}
 	}
 
-	dockerizedRoot := getDockerizedRoot()
-	dockerizedDockerComposeFilePath := filepath.Join(dockerizedRoot, "docker-compose.yml")
-
-	dockerizedDockerComposeFilePath = os.Getenv("COMPOSE_FILE")
-	test(dockerizedDockerComposeFilePath)
-	os.Exit(1)
 	var optionHelp = contains(dockerizedOptions, "--help") || contains(dockerizedOptions, "-h")
 	var optionVerbose = contains(dockerizedOptions, "--verbose") || contains(dockerizedOptions, "-v")
 
-	if command == "" || optionHelp {
+	dockerizedRoot := getDockerizedRoot()
+	dockerizedDockerComposeFilePath := os.Getenv("COMPOSE_FILE")
+	if dockerizedDockerComposeFilePath != "" {
+		if optionVerbose {
+			fmt.Println("COMPOSE_FILE: ", dockerizedDockerComposeFilePath)
+		}
+	} else {
+		dockerizedDockerComposeFilePath = filepath.Join(dockerizedRoot, "docker-compose.yml")
+	}
+
+	if commandName == "" || optionHelp {
 		help(dockerizedDockerComposeFilePath)
 		if optionHelp {
 			os.Exit(0)
 		} else {
 			os.Exit(1)
 		}
+	}
+
+	runOptions := api.RunOptions{
+		Service:    commandName,
+		Command:    commandArgs,
+		AutoRemove: true,
+		Tty:        true,
 	}
 
 	hostCwd, _ := os.Getwd()
@@ -218,6 +208,10 @@ func main() {
 	}
 
 	hostName, _ := os.Hostname()
+	runOptions.WorkingDir = "/host/" + hostCwdDirName
+	runOptions.Environment = []string{
+		"HOST_HOSTNAME=" + hostName,
+	}
 	composeRunArgs = append(composeRunArgs, "-e", "HOST_HOSTNAME="+hostName)
 
 	if contains(dockerizedOptions, "--shell") {
@@ -230,14 +224,14 @@ func main() {
 		err := dockerCompose([]string{
 			"-f", dockerizedDockerComposeFilePath,
 			"build",
-			command,
+			commandName,
 		})
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
 	}
-	composeRunArgs = append(composeRunArgs, command)
+	composeRunArgs = append(composeRunArgs, commandName)
 	composeRunArgs = append(composeRunArgs, commandArgs...)
 
 	// fmt.Printf("composeRunArgs: %v\n", composeRunArgs)
@@ -263,8 +257,15 @@ func main() {
 	}
 	// Load in reverse. GoDotEnv does not override vars, this allows runtime env-vars to override the env files.
 	for i := len(envFiles) - 1; i >= 0; i-- {
-		//godotenv.Load(envFiles[i])
+		godotenv.Load(envFiles[i])
 	}
+
+	err = dockerComposeRun(dockerizedDockerComposeFilePath, runOptions)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	os.Exit(1)
 
 	err = dockerCompose(composeRunArgs)
 	if err != nil {
