@@ -27,6 +27,109 @@ var options = []string{
 	"--verbose",
 }
 
+func main() {
+	normalizeEnvironment()
+
+	dockerizedOptions, commandName, commandArgs := parseArguments()
+
+	var optionHelp = contains(dockerizedOptions, "--help") || contains(dockerizedOptions, "-h")
+	var optionVerbose = contains(dockerizedOptions, "--verbose") || contains(dockerizedOptions, "-v")
+
+	dockerizedRoot := getDockerizedRoot()
+	dockerizedDockerComposeFilePath := os.Getenv("COMPOSE_FILE")
+	if dockerizedDockerComposeFilePath != "" {
+		if optionVerbose {
+			fmt.Println("COMPOSE_FILE: ", dockerizedDockerComposeFilePath)
+		}
+	} else {
+		dockerizedDockerComposeFilePath = filepath.Join(dockerizedRoot, "docker-compose.yml")
+	}
+
+	if commandName == "" || optionHelp {
+		err := help(dockerizedDockerComposeFilePath)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		if optionHelp {
+			os.Exit(0)
+		} else {
+			os.Exit(1)
+		}
+	}
+
+	hostName, _ := os.Hostname()
+	hostCwd, _ := os.Getwd()
+	hostCwdDirName := filepath.Base(hostCwd)
+	containerCwd := "/host/" + hostCwdDirName
+
+	runOptions := api.RunOptions{
+		Name:    "dockerized",
+		Service: commandName,
+		Environment: []string{
+			"HOST_HOSTNAME=" + hostName,
+		},
+		Command:    commandArgs,
+		AutoRemove: true,
+		Tty:        true,
+		WorkingDir: containerCwd,
+	}
+
+	volumes := []types.ServiceVolumeConfig{
+		{
+			Type:   "bind",
+			Source: hostCwd,
+			Target: containerCwd,
+		}}
+
+	if contains(dockerizedOptions, "--shell") {
+		runOptions.Entrypoint = []string{"/bin/sh"}
+		runOptions.Command = []string{"-c", "$(which bash sh zsh | head -n 1)"}
+	} else if contains(dockerizedOptions, "--build") {
+		err := dockerCompose([]string{
+			"-f", dockerizedDockerComposeFilePath,
+			"build",
+			commandName,
+		})
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+	}
+
+	homeDir, _ := os.UserHomeDir()
+	userGlobalDockerizedEnvFile := filepath.Join(homeDir, dockerizedEnvFileName)
+	localDockerizedEnvFile, err := findLocalEnvFile(hostCwd)
+
+	var envFiles []string
+
+	if _, err := os.Stat(userGlobalDockerizedEnvFile); err == nil {
+		envFiles = append(envFiles, userGlobalDockerizedEnvFile)
+	}
+	if err == nil && !contains(envFiles, localDockerizedEnvFile) {
+		envFiles = append(envFiles, localDockerizedEnvFile)
+	}
+
+	if optionVerbose {
+		// Print it in order of priority (lowest to highest)
+		for _, envFile := range envFiles {
+			fmt.Println("Loading: ", envFile)
+		}
+	}
+	// Load in reverse. GoDotEnv does not override vars, this allows runtime env-vars to override the env files.
+	for i := len(envFiles) - 1; i >= 0; i-- {
+		err := godotenv.Load(envFiles[i])
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	err = dockerComposeRun(dockerizedDockerComposeFilePath, runOptions, volumes)
+	if err != nil {
+		panic(err)
+	}
+}
+
 var dockerizedEnvFileName = "dockerized.env"
 
 func getDockerizedRoot() string {
@@ -54,13 +157,13 @@ func findLocalEnvFile(path string) (string, error) {
 	}
 	return "", fmt.Errorf("no local %s found", dockerizedEnvFileName)
 }
-
 func normalizeEnvironment() {
 	homeDir, _ := os.UserHomeDir()
 	if os.Getenv("HOME") == "" {
-		os.Setenv("HOME", homeDir)
+		_ = os.Setenv("HOME", homeDir)
 	}
 }
+
 func newSigContext() (context.Context, func()) {
 	ctx, cancel := context.WithCancel(context.Background())
 	s := make(chan os.Signal, 1)
@@ -128,7 +231,7 @@ func getBackend() (*api.ServiceProxy, error) {
 	return backend, nil
 }
 
-func dockerComposeRun(dockerComposeFilePath string, runOptions api.RunOptions) error {
+func dockerComposeRun(dockerComposeFilePath string, runOptions api.RunOptions, volumes []types.ServiceVolumeConfig) error {
 	backend, err := getBackend()
 	if err != nil {
 		return err
@@ -144,7 +247,11 @@ func dockerComposeRun(dockerComposeFilePath string, runOptions api.RunOptions) e
 	serviceName := runOptions.Service
 
 	service, err := project.GetService(serviceName)
-	service.CustomLabels = map[string]string{}
+	if service.CustomLabels == nil {
+		service.CustomLabels = map[string]string{}
+	}
+	service.Hostname = "dockerized-" + serviceName
+	service.Volumes = append(service.Volumes, volumes...)
 
 	err = dockerComposeUpNetworkOnly(backend, ctx, project)
 	if err != nil {
@@ -152,6 +259,7 @@ func dockerComposeRun(dockerComposeFilePath string, runOptions api.RunOptions) e
 	}
 
 	project.Services = []types.ServiceConfig{service}
+
 	exitCode, err := backend.RunOneOffContainer(ctx, project, runOptions)
 	if err != nil {
 		return err
@@ -162,136 +270,17 @@ func dockerComposeRun(dockerComposeFilePath string, runOptions api.RunOptions) e
 	return nil
 }
 
-func main() {
-	normalizeEnvironment()
-
-	commandName := ""
-	var commandArgs []string
-	var dockerizedOptions []string
-	for _, arg := range os.Args[1:] {
-		if arg[0] == '-' && commandName == "" {
-			if contains(options, arg) {
-				dockerizedOptions = append(dockerizedOptions, arg)
-			} else {
-				fmt.Println("Unknown option:", arg)
-				os.Exit(1)
-			}
-		} else {
-			if commandName == "" {
-				commandName = arg
-			} else {
-				commandArgs = append(commandArgs, arg)
-			}
-		}
-	}
-
-	var optionHelp = contains(dockerizedOptions, "--help") || contains(dockerizedOptions, "-h")
-	var optionVerbose = contains(dockerizedOptions, "--verbose") || contains(dockerizedOptions, "-v")
-
-	dockerizedRoot := getDockerizedRoot()
-	dockerizedDockerComposeFilePath := os.Getenv("COMPOSE_FILE")
-	if dockerizedDockerComposeFilePath != "" {
-		if optionVerbose {
-			fmt.Println("COMPOSE_FILE: ", dockerizedDockerComposeFilePath)
-		}
-	} else {
-		dockerizedDockerComposeFilePath = filepath.Join(dockerizedRoot, "docker-compose.yml")
-	}
-
-	if commandName == "" || optionHelp {
-		help(dockerizedDockerComposeFilePath)
-		if optionHelp {
-			os.Exit(0)
-		} else {
-			os.Exit(1)
-		}
-	}
-
-	runOptions := api.RunOptions{
-		Service:    commandName,
-		Command:    commandArgs,
-		AutoRemove: true,
-		Tty:        true,
-	}
-
-	hostCwd, _ := os.Getwd()
-	hostCwdDirName := filepath.Base(hostCwd)
-	composeRunArgs := []string{
-		"-f", dockerizedDockerComposeFilePath,
-		"run", "--rm",
-		"-v", hostCwd + ":" + "/host/" + hostCwdDirName,
-		"-w", "/host/" + hostCwdDirName,
-	}
-
-	hostName, _ := os.Hostname()
-	runOptions.WorkingDir = "/host/" + hostCwdDirName
-	runOptions.Environment = []string{
-		"HOST_HOSTNAME=" + hostName,
-	}
-	composeRunArgs = append(composeRunArgs, "-e", "HOST_HOSTNAME="+hostName)
-
-	if contains(dockerizedOptions, "--shell") {
-		composeRunArgs = append(composeRunArgs, "--entrypoint=sh")
-		commandArgs = []string{
-			"-c",
-			"$(which bash sh zsh | head -n 1)",
-		}
-	} else if contains(dockerizedOptions, "--build") {
-		err := dockerCompose([]string{
-			"-f", dockerizedDockerComposeFilePath,
-			"build",
-			commandName,
-		})
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-	}
-	composeRunArgs = append(composeRunArgs, commandName)
-	composeRunArgs = append(composeRunArgs, commandArgs...)
-
-	// fmt.Printf("composeRunArgs: %v\n", composeRunArgs)
-
-	homeDir, _ := os.UserHomeDir()
-	userGlobalDockerizedEnvFile := filepath.Join(homeDir, dockerizedEnvFileName)
-	localDockerizedEnvFile, err := findLocalEnvFile(hostCwd)
-
-	var envFiles []string
-
-	if _, err := os.Stat(userGlobalDockerizedEnvFile); err == nil {
-		envFiles = append(envFiles, userGlobalDockerizedEnvFile)
-	}
-	if err == nil && !contains(envFiles, localDockerizedEnvFile) {
-		envFiles = append(envFiles, localDockerizedEnvFile)
-	}
-
-	if optionVerbose {
-		// Print it in order of priority (lowest to highest)
-		for _, envFile := range envFiles {
-			fmt.Println("Loading: ", envFile)
-		}
-	}
-	// Load in reverse. GoDotEnv does not override vars, this allows runtime env-vars to override the env files.
-	for i := len(envFiles) - 1; i >= 0; i-- {
-		godotenv.Load(envFiles[i])
-	}
-
-	err = dockerComposeRun(dockerizedDockerComposeFilePath, runOptions)
-	if err != nil {
-		panic(err)
-	}
-}
-
 func help(dockerComposeFilePath string) error {
-	fmt.Println("Usage: dockerized [options] <command> [args]")
-	fmt.Println("")
-	fmt.Println("Commands:")
-
-	services, err := getServices(dockerComposeFilePath)
+	project, err := getProject(dockerComposeFilePath)
 	if err != nil {
 		return err
 	}
 
+	fmt.Println("Usage: dockerized [options] <command> [args]")
+	fmt.Println("")
+	fmt.Println("Commands:")
+
+	services := project.ServiceNames()
 	sort.Strings(services)
 	for _, service := range services {
 		if service[0] == '_' {
@@ -314,22 +303,27 @@ func help(dockerComposeFilePath string) error {
 	return nil
 }
 
-func getServices(dockerComposeFilePath string) ([]string, error) {
-	//dockerComposeFileBytes, err := ioutil.ReadFile(dockerComposeFilePath)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//config, err := loader.ParseYAML(dockerComposeFileBytes)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//
-	//serviceMaps := config["services"].(map[string]interface{})
-	var services []string
-	//for service := range serviceMaps {
-	//	services = append(services, service)
-	//}
-	return services, nil
+func parseArguments() ([]string, string, []string) {
+	commandName := ""
+	var commandArgs []string
+	var dockerizedOptions []string
+	for _, arg := range os.Args[1:] {
+		if arg[0] == '-' && commandName == "" {
+			if contains(options, arg) {
+				dockerizedOptions = append(dockerizedOptions, arg)
+			} else {
+				fmt.Println("Unknown option:", arg)
+				os.Exit(1)
+			}
+		} else {
+			if commandName == "" {
+				commandName = arg
+			} else {
+				commandArgs = append(commandArgs, arg)
+			}
+		}
+	}
+	return dockerizedOptions, commandName, commandArgs
 }
 
 func dockerCompose(composeRunArgs []string) error {
