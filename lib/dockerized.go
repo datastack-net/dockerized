@@ -88,11 +88,26 @@ func getProject(dockerComposeFilePath string) (*types.Project, error) {
 	return cli.ProjectFromOptions(options)
 }
 
+func dockerComposeUpNetworkOnly(backend *api.ServiceProxy, ctx context.Context, project *types.Project) error {
+	project.Services = []types.ServiceConfig{}
+	upOptions := api.UpOptions{
+		Create: api.CreateOptions{
+			Services:      []string{},
+			RemoveOrphans: true,
+			Recreate:      "always",
+		},
+	}
+	err := backend.Up(ctx, project, upOptions)
+
+	// docker compose up will return error if there is no service to start, but the network will have been created.
+	expectedErrorMessage := "no container found for project \"dockerized\": not found"
+	if err == nil || api.IsNotFoundError(err) && err.Error() == expectedErrorMessage {
+		return nil
+	}
+	return err
+}
+
 func dockerComposeRun(dockerComposeFilePath string, runOptions api.RunOptions) error {
-	//apiCli, err := client.NewClientWithOpts(client.FromEnv)
-	//if err != nil {
-	//	panic(err)
-	//}
 	dockerCli, err := command.NewDockerCli()
 	if err != nil {
 		return err
@@ -107,11 +122,12 @@ func dockerComposeRun(dockerComposeFilePath string, runOptions api.RunOptions) e
 		return err
 	}
 
-	// call compose
-	var lazyInit = api.NewServiceProxy()
-	lazyInit.WithService(compose.NewComposeService(dockerCli))
+	var backend = api.NewServiceProxy()
+	composeService := compose.NewComposeService(dockerCli)
+	backend.WithService(composeService)
 
-	// get from env COMPOSE_FILE
+	//s.apiClient().NetworkInspect(ctx, n.Name, dockerTypes.NetworkInspectOptions{})
+	//dockerCli.
 
 	project, err := getProject(dockerComposeFilePath)
 	if err != nil {
@@ -122,21 +138,16 @@ func dockerComposeRun(dockerComposeFilePath string, runOptions api.RunOptions) e
 
 	serviceName := runOptions.Service
 
-	// find service with name "go"
 	service, err := project.GetService(serviceName)
 	service.CustomLabels = map[string]string{}
-	project.Services = []types.ServiceConfig{service}
 
-	project.Services = []types.ServiceConfig{}
-	upOptions := api.UpOptions{
-		Create: api.CreateOptions{
-			Services:      []string{},
-			RemoveOrphans: true,
-		},
+	err = dockerComposeUpNetworkOnly(backend, ctx, project)
+	if err != nil {
+		return err
 	}
-	lazyInit.Up(ctx, project, upOptions)
+
 	project.Services = []types.ServiceConfig{service}
-	exitCode, err := lazyInit.RunOneOffContainer(ctx, project, runOptions)
+	exitCode, err := backend.RunOneOffContainer(ctx, project, runOptions)
 	if err != nil {
 		return err
 	}
@@ -262,15 +273,7 @@ func main() {
 
 	err = dockerComposeRun(dockerizedDockerComposeFilePath, runOptions)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-	os.Exit(1)
-
-	err = dockerCompose(composeRunArgs)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		panic(err)
 	}
 }
 
