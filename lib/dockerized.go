@@ -12,7 +12,6 @@ import (
 	"github.com/fatih/color"
 	"github.com/joho/godotenv"
 	"os"
-	"os/exec"
 	"os/signal"
 	"path/filepath"
 	"sort"
@@ -223,18 +222,6 @@ func dockerRun(image string, runOptions api.RunOptions, volumes []types.ServiceV
 		Image:   image,
 		Volumes: volumes,
 	}, runOptions)
-}
-
-func execute(command string, args ...string) error {
-	cmd := exec.Command(command, args...)
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	err := cmd.Run()
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 var dockerizedEnvFileName = "dockerized.env"
