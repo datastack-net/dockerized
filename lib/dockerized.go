@@ -20,6 +20,8 @@ import (
 	"syscall"
 )
 
+var Version string
+
 var options = []string{
 	"--shell",
 	"--build",
@@ -27,6 +29,7 @@ var options = []string{
 	"--help",
 	"-v",
 	"--verbose",
+	"--version",
 }
 
 func main() {
@@ -38,6 +41,12 @@ func main() {
 	var optionVerbose = contains(dockerizedOptions, "--verbose") || contains(dockerizedOptions, "-v")
 	var optionShell = contains(dockerizedOptions, "--shell")
 	var optionBuild = contains(dockerizedOptions, "--build")
+	var optionVersion = contains(dockerizedOptions, "--version")
+
+	if optionVersion {
+		fmt.Printf("dockerized %s\n", Version)
+		os.Exit(0)
+	}
 
 	dockerizedRoot := getDockerizedRoot()
 	dockerizedDockerComposeFilePath := os.Getenv("COMPOSE_FILE")

@@ -1,4 +1,4 @@
-module dockerized
+module github.com/datastack-net/dockerized
 
 go 1.17
 
