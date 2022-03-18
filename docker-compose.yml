@@ -1,12 +1,6 @@
 version: "3"
 
 services:
-  _:
-    &default
-    image: alpine
-    stop_grace_period: 1s
-    tty: true
-    stdin_open: true
   _compile:
     image: golang
     entrypoint: go
@@ -18,7 +12,6 @@ services:
       - "dockerized_compile:/go/pkg"
   alpine:
     &alpine
-    <<: *default
     image: "alpine_${ALPINE_VERSION}"
     build:
       context: apps/alpine
@@ -34,7 +27,6 @@ services:
         ALPINE_PACKAGES: "apache2-ssl apache2-utils ca-certificates"
     entrypoint: [ "ab" ]
   aws:
-    <<: *default
     image: "amazon/aws-cli:${AWS_VERSION}"
     volumes:
       - "${HOME:-}/.aws:/root/.aws"
@@ -42,7 +34,6 @@ services:
       AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID:-}"
       AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY:-}"
   bash:
-    <<: *default
     image: "bash"
     build:
       context: apps/alpine
@@ -51,7 +42,6 @@ services:
         ALPINE_PACKAGES: "bash"
     entrypoint: ["/bin/bash"]
   doctl:
-    <<: *default
     image: "doctl:${DOCTL_VERSION}"
     build:
       context: apps/doctl
@@ -63,11 +53,9 @@ services:
     volumes:
       - "${HOME:-}/.dockerized/apps/doctl:/root"
   dotnet:
-    <<: *default
     image: "mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION}-alpine"
     entrypoint: [ "dotnet" ]
   gh:
-    <<: *default
     image: "gh:${GH_VERSION}"
     build:
       context: apps/gh
@@ -83,26 +71,20 @@ services:
     environment:
       BROWSER: "echo"
   git:
-    <<: *default
     image: "alpine/git:v${GIT_VERSION}"
     entrypoint: [ "git" ]
   go:
-    <<: *default
     image: "golang:${GO_VERSION}"
     entrypoint: [ "go" ]
   helm:
-    <<: *default
     image: "alpine/helm:${HELM_VERSION}"
   http:
-    <<: *default
     image: "alpine/httpie:${HTTPIE_VERSION}"
     entrypoint: [ "http" ]
   jq:
-    <<: *default
     image: stedolan/jq
   node:
     &node
-    <<: *default
     image: "node:${NODE_VERSION}"
     entrypoint: [ "node" ]
     volumes:
@@ -115,10 +97,8 @@ services:
     <<: *node
     entrypoint: [ "npx" ]
   php:
-    <<: *default
     image: "php:${PHP_VERSION}"
   protoc:
-    <<: *default
     image: "protoc:${PROTOC_VERSION}"
     build:
       context: apps/protoc
@@ -128,24 +108,20 @@ services:
         PROTOC_ARCH: "${PROTOC_ARCH}"
   python:
     &python
-    <<: *default
     image: "python:${PYTHON_VERSION}"
     entrypoint: [ "python" ]
     volumes:
       - "python_modules:/usr/local/lib/python${PYTHON_VERSION}/site-packages"
       - "${HOME:-}/.dockerized/apps/python:/root"
   python2:
-    <<: *default
     image: "python:${PYTHON2_VERSION}"
   pip:
     <<: *python
     entrypoint: [ "pip" ]
   ruby:
-    <<: *default
     image: "ruby:${RUBY_VERSION}"
     entrypoint: [ "ruby" ]
   s3cmd:
-    <<: *default
     build:
       context: apps/s3cmd
       args:
@@ -158,7 +134,6 @@ services:
     volumes:
       - "${HOME:-}/.dockerized/apps/s3cmd:/root"
   swagger-codegen:
-    <<: *default
     image: "swaggerapi/swagger-codegen-cli-v3:${SWAGGER_CODEGEN_VERSION}"
   tree:
     <<: *alpine
@@ -170,7 +145,6 @@ services:
     <<: *node
     entrypoint: [ "npx", "--package=@vue/cli@${VUE_VERSION}", "vue" ]
   wget:
-    <<: *default
     image: "${DEFAULT_BASE}"
     entrypoint: [ "wget" ]
   yarn:

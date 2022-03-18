@@ -360,7 +360,11 @@ func dockerComposeRun(project *types.Project, runOptions api.RunOptions, volumes
 	if service.CustomLabels == nil {
 		service.CustomLabels = map[string]string{}
 	}
+
+	stopGracePeriod := types.Duration(1)
 	service.Volumes = append(service.Volumes, volumes...)
+	service.StopGracePeriod = &stopGracePeriod
+	service.StdinOpen = true
 
 	backend, err := getBackend()
 	if err != nil {
