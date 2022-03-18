@@ -1,98 +1,100 @@
 #!/usr/bin/env bash
-# CONSTANTS
-DOCKERIZED_ENV_FILE_NAME="dockerized.env"
-DOCKERIZED_ROOT=$(realpath $(dirname "$BASH_SOURCE")/..)
-DOCKERIZED_COMPOSE_FILE="${DOCKERIZED_ROOT}/docker-compose.yml"
-DOCKERIZED_ENV_FILE="${DOCKERIZED_ROOT}/${DOCKERIZED_ENV_FILE_NAME}"
-HOST_HOME="$HOME"
-
-# OPTIONS
-DOCKERIZED_OPT_VERBOSE=
-
-# RUNTIME VARIABLES
-HOST_PWD=
-HOST_HOSTNAME=$(hostname)
-HOST_DIR_NAME=$(basename "$PWD")
-HOST_DIR_NAME=${HOST_DIR_NAME%/}
-SERVICE_NAME=
-SERVICE_ARGS=
-
-# PARSE OPTIONS
-if [ "$1" == "-v" ]; then
-    DOCKERIZED_OPT_VERBOSE="1"
-    shift
-fi
-
-case "$(uname -s)" in
-CYGWIN* | MINGW32* | MSYS* | MINGW*)
-  HOST_PWD=$(pwd -W)
-  ;;
-*)
-  HOST_PWD=$(pwd)
+case "$OSTYPE" in
+msys | cygwin)
+  PWD_ARGS="-W"
   ;;
 esac
 
-SERVICE_ARGS="$@"
-SERVICE_NAME="$1"
+# CONSTANTS
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd $PWD_ARGS)
+DOCKERIZED_ROOT=$(dirname "$SCRIPT_DIR")
+DOCKERIZED_COMPOSE_FILE="${DOCKERIZED_ROOT}/docker-compose.yml"
+DOCKERIZED_BINARY="${DOCKERIZED_ROOT}/build/dockerized"
 
-function dotenv() {
-  FILE="$1"
-
-  if [ ! -f "$FILE" ]; then
-    return
-  fi
-
-  if [ "$DOCKERIZED_OPT_VERBOSE" ]; then
-    echo -e "\033[0;32mLoading environment from $FILE\033[0m"
-  fi
-
-  set -o allexport
-  source "$FILE"
-  set +o allexport
-}
-
-function findUp() {
-  local FILE="$1"
-  local DIR="$2"
-  while [ ! -f "$DIR/$FILE" ]; do
-    DIR=$(dirname "$DIR")
-    if [ "$(realpath "$DIR")" == "$(realpath "$(dirname "$DIR")")" ]; then
-      return 1
-    fi
-  done
-  echo "$DIR/$FILE"
-}
-
-function loadEnvironment() {
-  local CUSTOM_ENV_FILE=$(findUp "$DOCKERIZED_ENV_FILE_NAME" "$HOST_PWD")
-  dotenv "$HOME/$DOCKERIZED_ENV_FILE_NAME"
-  dotenv "$CUSTOM_ENV_FILE"
-}
-
-loadEnvironment
-
-SERVICE_EXISTS=$(docker-compose -f "$DOCKERIZED_COMPOSE_FILE" config --services | grep -w $SERVICE_NAME)
-
-if [ -z "$SERVICE_EXISTS" ]; then
-  echo -e "\033[0;31mCommand $1 is not fully supported. Trying r.j3ss.co/$SERVICE_NAME instead." >&2
-  echo -e "See https://github.com/jessfraz/dockerfiles/blob/master/README.md for more information.\033[0m" >&2
+# region COMPILE DOCKERIZED
+DOCKERIZED_COMPILE=
+if [ "$1" == "--compile" ] || [ "$1" == "--compile=docker" ]; then
+  DOCKERIZED_COMPILE="docker"
   shift
-  docker \
-    run --rm -it \
-    -w "//host/$HOST_DIR_NAME" \
-    -v "$HOST_PWD://host/$HOST_DIR_NAME" \
-    -e "HOST_HOSTNAME=$HOST_HOSTNAME" \
-    r.j3ss.co/$SERVICE_NAME \
-    "$@"
-
-  exit $?
 fi
 
-docker-compose \
- --env-file "$DOCKERIZED_ENV_FILE" \
- -f "$DOCKERIZED_COMPOSE_FILE" \
- run --rm \
- -e "HOST_HOSTNAME=$HOST_HOSTNAME" \
- -v "$HOST_PWD://host/$HOST_DIR_NAME" \
- -w "//host/$HOST_DIR_NAME" \
- $SERVICE_ARGS
+if [ "$1" == "--compile=host" ]; then
+  DOCKERIZED_COMPILE="host"
+  shift
+fi
+
+case "$OSTYPE" in
+msys | cygwin)
+  GOOS=windows
+  ;;
+darwin*)
+  GOOS=darwin
+  ;;
+# Operating systems below not tested. Logic based on:
+#  - https://github.com/dylanaraps/neofetch/issues/433
+#  - https://gist.github.com/asukakenji/f15ba7e588ac42795f421b48b8aede63
+openbsd*)
+  GOOS=openbsd
+  ;;
+freebsd*)
+  GOOS=freebsd
+  ;;
+netbsd*)
+  GOOS=netbsd
+  ;;
+solaris*)
+  GOOS=solaris
+  ;;
+# default
+*)
+  GOOS=linux
+  ;;
+esac
+
+case "$(uname -m)" in
+x86_64)
+  GOARCH=amd64
+  ;;
+i*86)
+  GOARCH=386
+  ;;
+
+esac
+
+if [ $DOCKERIZED_COMPILE ] || [ ! -f "$DOCKERIZED_BINARY" ]; then
+  echo "Compiling dockerized..." >&2
+  GIT_COMMIT=$(cd $DOCKERIZED_ROOT; git rev-list -1 HEAD)
+  GO_BUILD_ARGS="-ldflags '-X main.Version=${GIT_COMMIT}'"
+  GO_LDFLAGS="-X main.Version=${GIT_COMMIT}"
+  if [ $DOCKERIZED_COMPILE == "docker" ]; then
+    docker run \
+      --rm \
+      --entrypoint=go \
+      -e "GOOS=${GOOS}" \
+      -v "${DOCKERIZED_ROOT}:/src" \
+      -v "${DOCKERIZED_ROOT}/build:/build" \
+      -v "${DOCKERIZED_ROOT}/.cache:/go/pkg" \
+      -w //src \
+      "golang:1.17.8" \
+      build -ldflags "$GO_LDFLAGS" -o //build/ lib/dockerized.go
+  else
+    (
+    cd "$DOCKERIZED_ROOT"
+    go build -ldflags "$GO_LDFLAGS" -o build/ lib/dockerized.go
+    )
+  fi
+
+  if [ $? -ne 0 ]; then
+    echo "Failed to compile dockerized" >&2
+    exit 1
+  fi
+
+  if [ $# -eq 0 ]; then
+    echo "Compiled dockerized" >&2
+    exit 0
+  fi
+fi
+# endregion
+
+# RUN DOCKERIZED:
+"$DOCKERIZED_BINARY" "$@"

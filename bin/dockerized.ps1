@@ -1,101 +1,57 @@
 # CONSTANTS
-$DOCKERIZED_ENV_FILE_NAME = "dockerized.env"
 $DOCKERIZED_ROOT = (get-item $PSScriptRoot).parent.FullName
 $DOCKERIZED_COMPOSE_FILE = "${DOCKERIZED_ROOT}\docker-compose.yml"
-$DOCKERIZED_ENV_FILE = "${DOCKERIZED_ROOT}\${DOCKERIZED_ENV_FILE_NAME}"
-$Env:HOME = "${HOME}"
+$DOCKERIZED_BINARY = "${DOCKERIZED_ROOT}\build\dockerized.exe"
 
-# OPTIONS
-$DOCKERIZED_OPT_VERBOSE = $false
-
-# RUNTIME VARIABLES
-$_PWD_PATH = Get-Item -Path $PWD
-$HOST_PWD = "${PWD}"
-$HOST_HOSTNAME = "$(hostname)"
-$HOST_DIR_NAME = If ($_PWD_PATH.Root.FullName -eq $_PWD_PATH.FullName) {""} Else {$_PWD_PATH.Name}
-$SERVICE_ARGS = ""
-
-# PARSE OPTIONS
-if ($args[0] -eq '-v')
-{
-    $DOCKERIZED_OPT_VERBOSE = $true
-    $args[0] = ""
+function Write-StdErr {
+  param ([PSObject] $InputObject)
+  $outFunc = if ($Host.Name -eq 'ConsoleHost') {
+    [Console]::Error.WriteLine
+  } else {
+    $host.ui.WriteErrorLine
+  }
+  if ($InputObject) {
+    [void] $outFunc.Invoke($InputObject.ToString())
+  } else {
+    [string[]] $lines = @()
+    $Input | % { $lines += $_.ToString() }
+    [void] $outFunc.Invoke($lines -join "`r`n")
+  }
 }
 
-# convert windows paths to unix paths
-$SERVICE_ARGS = ($args | % { $_.replace('\', '/') })
-
-function DotEnv
-{
-    param(
-        [Parameter(Mandatory = $true)]
-        $file
-    )
-
-    # exit if file is not found
-    if ($file -eq "" -or !(Test-Path $file))
-    {
-        return
-    }
-
-    if ($DOCKERIZED_OPT_VERBOSE)
-    {
-        Write-Host "Loading environment from $file" -ForegroundColor Green
-    }
-
-    $content = (Get-Content $file)
-
-    if ($content.Length -eq 0)
-    {
-        return
-    }
-
-    $lines = $content.Split("\n")
-    foreach ($line in $lines)
-    {
-        if (! $line.StartsWith("#"))
-        {
-            $parts = $line.Split("=")
-            if ($parts.Length -eq 2)
-            {
-                $key = $parts[0].Trim()
-                $value = $parts[1].Trim().Replace("\r", "")
-                Set-Item "env:$key" $value
-            }
-        }
-    }
+# region COMPILE DOCKERIZED
+$DOCKERIZED_COMPILE=""
+if ($args[0] -eq "--compile") {
+    $DOCKERIZED_COMPILE = $true
+    $_, $args = $args
 }
 
-function FindUp
+if (($DOCKERIZED_COMPILE -eq $true) -Or !(Test-Path "$DOCKERIZED_BINARY"))
 {
-    param($FILE, $DIR)
-    $PATH = Get-Item -Path $DIR
-    while ($PATH.FullName -ne $PATH.Root.FullName)
-    {
-        $TARGET_FILE = "${PATH}\${FILE}"
-        if (Test-Path "$TARGET_FILE")
-        {
-            return $TARGET_FILE
-        }
-        $PATH = Get-Item -Path $PATH.Parent.FullName
+    Write-StdErr "Compiling dockerized..."
+    docker run `
+        --rm `
+        --entrypoint=go `
+        -e "GOOS=windows" `
+        -v "${DOCKERIZED_ROOT}:/src" `
+        -v "${DOCKERIZED_ROOT}\build:/build" `
+        -v "${DOCKERIZED_ROOT}\.cache:/go/pkg" `
+        -w /src `
+        "golang:1.17.8" `
+        build -o /build/ lib/dockerized.go
+
+    if ($LASTEXITCODE -ne 0) {
+        Write-StdErr "Failed to compile dockerized."
+        exit $LASTEXITCODE
     }
-    return ""
+
+    if ($args.Length -eq 0)
+    {
+        Write-StdErr "Compiled dockerized."
+        exit 0
+    }
 }
+# endregion
 
-function LoadEnvironment
-{
-    $envFile = FindUp $DOCKERIZED_ENV_FILE_NAME $PWD
-    DotEnv "${HOME}\${DOCKERIZED_ENV_FILE_NAME}"
-    DotEnv $envFile
-}
-
-LoadEnvironment
-
-docker-compose `
-    --env-file $DOCKERIZED_ENV_FILE `
-    -f $DOCKERIZED_COMPOSE_FILE `
-    run --rm `
-    -e "HOST_HOSTNAME=${HOST_HOSTNAME}" `
-    -v "${PWD}:/host/${HOST_DIR_NAME}" `
-    -w /host/${HOST_DIR_NAME} `
-    ${SERVICE_ARGS}
+# RUN DOCKERIZED:
+& $DOCKERIZED_BINARY $args
