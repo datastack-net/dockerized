@@ -70,13 +70,18 @@ func main() {
 		}
 	}
 
+	hostCwd, _ := os.Getwd()
+	var err = loadEnvFiles(hostCwd, optionVerbose)
+	if err != nil {
+		panic(err)
+	}
+
 	project, err := getProject(dockerizedDockerComposeFilePath)
 	if err != nil {
 		panic(err)
 	}
 
 	hostName, _ := os.Hostname()
-	hostCwd, _ := os.Getwd()
 	hostCwdDirName := filepath.Base(hostCwd)
 	containerCwd := "/host/" + hostCwdDirName
 
@@ -149,6 +154,31 @@ func main() {
 		runOptions.Command = []string{"-c", fmt.Sprintf("%s; %s", cmdPrintWelcome, cmdLaunchShell)}
 	}
 
+	if !contains(project.ServiceNames(), commandName) {
+		image := "r.j3ss.co/" + commandName
+		if optionVerbose {
+			fmt.Printf("Service %s not found in %s. Fallback to: %s.\n", commandName, dockerizedDockerComposeFilePath, image)
+			fmt.Printf("  This command, if it exists, will not support version switching.\n")
+			fmt.Printf("  See: https://github.com/jessfraz/dockerfiles\n")
+		}
+		err := dockerRun(image, runOptions, volumes)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		os.Exit(0)
+	}
+
+	err = dockerComposeRun(project, runOptions, volumes)
+	if err != nil {
+		if optionVerbose {
+			fmt.Println(err)
+		}
+		os.Exit(1)
+	}
+}
+
+func loadEnvFiles(hostCwd string, optionVerbose bool) error {
 	homeDir, _ := os.UserHomeDir()
 	userGlobalDockerizedEnvFile := filepath.Join(homeDir, dockerizedEnvFileName)
 	localDockerizedEnvFile, err := findLocalEnvFile(hostCwd)
@@ -172,32 +202,10 @@ func main() {
 	for i := len(envFiles) - 1; i >= 0; i-- {
 		err := godotenv.Load(envFiles[i])
 		if err != nil {
-			panic(err)
+			return err
 		}
 	}
-
-	if !contains(project.ServiceNames(), commandName) {
-		image := "r.j3ss.co/" + commandName
-		if optionVerbose {
-			fmt.Printf("Service %s not found in %s. Fallback to: %s.\n", commandName, dockerizedDockerComposeFilePath, image)
-			fmt.Printf("  This command, if it exists, will not support version switching.\n")
-			fmt.Printf("  See: https://github.com/jessfraz/dockerfiles\n")
-		}
-		err := dockerRun(image, runOptions, volumes)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-		os.Exit(0)
-	}
-
-	err = dockerComposeRun(project, runOptions, volumes)
-	if err != nil {
-		if optionVerbose {
-			fmt.Println(err)
-		}
-		os.Exit(1)
-	}
+	return nil
 }
 
 func dockerComposeRunAdHocService(service types.ServiceConfig, runOptions api.RunOptions) error {
