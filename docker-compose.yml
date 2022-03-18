@@ -81,6 +81,9 @@ services:
   http:
     image: "alpine/httpie:${HTTPIE_VERSION}"
     entrypoint: [ "http" ]
+  java:
+    image: "openjdk:${JAVA_VERSION}"
+    entrypoint: [ "java" ]
   jq:
     image: stedolan/jq
   node:
