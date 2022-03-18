@@ -13,8 +13,13 @@ DOCKERIZED_BINARY="${DOCKERIZED_ROOT}/build/dockerized"
 
 # region COMPILE DOCKERIZED
 DOCKERIZED_COMPILE=
-if [ "$1" == "--compile" ]; then
-  DOCKERIZED_COMPILE=1
+if [ "$1" == "--compile" ] || [ "$1" == "--compile=docker" ]; then
+  DOCKERIZED_COMPILE="docker"
+  shift
+fi
+
+if [ "$1" == "--compile=host" ]; then
+  DOCKERIZED_COMPILE="host"
   shift
 fi
 
@@ -58,16 +63,26 @@ esac
 
 if [ $DOCKERIZED_COMPILE ] || [ ! -f "$DOCKERIZED_BINARY" ]; then
   echo "Compiling dockerized..." >&2
-  docker run \
-    --rm \
-    --entrypoint=go \
-    -e "GOOS=${GOOS}" \
-    -v "${DOCKERIZED_ROOT}:/src" \
-    -v "${DOCKERIZED_ROOT}/build:/build" \
-    -v "${DOCKERIZED_ROOT}/.cache:/go/pkg" \
-    -w //src \
-    "golang:1.17.8" \
-    build -o //build/ lib/dockerized.go
+  GIT_COMMIT=$(cd $DOCKERIZED_ROOT; git rev-list -1 HEAD)
+  GO_BUILD_ARGS="-ldflags '-X main.Version=${GIT_COMMIT}'"
+  GO_LDFLAGS="-X main.Version=${GIT_COMMIT}"
+  if [ $DOCKERIZED_COMPILE == "docker" ]; then
+    docker run \
+      --rm \
+      --entrypoint=go \
+      -e "GOOS=${GOOS}" \
+      -v "${DOCKERIZED_ROOT}:/src" \
+      -v "${DOCKERIZED_ROOT}/build:/build" \
+      -v "${DOCKERIZED_ROOT}/.cache:/go/pkg" \
+      -w //src \
+      "golang:1.17.8" \
+      build -ldflags "$GO_LDFLAGS" -o //build/ lib/dockerized.go
+  else
+    (
+    cd "$DOCKERIZED_ROOT"
+    go build -ldflags "$GO_LDFLAGS" -o build/ lib/dockerized.go
+    )
+  fi
 
   if [ $? -ne 0 ]; then
     echo "Failed to compile dockerized" >&2
