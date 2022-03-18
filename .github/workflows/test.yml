@@ -28,10 +28,12 @@ jobs:
       - run: bin/dockerized go version
         shell: bash
 
-      - run: GO_VERSION=1.16.15 bin/dockerized go version | grep "go1.16.15"
+      - name: "Test: version from environment variable"
+        run: GO_VERSION=1.16.15 bin/dockerized go version | grep "go1.16.15"
         shell: bash
 
-      - run: |
+      - name: "Test: version from dockerized.env"
+        run: |
           mkdir -p project
           cd project
           echo 'GO_VERSION=1.17.8' > dockerized.env
