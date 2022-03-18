@@ -35,7 +35,7 @@ jobs:
           mkdir -p project
           cd project
           echo 'GO_VERSION=1.17.8' > dockerized.env
-          bin/dockerized go version | grep "1.17.8"
+          ../bin/dockerized go version | grep "1.17.8"
         shell: bash
 
       # region windows
