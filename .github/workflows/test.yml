@@ -22,7 +22,7 @@ jobs:
       - name: Checkout Dockerized
         uses: actions/checkout@v2
 
-      - run: bin/dockerized --compile --help
+      - run: bin/dockerized --help
         shell: bash
 
       - run: bin/dockerized go version
