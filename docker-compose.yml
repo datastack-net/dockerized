@@ -3,7 +3,7 @@ version: "3"
 services:
   _:
     &default
-    image: "_"
+    image: alpine
     stop_grace_period: 1s
     tty: true
     stdin_open: true
@@ -29,7 +29,7 @@ services:
     <<: *default
     image: "amazon/aws-cli:${AWS_VERSION}"
     volumes:
-      - "${HOME}/.aws:/root/.aws"
+      - "${HOME:-}/.aws:/root/.aws"
     environment:
       AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID:-}"
       AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY:-}"
@@ -44,7 +44,7 @@ services:
         BUILD_SCRIPT_ARGS: "${DOCTL_VERSION}"
     entrypoint: [ "doctl" ]
     volumes:
-      - "${HOME}/.dockerized/apps/doctl:/root"
+      - "${HOME:-}/.dockerized/apps/doctl:/root"
   dotnet:
     <<: *default
     image: "mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION}-alpine"
@@ -61,7 +61,7 @@ services:
         BUILD_SCRIPT_ARGS: "${GH_VERSION}"
     entrypoint: [ "/init.sh", "/gh/bin/gh" ]
     volumes:
-      - "${HOME}/.dockerized/apps/gh:/root"
+      - "${HOME:-}/.dockerized/apps/gh:/root"
       - "./apps/gh/init.sh:/init.sh"
     environment:
       BROWSER: "echo"
@@ -90,7 +90,7 @@ services:
     entrypoint: [ "node" ]
     volumes:
       - "node_modules:/usr/local/lib/node_modules"
-      - "${HOME}/.dockerized/apps/node:/root"
+      - "${HOME:-}/.dockerized/apps/node:/root"
   npm:
     <<: *node
     entrypoint: [ "npm" ]
@@ -116,6 +116,7 @@ services:
     entrypoint: [ "python" ]
     volumes:
       - "python_modules:/usr/local/lib/python${PYTHON_VERSION}/site-packages"
+      - "${HOME:-}/.dockerized/apps/python:/root"
   python2:
     <<: *default
     image: "python:${PYTHON2_VERSION}"
@@ -138,7 +139,7 @@ services:
       AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID:-}"
       AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY:-}"
     volumes:
-      - "${HOME}/.dockerized/apps/s3cmd:/root"
+      - "${HOME:-}/.dockerized/apps/s3cmd:/root"
   swagger-codegen:
     <<: *default
     image: "swaggerapi/swagger-codegen-cli-v3:${SWAGGER_CODEGEN_VERSION}"
