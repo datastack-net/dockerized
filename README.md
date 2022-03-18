@@ -30,11 +30,14 @@ dockerized <command>
 - Languages & SDKs
   - [dotnet](apps/dotnet/README.md)
   - go
+  - java
+  - perl
   - php
+  - lua
   - node
     - [npm](apps/npm/README.md)
     - npx
-    - tsc
+    - tsc (typescript compiler)
     - vue
     - yarn
   - python
