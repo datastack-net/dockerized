@@ -86,6 +86,9 @@ services:
     entrypoint: [ "java" ]
   jq:
     image: stedolan/jq
+  lua:
+    image: "${LUA_IMAGE}:${LUA_VERSION}"
+    entrypoint: [ "lua" ]
   node:
     &node
     image: "node:${NODE_VERSION}"
