@@ -99,6 +99,9 @@ services:
   npx:
     <<: *node
     entrypoint: [ "npx" ]
+  perl:
+    image: perl:${PERL_VERSION}
+    entrypoint: [ "perl" ]
   php:
     image: "php:${PHP_VERSION}"
   protoc:
