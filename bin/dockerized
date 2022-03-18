@@ -61,12 +61,12 @@ i*86)
 
 esac
 
-if [ $DOCKERIZED_COMPILE ] || [ ! -f "$DOCKERIZED_BINARY" ]; then
+if [ "$DOCKERIZED_COMPILE" ] || [ ! -f "$DOCKERIZED_BINARY" ]; then
   echo "Compiling dockerized..." >&2
   GIT_COMMIT=$(cd $DOCKERIZED_ROOT; git rev-list -1 HEAD)
   GO_BUILD_ARGS="-ldflags '-X main.Version=${GIT_COMMIT}'"
   GO_LDFLAGS="-X main.Version=${GIT_COMMIT}"
-  if [ $DOCKERIZED_COMPILE == "docker" ]; then
+  if [ "$DOCKERIZED_COMPILE" == "docker" ]; then
     docker run \
       --rm \
       --entrypoint=go \
