@@ -16,6 +16,7 @@ import (
 	"os/signal"
 	"path/filepath"
 	"sort"
+	"strings"
 	"syscall"
 )
 
@@ -129,10 +130,15 @@ func main() {
 				welcomeMessage += fmt.Sprintf("  %s -> %s\n", volume.Source, volume.Target)
 			}
 		}
+		welcomeMessage = strings.ReplaceAll(welcomeMessage, "\\", "\\\\")
+
+		var preferredShells = "bash zsh sh"
+		var cmdPrintWelcome = fmt.Sprintf("echo -e '%s'", color.YellowString(welcomeMessage))
+		var cmdLaunchShell = fmt.Sprintf("$(which %[1]s 2> /dev/null || command -v %[1]s | head -n 1)", preferredShells)
 
 		runOptions.Environment = append(runOptions.Environment, "PS1="+ps1)
 		runOptions.Entrypoint = []string{"/bin/sh"}
-		runOptions.Command = []string{"-c", fmt.Sprintf("echo \"%s\"; $(which bash sh zsh | head -n 1)", color.CyanString(welcomeMessage))}
+		runOptions.Command = []string{"-c", fmt.Sprintf("%s; %s", cmdPrintWelcome, cmdLaunchShell)}
 	}
 
 	homeDir, _ := os.UserHomeDir()
