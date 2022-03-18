@@ -9,9 +9,7 @@ import (
 	"github.com/docker/cli/cli/flags"
 	"github.com/docker/compose/v2/pkg/api"
 	"github.com/docker/compose/v2/pkg/compose"
-	dockerTypes "github.com/docker/docker/api/types"
-	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/client"
+	"github.com/fatih/color"
 	"github.com/joho/godotenv"
 	"os"
 	"os/exec"
@@ -63,6 +61,11 @@ func main() {
 		}
 	}
 
+	project, err := getProject(dockerizedDockerComposeFilePath)
+	if err != nil {
+		panic(err)
+	}
+
 	hostName, _ := os.Hostname()
 	hostCwd, _ := os.Getwd()
 	hostCwdDirName := filepath.Base(hostCwd)
@@ -108,8 +111,28 @@ func main() {
 				fmt.Printf("Ignoring arguments: %s\n", commandArgs[0])
 			}
 		}
+
+		var ps1 = fmt.Sprintf(
+			"%s %s:\\w \\$ ",
+			color.BlueString("dockerized %s", commandName),
+			color.New(color.FgHiBlue).Add(color.Bold).Sprintf("\\u@\\h"),
+		)
+		var welcomeMessage = "Welcome to dockerized shell. Type 'exit' or press Ctrl+D to exit.\n"
+		welcomeMessage += "Mounted volumes:\n"
+
+		for _, volume := range volumes {
+			welcomeMessage += fmt.Sprintf("  %s -> %s\n", volume.Source, volume.Target)
+		}
+		service, err := project.GetService(commandName)
+		if err == nil {
+			for _, volume := range service.Volumes {
+				welcomeMessage += fmt.Sprintf("  %s -> %s\n", volume.Source, volume.Target)
+			}
+		}
+
+		runOptions.Environment = append(runOptions.Environment, "PS1="+ps1)
 		runOptions.Entrypoint = []string{"/bin/sh"}
-		runOptions.Command = []string{"-c", "$(which bash sh zsh | head -n 1)"}
+		runOptions.Command = []string{"-c", fmt.Sprintf("echo \"%s\"; $(which bash sh zsh | head -n 1)", color.CyanString(welcomeMessage))}
 	}
 
 	homeDir, _ := os.UserHomeDir()
@@ -139,35 +162,14 @@ func main() {
 		}
 	}
 
-	project, err := getProject(dockerizedDockerComposeFilePath)
-	if err != nil {
-		panic(err)
-	}
-
 	if !contains(project.ServiceNames(), commandName) {
-		fmt.Printf("Service %s not found in %s\n", commandName, dockerizedDockerComposeFilePath)
-		var binds []string
-		for _, volume := range volumes {
-			binds = append(binds, fmt.Sprintf("%s:%s", volume.Source, volume.Target))
+		image := "r.j3ss.co/" + commandName
+		if optionVerbose {
+			fmt.Printf("Service %s not found in %s. Fallback to: %s.\n", commandName, dockerizedDockerComposeFilePath, image)
+			fmt.Printf("  This command, if it exists, will not support version switching.\n")
+			fmt.Printf("  See: https://github.com/jessfraz/dockerfiles\n")
 		}
-
-		err := dockerRun(container.Config{
-			Image: "r.j3ss.co/" + commandName,
-			//Entrypoint: []string{
-			//	"/bin/sh",
-			//	"-c",
-			//},
-			Cmd:          commandArgs,
-			WorkingDir:   runOptions.WorkingDir,
-			Tty:          true,
-			AttachStdin:  true,
-			AttachStdout: true,
-			OpenStdin:    true,
-		}, container.HostConfig{
-			Binds: []string{
-				hostCwd + ":" + containerCwd,
-			},
-		})
+		err := dockerRun(image, runOptions, volumes)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -175,7 +177,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	err = dockerComposeRun(dockerizedDockerComposeFilePath, runOptions, volumes)
+	err = dockerComposeRun(project, runOptions, volumes)
 	if err != nil {
 		if optionVerbose {
 			fmt.Println(err)
@@ -184,65 +186,28 @@ func main() {
 	}
 }
 
-func dockerRun(config container.Config, hostConfig container.HostConfig) error {
-	ctx, _ := newSigContext()
-	apiClient, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
-	if err != nil {
-		panic(err)
+func dockerComposeRunAdHocService(service types.ServiceConfig, runOptions api.RunOptions) error {
+	if service.Environment == nil {
+		service.Environment = map[string]*string{}
 	}
+	return dockerComposeRun(&types.Project{
+		Name: "dockerized",
+		Services: []types.ServiceConfig{
+			service,
+		},
+	}, runOptions, []types.ServiceVolumeConfig{})
+}
 
-	reader, err := apiClient.ImagePull(ctx, config.Image, dockerTypes.ImagePullOptions{})
-	if err != nil {
-		panic(err)
-	}
-
-	defer reader.Close()
-	//io.Copy(os.Stdout, reader)
-
-	resp, err := apiClient.ContainerCreate(ctx, &config, &hostConfig, nil, nil, "")
-	if err != nil {
-		panic(err)
-	}
-
-	if err := apiClient.ContainerStart(ctx, resp.ID, dockerTypes.ContainerStartOptions{}); err != nil {
-		panic(err)
-	}
-
-	attach, err := apiClient.ContainerAttach(ctx, resp.ID, dockerTypes.ContainerAttachOptions{
-		Stdin:  true,
-		Stdout: true,
-		Stderr: true,
-		Stream: true,
-	})
-	if err != nil {
-		return err
-	}
-
-	// todo: connect to attach.Conn
-	//io.Copy(os.Stdout, attach.Reader)
-	//io.Copy(os.Stdin, attach.Conn)
-
-	defer attach.Close()
-
-	statusCh, errCh := apiClient.ContainerWait(ctx, resp.ID, container.WaitConditionNotRunning)
-	select {
-	case err := <-errCh:
-		if err != nil {
-			panic(err)
-		}
-	case <-statusCh:
-	}
-
-	//out, err := apiClient.ContainerLogs(ctx, resp.ID, dockerTypes.ContainerLogsOptions{ShowStdout: true})
-	//if err != nil {
-	//	panic(err)
-	//}
-	//
-	//_, err = stdcopy.StdCopy(os.Stdout, os.Stderr, out)
-	//if err != nil {
-	//	return err
-	//}
-	return nil
+func dockerRun(image string, runOptions api.RunOptions, volumes []types.ServiceVolumeConfig) error {
+	// Couldn't get 'docker run' to work, so instead define a Docker Compose Service and run that.
+	// This coincidentally allows re-using the same code for both 'docker run' and 'docker-compose run'
+	// - ContainerCreate is simple, but the logic to attach to it is very complex, and not exposed by the Docker SDK.
+	// - Using [container.NewRunCommand] didn't work due to dependency compatibility issues.
+	return dockerComposeRunAdHocService(types.ServiceConfig{
+		Name:    runOptions.Service,
+		Image:   image,
+		Volumes: volumes,
+	}, runOptions)
 }
 
 func execute(command string, args ...string) error {
@@ -330,7 +295,7 @@ func dockerComposeUpNetworkOnly(backend *api.ServiceProxy, ctx context.Context, 
 	err := backend.Up(ctx, project, upOptions)
 
 	// docker compose up will return error if there is no service to start, but the network will have been created.
-	expectedErrorMessage := "no container found for project \"dockerized\": not found"
+	expectedErrorMessage := "no container found for project \"" + project.Name + "\": not found"
 	if err == nil || api.IsNotFoundError(err) && err.Error() == expectedErrorMessage {
 		return nil
 	}
@@ -376,12 +341,7 @@ func dockerComposeBuild(dockerComposeFilePath string, buildOptions api.BuildOpti
 	return backend.Build(ctx, project, buildOptions)
 }
 
-func dockerComposeRun(dockerComposeFilePath string, runOptions api.RunOptions, volumes []types.ServiceVolumeConfig) error {
-	project, err := getProject(dockerComposeFilePath)
-	if err != nil {
-		return err
-	}
-
+func dockerComposeRun(project *types.Project, runOptions api.RunOptions, volumes []types.ServiceVolumeConfig) error {
 	ctx, _ := newSigContext()
 
 	serviceName := runOptions.Service
