@@ -25,6 +25,14 @@ services:
       args:
         ALPINE_VERSION: "${ALPINE_VERSION}"
         ALPINE_PACKAGES: "tree"
+  ab:
+    <<: *alpine
+    build:
+      context: apps/alpine
+      args:
+        ALPINE_VERSION: "${ALPINE_VERSION}"
+        ALPINE_PACKAGES: "apache2-ssl apache2-utils ca-certificates"
+    entrypoint: [ "ab" ]
   aws:
     <<: *default
     image: "amazon/aws-cli:${AWS_VERSION}"
