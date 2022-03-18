@@ -9,8 +9,12 @@ import (
 	"github.com/docker/cli/cli/flags"
 	"github.com/docker/compose/v2/pkg/api"
 	"github.com/docker/compose/v2/pkg/compose"
+	dockerTypes "github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/client"
 	"github.com/joho/godotenv"
 	"os"
+	"os/exec"
 	"os/signal"
 	"path/filepath"
 	"sort"
@@ -135,6 +139,42 @@ func main() {
 		}
 	}
 
+	project, err := getProject(dockerizedDockerComposeFilePath)
+	if err != nil {
+		panic(err)
+	}
+
+	if !contains(project.ServiceNames(), commandName) {
+		fmt.Printf("Service %s not found in %s\n", commandName, dockerizedDockerComposeFilePath)
+		var binds []string
+		for _, volume := range volumes {
+			binds = append(binds, fmt.Sprintf("%s:%s", volume.Source, volume.Target))
+		}
+
+		err := dockerRun(container.Config{
+			Image: "r.j3ss.co/" + commandName,
+			//Entrypoint: []string{
+			//	"/bin/sh",
+			//	"-c",
+			//},
+			Cmd:          commandArgs,
+			WorkingDir:   runOptions.WorkingDir,
+			Tty:          true,
+			AttachStdin:  true,
+			AttachStdout: true,
+			OpenStdin:    true,
+		}, container.HostConfig{
+			Binds: []string{
+				hostCwd + ":" + containerCwd,
+			},
+		})
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		os.Exit(0)
+	}
+
 	err = dockerComposeRun(dockerizedDockerComposeFilePath, runOptions, volumes)
 	if err != nil {
 		if optionVerbose {
@@ -142,6 +182,79 @@ func main() {
 		}
 		os.Exit(1)
 	}
+}
+
+func dockerRun(config container.Config, hostConfig container.HostConfig) error {
+	ctx, _ := newSigContext()
+	apiClient, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		panic(err)
+	}
+
+	reader, err := apiClient.ImagePull(ctx, config.Image, dockerTypes.ImagePullOptions{})
+	if err != nil {
+		panic(err)
+	}
+
+	defer reader.Close()
+	//io.Copy(os.Stdout, reader)
+
+	resp, err := apiClient.ContainerCreate(ctx, &config, &hostConfig, nil, nil, "")
+	if err != nil {
+		panic(err)
+	}
+
+	if err := apiClient.ContainerStart(ctx, resp.ID, dockerTypes.ContainerStartOptions{}); err != nil {
+		panic(err)
+	}
+
+	attach, err := apiClient.ContainerAttach(ctx, resp.ID, dockerTypes.ContainerAttachOptions{
+		Stdin:  true,
+		Stdout: true,
+		Stderr: true,
+		Stream: true,
+	})
+	if err != nil {
+		return err
+	}
+
+	// todo: connect to attach.Conn
+	//io.Copy(os.Stdout, attach.Reader)
+	//io.Copy(os.Stdin, attach.Conn)
+
+	defer attach.Close()
+
+	statusCh, errCh := apiClient.ContainerWait(ctx, resp.ID, container.WaitConditionNotRunning)
+	select {
+	case err := <-errCh:
+		if err != nil {
+			panic(err)
+		}
+	case <-statusCh:
+	}
+
+	//out, err := apiClient.ContainerLogs(ctx, resp.ID, dockerTypes.ContainerLogsOptions{ShowStdout: true})
+	//if err != nil {
+	//	panic(err)
+	//}
+	//
+	//_, err = stdcopy.StdCopy(os.Stdout, os.Stderr, out)
+	//if err != nil {
+	//	return err
+	//}
+	return nil
+}
+
+func execute(command string, args ...string) error {
+	cmd := exec.Command(command, args...)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	err := cmd.Run()
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 var dockerizedEnvFileName = "dockerized.env"
@@ -224,7 +337,7 @@ func dockerComposeUpNetworkOnly(backend *api.ServiceProxy, ctx context.Context, 
 	return err
 }
 
-func getBackend() (*api.ServiceProxy, error) {
+func getDockerCli() (*command.DockerCli, error) {
 	dockerCli, err := command.NewDockerCli()
 	if err != nil {
 		return nil, err
@@ -234,7 +347,11 @@ func getBackend() (*api.ServiceProxy, error) {
 	if err != nil {
 		return nil, err
 	}
+	return dockerCli, nil
+}
 
+func getBackend() (*api.ServiceProxy, error) {
+	dockerCli, err := getDockerCli()
 	if err != nil {
 		return nil, err
 	}
