@@ -1,3 +1,10 @@
+# [2.5.0](https://github.com/datastack-net/dockerized/compare/v2.4.0...v2.5.0) (2022-03-20)
+
+
+### Features
+
+* Downloads for Linux, Mac and Windows ([7a5d4a6](https://github.com/datastack-net/dockerized/commit/7a5d4a6ec1729b42c5e03e9bcd97e8a9def06294))
+
 # [2.4.0](https://github.com/datastack-net/dockerized/compare/v2.3.0...v2.4.0) (2022-03-20)
 
 
