@@ -45,8 +45,10 @@ dockerized <command>
     - python
     - python2
   - ruby
+  - rustc (rust compiler)
 - Unix
   - tree
+  - zip
 
 
 ## Installation

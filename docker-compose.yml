@@ -134,9 +134,9 @@ services:
   ruby:
     image: "ruby:${RUBY_VERSION}"
     entrypoint: [ "ruby" ]
-#  rustc:
-#    image: "rust:${RUST_VERSION}"
-#    entrypoint: [ "rustc" ]
+  rustc:
+    image: "rust:${RUST_VERSION}"
+    entrypoint: [ "rustc" ]
   s3cmd:
     build:
       context: apps/s3cmd
