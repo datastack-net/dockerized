@@ -45,8 +45,10 @@ dockerized <command>
     - python
     - python2
   - ruby
+  - rust
 - Unix
   - tree
+  - zip
 
 
 ## Installation
