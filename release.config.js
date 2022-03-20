@@ -1,11 +1,14 @@
 module.exports = {
-  branches: ['master', 'feature/semantic-release'],
-  plugins: [
-    "@semantic-release/commit-analyzer",
-    "@semantic-release/release-notes-generator",
-    "@semantic-release/github",
-    '@semantic-release/changelog',
-    '@semantic-release/github',
-    '@semantic-release/git',
-  ],
+    branches: ['master'],
+    plugins: [
+        "@semantic-release/commit-analyzer",
+        "@semantic-release/release-notes-generator",
+        ["@semantic-release/github", {
+            "assets": [
+                {"path": "release/windows64.zip", "label": "Windows (64bit)", "name": "dockerized-${nextRelease.gitTag}-win64.zip"},
+            ]
+        }],
+        '@semantic-release/changelog',
+        '@semantic-release/git',
+    ],
 };

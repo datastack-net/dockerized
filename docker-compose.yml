@@ -76,6 +76,10 @@ services:
   go:
     image: "golang:${GO_VERSION}"
     entrypoint: [ "go" ]
+    volumes:
+      - "go_cache:/go/pkg"
+    environment:
+      GOOS: "${GOOS:-}"
   helm:
     image: "alpine/helm:${HELM_VERSION}"
   http:
@@ -159,8 +163,18 @@ services:
   yarn:
     <<: *node
     entrypoint: [ "yarn" ]
+  zip:
+    image: "zip"
+    build:
+      context: apps/alpine
+      args:
+        ALPINE_VERSION: "${ALPINE_VERSION}"
+        ALPINE_PACKAGES: "zip"
+    entrypoint: ["/usr/bin/zip"]
+
 volumes:
   node_modules: {}
   python_modules: {}
   pip_cache: {}
   dockerized_compile: {}
+  go_cache: {}
