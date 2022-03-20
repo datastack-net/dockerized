@@ -147,7 +147,7 @@ func main() {
 
 		preferredShells := "bash zsh sh"
 		var cmdPrintWelcome = fmt.Sprintf("echo '%s'", color.YellowString(welcomeMessage))
-		var cmdLaunchShell = fmt.Sprintf("$(command -v %[1]s | head -n1 || which %[1]s | head -n1)", preferredShells)
+		var cmdLaunchShell = fmt.Sprintf("$(command -pv %[1]s | head -n1 || which %[1]s | head -n1)", preferredShells)
 
 		runOptions.Environment = append(runOptions.Environment, "PS1="+ps1)
 		runOptions.Entrypoint = []string{"/bin/sh"}

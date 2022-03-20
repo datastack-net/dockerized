@@ -12,6 +12,8 @@ jobs:
           - go
           - aws
           - python
+          - rust
+          - zip
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Dockerized
