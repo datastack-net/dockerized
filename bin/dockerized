@@ -25,29 +25,29 @@ fi
 
 case "$OSTYPE" in
 msys | cygwin)
-  GOOS=windows
+  DOCKERIZED_COMPILE_GOOS=windows
   ;;
 darwin*)
-  GOOS=darwin
+  DOCKERIZED_COMPILE_GOOS=darwin
   ;;
 # Operating systems below not tested. Logic based on:
 #  - https://github.com/dylanaraps/neofetch/issues/433
 #  - https://gist.github.com/asukakenji/f15ba7e588ac42795f421b48b8aede63
 openbsd*)
-  GOOS=openbsd
+  DOCKERIZED_COMPILE_GOOS=openbsd
   ;;
 freebsd*)
-  GOOS=freebsd
+  DOCKERIZED_COMPILE_GOOS=freebsd
   ;;
 netbsd*)
-  GOOS=netbsd
+  DOCKERIZED_COMPILE_GOOS=netbsd
   ;;
 solaris*)
-  GOOS=solaris
+  DOCKERIZED_COMPILE_GOOS=solaris
   ;;
 # default
 *)
-  GOOS=linux
+  DOCKERIZED_COMPILE_GOOS=linux
   ;;
 esac
 
@@ -70,7 +70,7 @@ if [ "$DOCKERIZED_COMPILE" ] || [ ! -f "$DOCKERIZED_BINARY" ]; then
     docker run \
       --rm \
       --entrypoint=go \
-      -e "GOOS=${GOOS}" \
+      -e "GOOS=${DOCKERIZED_COMPILE_GOOS}" \
       -v "${DOCKERIZED_ROOT}:/src" \
       -v "${DOCKERIZED_ROOT}/build:/build" \
       -v "${DOCKERIZED_ROOT}/.cache:/go/pkg" \
