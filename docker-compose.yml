@@ -80,6 +80,7 @@ services:
       - "go_cache:/go/pkg"
     environment:
       GOOS: "${GOOS:-}"
+      GOARCH: "${GOARCH:-}"
   helm:
     image: "alpine/helm:${HELM_VERSION}"
   http:
