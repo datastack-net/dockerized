@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           path: dockerized
-      - run: mkdir release/${{ matrix.target.name }}
+      - run: mkdir -p release/${{ matrix.target.name }}
       - name: Copy static assets
         working-directory: release/${{ matrix.target.name }}
         run: |
