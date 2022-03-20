@@ -20,7 +20,8 @@ jobs:
         env:
           COMMAND: "${{matrix.command}}"
         run: |
-          bin/dockerized --shell $COMMAND -c 'echo $HOST_HOSTNAME' | tee ~/shell.log | grep $(hostname) || cat ~/shell.log
+          bin/dockerized --shell $COMMAND -c 'echo $HOST_HOSTNAME' | tee ~/shell.log
+          grep $(hostname) ~/shell.log
   CompileAndTest:
     runs-on: ${{ matrix.os }}
     strategy:
