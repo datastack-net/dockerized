@@ -5,7 +5,7 @@ jobs:
   ShellTest:
     strategy:
       matrix:
-        commands:
+        command:
           - go
           - aws
           - python
