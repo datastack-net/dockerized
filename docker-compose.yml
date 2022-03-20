@@ -163,6 +163,15 @@ services:
   yarn:
     <<: *node
     entrypoint: [ "yarn" ]
+  zip:
+    image: "zip"
+    build:
+      context: apps/alpine
+      args:
+        ALPINE_VERSION: "${ALPINE_VERSION}"
+        ALPINE_PACKAGES: "zip"
+    entrypoint: ["/usr/bin/zip"]
+
 volumes:
   node_modules: {}
   python_modules: {}
