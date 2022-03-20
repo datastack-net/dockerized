@@ -1,3 +1,15 @@
+# [2.3.0](https://github.com/datastack-net/dockerized/compare/v2.2.4...v2.3.0) (2022-03-20)
+
+
+### Bug Fixes
+
+* --shell for alpine-based commands ([e3c3e86](https://github.com/datastack-net/dockerized/commit/e3c3e86ecaf4e5d4533ef3a36b556eaf7de0fc1f))
+
+
+### Features
+
+* add 'rust', 'zip' ([07af7d3](https://github.com/datastack-net/dockerized/commit/07af7d3856473e686e262be467008089be83e7b6))
+
 ## [2.2.4](https://github.com/datastack-net/dockerized/compare/v2.2.3...v2.2.4) (2022-03-20)
 
 
