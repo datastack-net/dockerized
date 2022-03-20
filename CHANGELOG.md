@@ -1,3 +1,12 @@
+## [2.2.1](https://github.com/datastack-net/dockerized/compare/v2.2.0...v2.2.1) (2022-03-20)
+
+
+### Bug Fixes
+
+* pre-compiled Windows binary could not run because of missing compose file ([e0fab23](https://github.com/datastack-net/dockerized/commit/e0fab23fe3c9d8f8baccd948bc172c88e15f3482))
+* pre-compiled Windows binary could not run because of missing compose file ([48cbe6a](https://github.com/datastack-net/dockerized/commit/48cbe6a442b501078f0d1227344f86edb145aca3))
+* remove accidentally added services that triggered warnings ([81dc609](https://github.com/datastack-net/dockerized/commit/81dc609d3f478994542470f42744ee0ee0eac655))
+
 # [2.2.0](https://github.com/datastack-net/dockerized/compare/v2.1.0...v2.2.0) (2022-03-20)
 
 
