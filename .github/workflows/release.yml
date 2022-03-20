@@ -9,19 +9,15 @@ jobs:
     strategy:
       matrix:
         target:
-          - { name: windows64, GOOS: windows, GOARCH: amd64, BIN: "dockerized.exe" }
+          - { name: windows64, GOOS: windows }
     steps:
       - uses: actions/checkout@v2
       - run: mkdir -p release/${{ matrix.target.name }}
       - name: Copy static assets
         run: cp -r apps/ .env *.md docker-compose.yml release/${{ matrix.target.name }}
       - name: Build
-        env:
-          GOOS: "${{ matrix.target.GOOS }}"
-          BIN: "${{ matrix.target.BIN }}"
-          GO_VERSION: "1.17.8"
         run: |
-          bin/dockerized go build -o release/${{ matrix.target.name }}/bin/$BIN lib/dockerized.go
+          GO_VERSION=1.17.8 GOOS=${{ matrix.target.GOOS }} bin/dockerized go build -o release/${{ matrix.target.name }}/bin/ lib/dockerized.go
       - name: Zip
         working-directory: release/${{ matrix.target.name }}
         run: |
