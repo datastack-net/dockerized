@@ -9,7 +9,11 @@ jobs:
     strategy:
       matrix:
         target:
-          - { name: windows64, GOOS: windows }
+          - { name: linux-x86_64, GOOS: linux, GOARCH: amd64 }
+          - { name: mac-x86_64, GOOS: darwin, GOARCH: amd64 }
+          - { name: mac-arm64, GOOS: darwin, GOARCH: arm64 }
+          - { name: win64, GOOS: windows, GOARCH: amd64 }
+          - { name: win32, GOOS: windows, GOARCH: 386 }
     steps:
       - uses: actions/checkout@v2
       - run: mkdir -p release/${{ matrix.target.name }}
@@ -19,6 +23,7 @@ jobs:
         env:
           GO_VERSION: 1.17.8
           GOOS: ${{ matrix.target.GOOS }}
+          GOARCH: ${{ matrix.target.GOARCH }}
         run: |
           bin/dockerized go build -o release/${{ matrix.target.name }}/bin/ lib/dockerized.go
       - name: Zip
