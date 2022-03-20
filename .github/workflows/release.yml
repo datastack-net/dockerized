@@ -48,8 +48,6 @@ jobs:
         with:
           name: release
           path: release
-      - name: Verify artifacts
-        run: ls release/windows64.zip
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
