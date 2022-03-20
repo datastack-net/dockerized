@@ -134,6 +134,9 @@ services:
   ruby:
     image: "ruby:${RUBY_VERSION}"
     entrypoint: [ "ruby" ]
+  rustc:
+    image: "rust:${RUST_VERSION}"
+    entrypoint: [ "rustc" ]
   s3cmd:
     build:
       context: apps/s3cmd
@@ -146,6 +149,11 @@ services:
       AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY:-}"
     volumes:
       - "${HOME:-}/.dockerized/apps/s3cmd:/root"
+  semantic-release-cli:
+    <<: *node
+    entrypoint: [ "npx", "--package=semantic-release-cli@${SEMANTIC_RELEASE_VERSION}", "semantic-release-cli" ]
+    volumes:
+      - "${HOME:-}/.dockerized/apps/gh:/root"
   swagger-codegen:
     image: "swaggerapi/swagger-codegen-cli-v3:${SWAGGER_CODEGEN_VERSION}"
   tree:
