@@ -4,6 +4,7 @@ on: [push]
 jobs:
   ShellTest:
     strategy:
+      fail-fast: true
       matrix:
         command:
           - go
