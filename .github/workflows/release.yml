@@ -28,7 +28,7 @@ jobs:
         env:
           GOOS: "${{ matrix.target.GOOS }}"
           BIN: "${{ matrix.target.BIN }}"
-        run:
+        run: |
           cd dockerized
           bin/dockerized go build -o build/$BIN lib/dockerized.go
           mv build/$BIN $GITHUB_WORKSPACE/release/${{ matrix.target.name }}/
