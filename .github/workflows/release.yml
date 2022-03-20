@@ -16,8 +16,11 @@ jobs:
       - name: Copy static assets
         run: cp -r apps/ .env *.md docker-compose.yml release/${{ matrix.target.name }}
       - name: Build
+        env:
+          GO_VERSION: 1.17.8
+          GOOS: ${{ matrix.target.GOOS }}
         run: |
-          GO_VERSION=1.17.8 GOOS=${{ matrix.target.GOOS }} bin/dockerized go build -o release/${{ matrix.target.name }}/bin/ lib/dockerized.go
+          bin/dockerized go build -o release/${{ matrix.target.name }}/bin/ lib/dockerized.go
       - name: Zip
         working-directory: release/${{ matrix.target.name }}
         run: |
@@ -41,10 +44,7 @@ jobs:
           name: release
           path: release
       - name: Verify artifacts
-        run: |
-          ls -lah .
-          echo
-          tree
+        run: ls release/windows64.zip
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
