@@ -17,7 +17,7 @@ jobs:
         env:
           COMMAND: "${{matrix.command}}"
         run: |
-          bin/dockerized --compile=host
+          bin/dockerized --compile
           bin/dockerized --shell $COMMAND -c 'echo $HOST_HOSTNAME' | grep $(hostname)
   CompileAndTest:
     runs-on: ${{ matrix.os }}
