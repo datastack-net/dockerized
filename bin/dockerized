@@ -53,10 +53,10 @@ esac
 
 case "$(uname -m)" in
 x86_64)
-  GOARCH=amd64
+  DOCKERIZED_COMPILE_GOARCH=amd64
   ;;
 i*86)
-  GOARCH=386
+  DOCKERIZED_COMPILE_GOARCH=386
   ;;
 
 esac
@@ -71,6 +71,7 @@ if [ "$DOCKERIZED_COMPILE" ] || [ ! -f "$DOCKERIZED_BINARY" ]; then
       --rm \
       --entrypoint=go \
       -e "GOOS=${DOCKERIZED_COMPILE_GOOS}" \
+      -e "GOARCH=${DOCKERIZED_COMPILE_GOARCH}" \
       -v "${DOCKERIZED_ROOT}:/src" \
       -v "${DOCKERIZED_ROOT}/build:/build" \
       -v "${DOCKERIZED_ROOT}/.cache:/go/pkg" \
