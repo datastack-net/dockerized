@@ -13,30 +13,20 @@ jobs:
           - { name: windows64, GOOS: windows, GOARCH: amd64, BIN: "dockerized.exe" }
     steps:
       - uses: actions/checkout@v2
-        with:
-          path: dockerized
       - run: mkdir -p release/${{ matrix.target.name }}
       - name: Copy static assets
-        working-directory: release/${{ matrix.target.name }}
-        run: |
-          DOCKERIZED=$GITHUB_WORKSPACE/dockerized
-          cp -r $DOCKERIZED/apps .
-          cp -r $DOCKERIZED/.env .
-          cp -r $DOCKERIZED/*.md .
-
+        run: cp -r apps/ .env *.md release/${{ matrix.target.name }}
       - name: Build
         env:
           GOOS: "${{ matrix.target.GOOS }}"
           BIN: "${{ matrix.target.BIN }}"
           GO_VERSION: "1.17.8"
         run: |
-          cd dockerized
-          bin/dockerized go build -o build/$BIN lib/dockerized.go
-          mv build/$BIN $GITHUB_WORKSPACE/release/${{ matrix.target.name }}/
+          bin/dockerized go build -o release/${{ matrix.target.name }}/bin/$BIN lib/dockerized.go
       - name: Zip
         working-directory: release/${{ matrix.target.name }}
         run: |
-          zip -r $GITHUB_WORKSPACE/release/${{ matrix.target.name }}.zip .
+          zip -r $GITHUB_WORKSPACE/release/${{ matrix.target.name }}.zip *
   release:
     name: Release
     runs-on: ubuntu-latest
