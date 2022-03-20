@@ -1,3 +1,10 @@
+## [2.2.2](https://github.com/datastack-net/dockerized/compare/v2.2.1...v2.2.2) (2022-03-20)
+
+
+### Bug Fixes
+
+* Windows build not executable on Windows ([528c7d8](https://github.com/datastack-net/dockerized/commit/528c7d83980bb88337245a2ff1dd684c9c3f7366))
+
 ## [2.2.1](https://github.com/datastack-net/dockerized/compare/v2.2.0...v2.2.1) (2022-03-20)
 
 
