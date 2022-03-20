@@ -53,18 +53,53 @@ dockerized <command>
 
 ## Installation
 
-- Make sure [Git](https://git-scm.com/downloads) and [Docker](https://docs.docker.com/get-docker/) are installed on your machine.
-- Clone this repo anywhere. For example into your home directory:
-  ```shell
-  git clone https://github.com/datastack-net/dockerized.git
-  ```
-- Add the `dockerized/bin` directory to your `PATH`:
-  - Linux / MacOS:
-    ```bash
-    export PATH="$PATH:$HOME/dockerized/bin"
+- Make sure [Docker](https://docs.docker.com/get-docker/) is installed on your machine.
+- Download the latest zip from our [Release Page](https://github.com/datastack-net/dockerized/releases).
+  - Extract it to a folder, for example your home directory.
+- Add the `dockerized/bin` directory to your `PATH`  
+   <details>
+   <summary>Instructions</summary>
+  
+     **Linux / MacOS:**
+
+     ```bash
+     export PATH="$PATH:$HOME/dockerized/bin"
+     ```
+     **Windows**
+
+     > See: [How to add a folder to `PATH` environment variable in Windows 10](https://stackoverflow.com/questions/44272416)
+  
+   </details>
+
+### Running from source
+
+You can run dockerized directly from source-code.
+
+<details>
+<summary>Installation from Source
+</summary>
+
+- Requirements:
+  - [Git](https://git-scm.com/downloads)
+  - [Docker](https://docs.docker.com/get-docker/)
+- Steps
+  - Clone the repository
+    ```shell
+    git clone https://github.com/datastack-net/dockerized.git
     ```
-  - Windows
-    > See: [How to add a folder to `PATH` environment variable in Windows 10](https://stackoverflow.com/questions/44272416)
+  - Run `dockerized`:  
+    ```shell
+    bin/dockerized --help
+    ```
+
+    - The first time you run dockerized, it will compile itself.
+      - Compilation is done within docker, no dependencies needed.
+    - To re-compile after changing the source code, run:
+      - `dockerized --compile` (runs within docker)
+      - `dockerized --compile=host` (runs on your machine, requires Go 1.17+)
+    - You do not need to re-compile to add commands. See [Add a command](DEV.md).
+
+</details>
 
 
 ## Usage
