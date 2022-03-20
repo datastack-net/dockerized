@@ -13,11 +13,12 @@ jobs:
     steps:
       - name: Checkout Dockerized
         uses: actions/checkout@v2
-      - name: "Test: --shell ${{matrix.command}}"
+      - name: Compile
+        run:  bin/dockerized --compile
+      - name: "Test: dockerized --shell"
         env:
           COMMAND: "${{matrix.command}}"
         run: |
-          bin/dockerized --compile
           bin/dockerized --shell $COMMAND -c 'echo $HOST_HOSTNAME' | grep $(hostname)
   CompileAndTest:
     runs-on: ${{ matrix.os }}
