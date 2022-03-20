@@ -12,7 +12,7 @@ jobs:
           - go
           - aws
           - python
-          - rust
+          - rustc
           - zip
     runs-on: ubuntu-latest
     steps:

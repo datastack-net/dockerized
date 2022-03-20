@@ -45,7 +45,7 @@ dockerized <command>
     - python
     - python2
   - ruby
-  - rust
+  - rustc (rust compiler)
 - Unix
   - tree
   - zip
