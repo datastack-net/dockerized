@@ -27,6 +27,10 @@ jobs:
         working-directory: release/${{ matrix.target.name }}
         run: |
           zip -r $GITHUB_WORKSPACE/release/${{ matrix.target.name }}.zip *
+      - uses: actions/upload-artifact@v2
+        with:
+          name: release
+          path: release
   release:
     name: Release
     runs-on: ubuntu-latest
@@ -36,6 +40,10 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: 16
+      - uses: actions/checkout@v2
+      - uses: actions/download-artifact@v2
+        with:
+          name: release
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
