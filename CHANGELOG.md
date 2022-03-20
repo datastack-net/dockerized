@@ -1,3 +1,10 @@
+## [2.2.3](https://github.com/datastack-net/dockerized/compare/v2.2.2...v2.2.3) (2022-03-20)
+
+
+### Bug Fixes
+
+* dockerized overrides GOOS env var, breaking windows build on fresh systems ([21703f6](https://github.com/datastack-net/dockerized/commit/21703f60f2ffe96131f1022884bfa58c59981c33))
+
 ## [2.2.2](https://github.com/datastack-net/dockerized/compare/v2.2.1...v2.2.2) (2022-03-20)
 
 
