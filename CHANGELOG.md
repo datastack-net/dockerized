@@ -1,3 +1,10 @@
+## [2.2.4](https://github.com/datastack-net/dockerized/compare/v2.2.3...v2.2.4) (2022-03-20)
+
+
+### Bug Fixes
+
+* include .env file in windows build ([5f7c435](https://github.com/datastack-net/dockerized/commit/5f7c435ce2ed455e28ae983cef4db485a3346299))
+
 ## [2.2.3](https://github.com/datastack-net/dockerized/compare/v2.2.2...v2.2.3) (2022-03-20)
 
 
