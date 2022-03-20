@@ -145,9 +145,8 @@ func main() {
 		}
 		welcomeMessage = strings.ReplaceAll(welcomeMessage, "\\", "\\\\")
 
-		var preferredShells = "bash zsh sh"
-		var cmdPrintWelcome = fmt.Sprintf("echo -e '%s'", color.YellowString(welcomeMessage))
-		var cmdLaunchShell = fmt.Sprintf("$(which %[1]s 2> /dev/null || command -v %[1]s | head -n 1)", preferredShells)
+		var cmdPrintWelcome = fmt.Sprintf("echo '%s'", color.YellowString(welcomeMessage))
+		var cmdLaunchShell = "$(which bash || which zsh || which sh || command -v bash || command -v zsh || command -v | head -n 1)"
 
 		runOptions.Environment = append(runOptions.Environment, "PS1="+ps1)
 		runOptions.Entrypoint = []string{"/bin/sh"}
