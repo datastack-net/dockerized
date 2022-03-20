@@ -1,3 +1,15 @@
+# [2.4.0](https://github.com/datastack-net/dockerized/compare/v2.3.0...v2.4.0) (2022-03-20)
+
+
+### Bug Fixes
+
+* allow overriding GOARCH for 'go' when running from source ([fd34712](https://github.com/datastack-net/dockerized/commit/fd347121dd53ad6195c9655dcb32da64d35b72b6))
+
+
+### Features
+
+* pass GOARCH to go ([0934e53](https://github.com/datastack-net/dockerized/commit/0934e5355653e68f3ae6599cfb5d78705f5671b5))
+
 # [2.3.0](https://github.com/datastack-net/dockerized/compare/v2.2.4...v2.3.0) (2022-03-20)
 
 
