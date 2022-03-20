@@ -1,15 +1,6 @@
 version: "3"
 
 services:
-  _compile:
-    image: golang
-    entrypoint: go
-    command: "build -o /build/ lib/dockerized.go"
-    working_dir: /src
-    volumes:
-      - ".:/src"
-      - "./build:/build"
-      - "dockerized_compile:/go/pkg"
   alpine:
     &alpine
     image: "alpine_${ALPINE_VERSION}"
@@ -185,5 +176,4 @@ volumes:
   node_modules: {}
   python_modules: {}
   pip_cache: {}
-  dockerized_compile: {}
   go_cache: {}
