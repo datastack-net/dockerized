@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@v2
       - name: Compile
         run:  bin/dockerized --compile
-      - name: "Test: dockerized --shell"
+      - name: "Test: dockerized --shell ${{matrix.command}}"
         env:
           COMMAND: "${{matrix.command}}"
         run: |
