@@ -177,3 +177,4 @@ volumes:
   python_modules: {}
   pip_cache: {}
   dockerized_compile: {}
+  go_cache: {}
