@@ -122,7 +122,7 @@ func main() {
 			fmt.Printf("Opening shell in container for %s...\n", commandName)
 
 			if len(commandArgs) > 0 {
-				fmt.Printf("Ignoring arguments: %s\n", commandArgs[0])
+				fmt.Printf("Passing arguments to shell: %s\n", commandArgs)
 			}
 		}
 
@@ -145,12 +145,13 @@ func main() {
 		}
 		welcomeMessage = strings.ReplaceAll(welcomeMessage, "\\", "\\\\")
 
+		preferredShells := "bash zsh sh"
 		var cmdPrintWelcome = fmt.Sprintf("echo '%s'", color.YellowString(welcomeMessage))
-		var cmdLaunchShell = "$(which bash || which zsh || which sh || command -v bash || command -v zsh || command -v | head -n 1)"
+		var cmdLaunchShell = fmt.Sprintf("$(command -v %[1]s | head -n1 || which %[1]s | head -n1)", preferredShells)
 
 		runOptions.Environment = append(runOptions.Environment, "PS1="+ps1)
 		runOptions.Entrypoint = []string{"/bin/sh"}
-		runOptions.Command = []string{"-c", fmt.Sprintf("%s; %s", cmdPrintWelcome, cmdLaunchShell)}
+		runOptions.Command = []string{"-c", fmt.Sprintf("%s; %s \"%s\"", cmdPrintWelcome, cmdLaunchShell, strings.Join(commandArgs, "\" \""))}
 	}
 
 	if !contains(project.ServiceNames(), commandName) {

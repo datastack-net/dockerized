@@ -2,6 +2,26 @@ name: Compile and Test
 on: [push]
 
 jobs:
+  ShellTest:
+    strategy:
+      fail-fast: true
+      matrix:
+        command:
+          - go
+          - aws
+          - python
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Dockerized
+        uses: actions/checkout@v2
+      - name: Compile
+        run:  bin/dockerized --compile
+      - name: "Test: dockerized --shell ${{matrix.command}}"
+        env:
+          COMMAND: "${{matrix.command}}"
+        run: |
+          bin/dockerized --shell $COMMAND -c 'echo $HOST_HOSTNAME' | tee ~/shell.log
+          grep $(hostname) ~/shell.log
   CompileAndTest:
     runs-on: ${{ matrix.os }}
     strategy:
@@ -39,6 +59,7 @@ jobs:
           echo 'GO_VERSION=1.17.8' > dockerized.env
           ../bin/dockerized go version | grep "1.17.8"
         shell: bash
+
 
       # region windows
       - if: runner.os == 'windows'
