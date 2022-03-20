@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - master
-      - feature/semantic-release-build
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -53,4 +52,4 @@ jobs:
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx -p @semantic-release/changelog -p @semantic-release/git -p semantic-release semantic-release --dry-run
+        run: npx -p @semantic-release/changelog -p @semantic-release/git -p semantic-release semantic-release
