@@ -1,3 +1,10 @@
+## [2.5.3](https://github.com/datastack-net/dockerized/compare/v2.5.2...v2.5.3) (2022-03-21)
+
+
+### Bug Fixes
+
+* tree ([f62a328](https://github.com/datastack-net/dockerized/commit/f62a328222d59641c28a91d1c44d384a276e62bb))
+
 ## [2.5.2](https://github.com/datastack-net/dockerized/compare/v2.5.1...v2.5.2) (2022-03-21)
 
 
