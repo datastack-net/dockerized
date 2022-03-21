@@ -1,3 +1,10 @@
+## [2.5.1](https://github.com/datastack-net/dockerized/compare/v2.5.0...v2.5.1) (2022-03-21)
+
+
+### Bug Fixes
+
+* building commands outside dockerized working directory ([6cd4701](https://github.com/datastack-net/dockerized/commit/6cd4701d37c53903f2827b0935163179bce2cf05))
+
 # [2.5.0](https://github.com/datastack-net/dockerized/compare/v2.4.0...v2.5.0) (2022-03-20)
 
 
