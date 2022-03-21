@@ -112,6 +112,9 @@ services:
     entrypoint: [ "perl" ]
   php:
     image: "php:${PHP_VERSION}"
+  psql:
+    image: "postgres:${POSTGRES_VERSION}"
+    entrypoint: [ "psql" ]
   protoc:
     image: "protoc:${PROTOC_VERSION}"
     build:
