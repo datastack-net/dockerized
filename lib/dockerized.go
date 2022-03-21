@@ -49,12 +49,12 @@ func main() {
 
 	dockerizedRoot := getDockerizedRoot()
 	dockerizedDockerComposeFilePath := os.Getenv("COMPOSE_FILE")
-	if dockerizedDockerComposeFilePath != "" {
-		if optionVerbose {
-			fmt.Println("COMPOSE_FILE: ", dockerizedDockerComposeFilePath)
-		}
-	} else {
+	if dockerizedDockerComposeFilePath == "" {
 		dockerizedDockerComposeFilePath = filepath.Join(dockerizedRoot, "docker-compose.yml")
+	}
+
+	if optionVerbose {
+		fmt.Println("Dockerized docker-compose file: ", dockerizedDockerComposeFilePath)
 	}
 
 	if commandName == "" || optionHelp {
@@ -356,6 +356,10 @@ func getBackend() (*api.ServiceProxy, error) {
 
 func dockerComposeBuild(dockerComposeFilePath string, buildOptions api.BuildOptions) error {
 	project, err := getProject(dockerComposeFilePath)
+	err = os.Chdir(project.WorkingDir)
+	if err != nil {
+		return err
+	}
 	if err != nil {
 		return err
 	}
@@ -369,6 +373,10 @@ func dockerComposeBuild(dockerComposeFilePath string, buildOptions api.BuildOpti
 }
 
 func dockerComposeRun(project *types.Project, runOptions api.RunOptions, volumes []types.ServiceVolumeConfig) error {
+	err := os.Chdir(project.WorkingDir)
+	if err != nil {
+		return err
+	}
 	ctx, _ := newSigContext()
 
 	serviceName := runOptions.Service
