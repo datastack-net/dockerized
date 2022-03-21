@@ -1,3 +1,15 @@
+# [2.6.0](https://github.com/datastack-net/dockerized/compare/v2.5.3...v2.6.0) (2022-03-21)
+
+
+### Bug Fixes
+
+* fallback mechanism ([23afc0b](https://github.com/datastack-net/dockerized/commit/23afc0bc5d1b22f2a8f703f59929d83145577ac8))
+
+
+### Features
+
+* **command:** Add youtube-dl ([c3f60c0](https://github.com/datastack-net/dockerized/commit/c3f60c0619f60724d757dc5d7c399c4261106cac))
+
 ## [2.5.3](https://github.com/datastack-net/dockerized/compare/v2.5.2...v2.5.3) (2022-03-21)
 
 
