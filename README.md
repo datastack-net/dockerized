@@ -210,6 +210,13 @@ It's currently not known how to specify the version of a command in a Powershell
 
 As an alternative, you can create a `dockerized.env` file in the current directory.
 
+## Localhost
+
+Dockerized applications run within an isolated network. To access services running on your machine, you need to use `host.docker.internal` instead of `localhost`. 
+
+```shell
+dockerized telnet host.docker.internal 8080 # instead of telnet localhost 8080
+```
 
 ## Limitations
 
