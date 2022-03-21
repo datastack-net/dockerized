@@ -64,6 +64,9 @@ services:
   git:
     image: "alpine/git:v${GIT_VERSION}"
     entrypoint: [ "git" ]
+  ghci:
+    image: "haskell:${HASKELL_VERSION}"
+    entrypoint: [ "ghci" ]
   go:
     image: "golang:${GO_VERSION}"
     entrypoint: [ "go" ]
@@ -72,6 +75,16 @@ services:
     environment:
       GOOS: "${GOOS:-}"
       GOARCH: "${GOARCH:-}"
+#    entrypoint: [ "runhaskell" ]
+#    build:
+#      context: apps/haskell
+#      dockerfile: ../alpine/Dockerfile
+#      args:
+#        ALPINE_VERSION: "${ALPINE_VERSION}"
+#        ALPINE_PACKAGES: "ghc cabal-install"
+#        BUILD_SCRIPT_ARGS: "${HASKELL_VERSION}"
+#    volumes:
+#      - "${HOME:-}/.dockerized/apps/haskell:/root"
   helm:
     image: "alpine/helm:${HELM_VERSION}"
   http:

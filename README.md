@@ -30,6 +30,8 @@ dockerized <command>
 - Languages & SDKs
   - [dotnet](apps/dotnet/README.md)
   - go
+  - (haskell)
+    - ghci
   - java
   - perl
   - php
@@ -37,7 +39,6 @@ dockerized <command>
   - node
     - [npm](apps/npm/README.md)
     - npx
-    - tsc (typescript compiler)
     - vue
     - yarn
   - python
@@ -47,10 +48,12 @@ dockerized <command>
   - ruby
     - gem
     - rake
-  - rust
+  - (rust)
     - rustc
-  - prolog
+  - (prolog)
     - swipl (SWI-Prolog)
+  - typescript
+    - tsc
 - Unix
   - tree
   - zip
