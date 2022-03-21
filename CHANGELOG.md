@@ -1,3 +1,10 @@
+## [2.5.2](https://github.com/datastack-net/dockerized/compare/v2.5.1...v2.5.2) (2022-03-21)
+
+
+### Bug Fixes
+
+* running windows binary within wsl2 outside dockerized directory ([0bf888a](https://github.com/datastack-net/dockerized/commit/0bf888a133330b9e460ec35a77a82b8e1154b07c))
+
 ## [2.5.1](https://github.com/datastack-net/dockerized/compare/v2.5.0...v2.5.1) (2022-03-21)
 
 
