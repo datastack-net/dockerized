@@ -1,3 +1,12 @@
+# [2.7.0](https://github.com/datastack-net/dockerized/compare/v2.6.0...v2.7.0) (2022-03-21)
+
+
+### Features
+
+* **command:** Add gem ([7ebbfae](https://github.com/datastack-net/dockerized/commit/7ebbfaef74c2ce4d8c48a98bb4b5c14a4df59913))
+* **command:** Add rake ([f7d317c](https://github.com/datastack-net/dockerized/commit/f7d317c4848d2a3dbbdc4f3a602c9a6a588e1888))
+* **command:** Add swipl (Prolog) ([bc0b356](https://github.com/datastack-net/dockerized/commit/bc0b356f7610a60de0fbfebf2e32b095e1772b73))
+
 # [2.6.0](https://github.com/datastack-net/dockerized/compare/v2.5.3...v2.6.0) (2022-03-21)
 
 
