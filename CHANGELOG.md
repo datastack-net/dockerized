@@ -1,3 +1,10 @@
+# [2.9.0](https://github.com/datastack-net/dockerized/compare/v2.8.0...v2.9.0) (2022-03-21)
+
+
+### Features
+
+* **command:** Add ansible, ansible-playbook ([b7e899e](https://github.com/datastack-net/dockerized/commit/b7e899e35bd741f9d9ef09f603574d41986aa1a1))
+
 # [2.8.0](https://github.com/datastack-net/dockerized/compare/v2.7.0...v2.8.0) (2022-03-21)
 
 
