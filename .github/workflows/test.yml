@@ -45,15 +45,17 @@ jobs:
 
       - name: Checkout Dockerized
         uses: actions/checkout@v2
+        with:
+          path: dockerized
 
-      - run: bin/dockerized --help
+      - run: dockerized/bin/dockerized --help
         shell: bash
 
-      - run: bin/dockerized go version
+      - run: dockerized/bin/dockerized go version
         shell: bash
 
       - name: "Test: version from environment variable"
-        run: GO_VERSION=1.16.15 bin/dockerized go version | grep "go1.16.15"
+        run: GO_VERSION=1.16.15 dockerized/bin/dockerized go version | grep "go1.16.15"
         shell: bash
 
       - name: "Test: version from dockerized.env"
@@ -61,9 +63,12 @@ jobs:
           mkdir -p project
           cd project
           echo 'GO_VERSION=1.17.8' > dockerized.env
-          ../bin/dockerized go version | grep "1.17.8"
+          ../dockerized/bin/dockerized go version | grep "1.17.8"
         shell: bash
 
+      - name: "Test: command that requires building (protoc)"
+        run: dockerized/bin/dockerized protoc --version
+        shell: bash
 
       # region windows
       - if: runner.os == 'windows'
