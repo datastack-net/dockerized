@@ -1,3 +1,10 @@
+# [2.8.0](https://github.com/datastack-net/dockerized/compare/v2.7.0...v2.8.0) (2022-03-21)
+
+
+### Features
+
+* **command:** Add haskell ghci ([eebb729](https://github.com/datastack-net/dockerized/commit/eebb7290eec0217d8f6798f12f8d784b4f241caa))
+
 # [2.7.0](https://github.com/datastack-net/dockerized/compare/v2.6.0...v2.7.0) (2022-03-21)
 
 
