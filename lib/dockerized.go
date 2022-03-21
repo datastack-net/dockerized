@@ -83,7 +83,10 @@ func main() {
 
 	hostName, _ := os.Hostname()
 	hostCwdDirName := filepath.Base(hostCwd)
-	containerCwd := "/host/" + hostCwdDirName
+	containerCwd := "/host"
+	if hostCwdDirName != "\\" {
+		containerCwd += "/" + hostCwdDirName
+	}
 
 	runOptions := api.RunOptions{
 		Service: commandName,
