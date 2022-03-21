@@ -86,7 +86,7 @@ func main() {
 
 		rawService, err := rawProject.GetService(commandName)
 
-		var versionVariableExpected = strings.ToUpper(commandName) + "_VERSION"
+		var versionVariableExpected = strings.ReplaceAll(strings.ToUpper(commandName), "-", "_") + "_VERSION"
 		var versionVariablesUsed []string
 		for _, variable := range ExtractVariables(rawService) {
 			if strings.HasSuffix(variable, "_VERSION") {
