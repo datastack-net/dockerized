@@ -71,7 +71,7 @@ services:
     image: "alpine/git:v${GIT_VERSION}"
     entrypoint: [ "git" ]
   ghci:
-    image: "haskell:${HASKELL_VERSION}"
+    image: "haskell:${GHCI_VERSION}"
     entrypoint: [ "ghci" ]
   go:
     image: "golang:${GO_VERSION}"
@@ -84,7 +84,7 @@ services:
   helm:
     image: "alpine/helm:${HELM_VERSION}"
   http:
-    image: "alpine/httpie:${HTTPIE_VERSION}"
+    image: "alpine/httpie:${HTTP_VERSION}"
     entrypoint: [ "http" ]
   java:
     image: "openjdk:${JAVA_VERSION}"
@@ -113,7 +113,7 @@ services:
   php:
     image: "php:${PHP_VERSION}"
   psql:
-    image: "postgres:${POSTGRES_VERSION}"
+    image: "postgres:${PSQL_VERSION}"
     entrypoint: [ "psql" ]
   protoc:
     image: "protoc:${PROTOC_VERSION}"
@@ -145,7 +145,7 @@ services:
     <<: *ruby
     entrypoint: [ "gem" ]
   rustc:
-    image: "rust:${RUST_VERSION}"
+    image: "rust:${RUSTC_VERSION}"
     entrypoint: [ "rustc" ]
   s3cmd:
     build:

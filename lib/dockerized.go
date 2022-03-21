@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/compose-spec/compose-go/cli"
+	"github.com/compose-spec/compose-go/loader"
 	"github.com/compose-spec/compose-go/types"
 	"github.com/docker/cli/cli/command"
 	"github.com/docker/cli/cli/flags"
@@ -14,6 +15,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 	"syscall"
@@ -34,7 +36,7 @@ var options = []string{
 func main() {
 	normalizeEnvironment()
 
-	dockerizedOptions, commandName, commandArgs := parseArguments()
+	dockerizedOptions, commandName, commandVersion, commandArgs := parseArguments()
 
 	var optionHelp = contains(dockerizedOptions, "--help") || contains(dockerizedOptions, "-h")
 	var optionVerbose = contains(dockerizedOptions, "--verbose") || contains(dockerizedOptions, "-v")
@@ -76,7 +78,55 @@ func main() {
 		panic(err)
 	}
 
-	project, err := getProject(dockerizedDockerComposeFilePath)
+	if commandVersion != "" {
+		rawProject, err := getRawProject(dockerizedDockerComposeFilePath)
+		if err != nil {
+			panic(err)
+		}
+
+		rawService, err := rawProject.GetService(commandName)
+
+		var versionVariableExpected = strings.ReplaceAll(strings.ToUpper(commandName), "-", "_") + "_VERSION"
+		var versionVariablesUsed []string
+		for _, variable := range ExtractVariables(rawService) {
+			if strings.HasSuffix(variable, "_VERSION") {
+				versionVariablesUsed = append(versionVariablesUsed, variable)
+			}
+		}
+
+		if len(versionVariablesUsed) == 0 {
+			fmt.Printf("Error: Version selection for %s is currently not supported.\n", commandName)
+			os.Exit(1)
+		}
+
+		versionKey := versionVariableExpected
+
+		if !contains(versionVariablesUsed, versionVariableExpected) {
+			if len(versionVariablesUsed) == 1 {
+				fmt.Printf("Error: To specify the version of %s, please set %s.\n",
+					commandName,
+					versionVariablesUsed[0],
+				)
+				os.Exit(1)
+			} else if len(versionVariablesUsed) > 1 {
+				fmt.Println("Multiple version variables found:")
+				for _, variable := range versionVariablesUsed {
+					fmt.Println("  " + variable)
+				}
+				os.Exit(1)
+			}
+		}
+
+		if optionVerbose {
+			fmt.Printf("Setting %s to %s...\n", versionKey, commandVersion)
+		}
+		err = os.Setenv(versionKey, commandVersion)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	project, err := getProject(dockerizedDockerComposeFilePath, true)
 	if err != nil {
 		panic(err)
 	}
@@ -302,7 +352,26 @@ func newSigContext() (context.Context, func()) {
 	return ctx, cancel
 }
 
-func getProject(dockerComposeFilePath string) (*types.Project, error) {
+func getRawProject(dockerComposeFilePath string) (*types.Project, error) {
+	options, err := cli.NewProjectOptions([]string{
+		dockerComposeFilePath,
+	},
+		cli.WithInterpolation(false),
+		cli.WithLoadOptions(func(l *loader.Options) {
+			l.SkipValidation = true
+			l.SkipConsistencyCheck = true
+			l.SkipNormalization = true
+		}),
+	)
+
+	if err != nil {
+		return nil, nil
+	}
+
+	return cli.ProjectFromOptions(options)
+}
+
+func getProject(dockerComposeFilePath string, interpolation bool) (*types.Project, error) {
 	options, err := cli.NewProjectOptions([]string{
 		dockerComposeFilePath,
 	},
@@ -363,7 +432,7 @@ func getBackend() (*api.ServiceProxy, error) {
 }
 
 func dockerComposeBuild(dockerComposeFilePath string, buildOptions api.BuildOptions) error {
-	project, err := getProject(dockerComposeFilePath)
+	project, err := getProject(dockerComposeFilePath, true)
 	if err != nil {
 		return err
 	}
@@ -422,12 +491,17 @@ func dockerComposeRun(project *types.Project, runOptions api.RunOptions, volumes
 }
 
 func help(dockerComposeFilePath string) error {
-	project, err := getProject(dockerComposeFilePath)
+	project, err := getProject(dockerComposeFilePath, false)
 	if err != nil {
 		return err
 	}
 
-	fmt.Println("Usage: dockerized [options] <command> [arguments]")
+	fmt.Println("Usage: dockerized [options] <command>[:version] [arguments]")
+	fmt.Println("")
+	fmt.Println("Examples:")
+	fmt.Println("  dockerized go")
+	fmt.Println("  dockerized go:1.8 build")
+	fmt.Println("  dockerized --shell go")
 	fmt.Println("")
 	fmt.Println("Commands:")
 
@@ -455,10 +529,11 @@ func help(dockerComposeFilePath string) error {
 	return nil
 }
 
-func parseArguments() ([]string, string, []string) {
+func parseArguments() ([]string, string, string, []string) {
 	commandName := ""
 	var commandArgs []string
 	var dockerizedOptions []string
+	var commandVersion string
 	for _, arg := range os.Args[1:] {
 		if arg[0] == '-' && commandName == "" {
 			if contains(options, arg) {
@@ -475,5 +550,44 @@ func parseArguments() ([]string, string, []string) {
 			}
 		}
 	}
-	return dockerizedOptions, commandName, commandArgs
+	if strings.ContainsRune(commandName, ':') {
+		commandSplit := strings.Split(commandName, ":")
+		commandName = commandSplit[0]
+		commandVersion = commandSplit[1]
+	}
+	return dockerizedOptions, commandName, commandVersion, commandArgs
+}
+
+func unique(s []string) []string {
+	keys := make(map[string]bool)
+	var list []string
+	for _, entry := range s {
+		if _, value := keys[entry]; !value {
+			keys[entry] = true
+			list = append(list, entry)
+		}
+	}
+	return list
+}
+
+func ExtractVariables(rawService types.ServiceConfig) []string {
+	var usedVariables []string
+	for envKey := range rawService.Environment {
+		usedVariables = append(usedVariables, envKey)
+	}
+	if rawService.Build != nil {
+		for argKey := range rawService.Build.Args {
+			usedVariables = append(usedVariables, argKey)
+		}
+	}
+
+	pattern := regexp.MustCompile(`\$\{([^}]+)\}`)
+	for _, match := range pattern.FindAllStringSubmatch(rawService.Image, -1) {
+		usedVariables = append(usedVariables, match[1])
+	}
+
+	usedVariables = unique(usedVariables)
+	sort.Strings(usedVariables)
+
+	return usedVariables
 }

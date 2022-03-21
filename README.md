@@ -187,6 +187,14 @@ This allows you to "lock" your tools to specific versions for your project.
 - Create a `dockerized.env` file in your project directory.
 - All commands executed within this directory will use the settings specified in this file.
 
+**Ad-hoc**
+
+Add `:<version>` to the end of the command to override the version.
+
+```shell
+dockerized node:15
+```
+
 **Ad-hoc (Unix)**
 
 - Override the environment variable before the command, to specify the version for that command.
