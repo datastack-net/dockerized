@@ -169,6 +169,14 @@ services:
   swipl:
     image: "swipl:${SWIPL_VERSION}"
     entrypoint: [ "swipl" ]
+  telnet:
+    <<: *alpine
+    build:
+      context: apps/alpine
+      args:
+        ALPINE_VERSION: "${ALPINE_VERSION}"
+        ALPINE_PACKAGES: "busybox-extras"
+    entrypoint: [ "telnet" ]
   tree:
     <<: *alpine
     build:
