@@ -12,15 +12,6 @@ dockerized <command>
 > If your favorite command is not included, it can be added very easily. See [Add a command](DEV.md).  
 > Dockerized will also fall back to over 150 commands defined in [jessfraz/dockerfiles](https://github.com/jessfraz/dockerfiles).
 
-- Web Development
-  - http
-  - jq
-  - protoc
-  - swagger-codegen
-  - wget
-- Git
-  - git 
-  - [gh](apps/gh/README.md) 
 - Cloud
   - [aws](apps/aws/README.md) 
   - [doctl](apps/doctl/README.md)
@@ -29,6 +20,9 @@ dockerized <command>
   - ansible
     - ansible-playbook
   - helm
+- Git
+  - git 
+  - [gh](apps/gh/README.md) (Github)
 - Languages & SDKs
   - [dotnet](apps/dotnet/README.md)
   - go
@@ -56,12 +50,18 @@ dockerized <command>
     - swipl (SWI-Prolog)
   - typescript
     - tsc
+- Networking:
+  - http
+  - telnet
+  - wget
 - Unix
   - tree
   - zip
-- Other
+- Other utilities
   - youtube-dl (Youtube downloader)
-
+  - jq
+  - protoc
+  - swagger-codegen
 
 ## Installation
 
