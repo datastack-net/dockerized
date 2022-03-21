@@ -123,9 +123,12 @@ services:
   pip:
     <<: *python
     entrypoint: [ "pip" ]
-  ruby:
+  ruby: &ruby
     image: "ruby:${RUBY_VERSION}"
     entrypoint: [ "ruby" ]
+  rake:
+    <<: *ruby
+    entrypoint: [ "rake" ]
   rustc:
     image: "rust:${RUST_VERSION}"
     entrypoint: [ "rustc" ]
