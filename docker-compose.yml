@@ -129,6 +129,9 @@ services:
   rake:
     <<: *ruby
     entrypoint: [ "rake" ]
+  gem:
+    <<: *ruby
+    entrypoint: [ "gem" ]
   rustc:
     image: "rust:${RUST_VERSION}"
     entrypoint: [ "rustc" ]

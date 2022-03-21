@@ -45,6 +45,7 @@ dockerized <command>
     - python
     - python2
   - ruby
+    - gem
     - rake
   - rust
     - rustc
