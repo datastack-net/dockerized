@@ -234,6 +234,7 @@ func dockerComposeRunAdHocService(service types.ServiceConfig, runOptions api.Ru
 		Services: []types.ServiceConfig{
 			service,
 		},
+		WorkingDir: getDockerizedRoot(),
 	}, runOptions, []types.ServiceVolumeConfig{})
 }
 
@@ -360,10 +361,10 @@ func getBackend() (*api.ServiceProxy, error) {
 
 func dockerComposeBuild(dockerComposeFilePath string, buildOptions api.BuildOptions) error {
 	project, err := getProject(dockerComposeFilePath)
-	err = os.Chdir(project.WorkingDir)
 	if err != nil {
 		return err
 	}
+	err = os.Chdir(project.WorkingDir)
 	if err != nil {
 		return err
 	}
