@@ -1,3 +1,16 @@
+# [2.10.0](https://github.com/datastack-net/dockerized/compare/v2.9.0...v2.10.0) (2022-03-21)
+
+
+### Bug Fixes
+
+* Strange mounting location ("host/\") when running from root of drive on Windows ([3734cbd](https://github.com/datastack-net/dockerized/commit/3734cbdc5db62c3d248a6b1b1873e87580bd0197))
+
+
+### Features
+
+* **command:** Add psql (postgres) ([7746ee7](https://github.com/datastack-net/dockerized/commit/7746ee7f105975f75216a86ab9e6aadac54526ba))
+* **command:** Add telnet ([e68d188](https://github.com/datastack-net/dockerized/commit/e68d1882f64e850383255fd739124e60d20483e3))
+
 # [2.9.0](https://github.com/datastack-net/dockerized/compare/v2.8.0...v2.9.0) (2022-03-21)
 
 
