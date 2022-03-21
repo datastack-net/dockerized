@@ -1,3 +1,10 @@
+# [2.11.0](https://github.com/datastack-net/dockerized/compare/v2.10.0...v2.11.0) (2022-03-21)
+
+
+### Features
+
+* Allow specifying the version with command:version [#5](https://github.com/datastack-net/dockerized/issues/5) ([fdb9e16](https://github.com/datastack-net/dockerized/commit/fdb9e16df4a1b54e286b7b365f49341b9412c4c5))
+
 # [2.10.0](https://github.com/datastack-net/dockerized/compare/v2.9.0...v2.10.0) (2022-03-21)
 
 
