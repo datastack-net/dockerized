@@ -49,6 +49,8 @@ dockerized <command>
 - Unix
   - tree
   - zip
+- Other
+  - youtube-dl (Youtube downloader)
 
 
 ## Installation

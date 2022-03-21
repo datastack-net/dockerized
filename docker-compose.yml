@@ -168,6 +168,8 @@ services:
   yarn:
     <<: *node
     entrypoint: [ "yarn" ]
+  youtube-dl:
+    image: "mikenye/youtube-dl:${YOUTUBE_DL_VERSION}"
   zip:
     image: "zip"
     build:
