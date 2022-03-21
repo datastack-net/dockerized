@@ -150,6 +150,11 @@ services:
     image: "swaggerapi/swagger-codegen-cli-v3:${SWAGGER_CODEGEN_VERSION}"
   tree:
     <<: *alpine
+    build:
+      context: apps/alpine
+      args:
+        ALPINE_VERSION: "${ALPINE_VERSION}"
+        ALPINE_PACKAGES: "tree"
     entrypoint: [ "tree" ]
   tsc:
     <<: *node
