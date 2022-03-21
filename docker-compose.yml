@@ -9,6 +9,12 @@ services:
       args:
         ALPINE_VERSION: "${ALPINE_VERSION}"
         ALPINE_PACKAGES: "tree"
+  ansible: &ansible
+    image: "willhallonline/ansible:${ANSIBLE_VERSION}-${ANSIBLE_BASE}"
+    entrypoint: [ "ansible" ]
+  ansible-playbook:
+    <<: *ansible
+    entrypoint: [ "ansible-playbook" ]
   ab:
     <<: *alpine
     build:
@@ -31,7 +37,7 @@ services:
       args:
         ALPINE_VERSION: "${ALPINE_VERSION}"
         ALPINE_PACKAGES: "bash"
-    entrypoint: ["/bin/bash"]
+    entrypoint: [ "/bin/bash" ]
   doctl:
     image: "doctl:${DOCTL_VERSION}"
     build:
@@ -75,16 +81,6 @@ services:
     environment:
       GOOS: "${GOOS:-}"
       GOARCH: "${GOARCH:-}"
-#    entrypoint: [ "runhaskell" ]
-#    build:
-#      context: apps/haskell
-#      dockerfile: ../alpine/Dockerfile
-#      args:
-#        ALPINE_VERSION: "${ALPINE_VERSION}"
-#        ALPINE_PACKAGES: "ghc cabal-install"
-#        BUILD_SCRIPT_ARGS: "${HASKELL_VERSION}"
-#    volumes:
-#      - "${HOME:-}/.dockerized/apps/haskell:/root"
   helm:
     image: "alpine/helm:${HELM_VERSION}"
   http:
@@ -160,11 +156,11 @@ services:
       AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY:-}"
     volumes:
       - "${HOME:-}/.dockerized/apps/s3cmd:/root"
-#  semantic-release-cli:
-#    <<: *node
-#    entrypoint: [ "npx", "--package=semantic-release-cli@${SEMANTIC_RELEASE_VERSION}", "semantic-release-cli" ]
-#    volumes:
-#      - "${HOME:-}/.dockerized/apps/gh:/root"
+  #  semantic-release-cli:
+  #    <<: *node
+  #    entrypoint: [ "npx", "--package=semantic-release-cli@${SEMANTIC_RELEASE_VERSION}", "semantic-release-cli" ]
+  #    volumes:
+  #      - "${HOME:-}/.dockerized/apps/gh:/root"
   swagger-codegen:
     image: "swaggerapi/swagger-codegen-cli-v3:${SWAGGER_CODEGEN_VERSION}"
   swipl:
@@ -199,10 +195,10 @@ services:
       args:
         ALPINE_VERSION: "${ALPINE_VERSION}"
         ALPINE_PACKAGES: "zip"
-    entrypoint: ["/usr/bin/zip"]
+    entrypoint: [ "/usr/bin/zip" ]
 
 volumes:
-  node_modules: {}
-  python_modules: {}
-  pip_cache: {}
-  go_cache: {}
+  node_modules: { }
+  python_modules: { }
+  pip_cache: { }
+  go_cache: { }
