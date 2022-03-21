@@ -47,9 +47,9 @@ func main() {
 		os.Exit(0)
 	}
 
-	dockerizedRoot := getDockerizedRoot()
 	dockerizedDockerComposeFilePath := os.Getenv("COMPOSE_FILE")
 	if dockerizedDockerComposeFilePath == "" {
+		dockerizedRoot := getDockerizedRoot()
 		dockerizedDockerComposeFilePath = filepath.Join(dockerizedRoot, "docker-compose.yml")
 	}
 
@@ -252,7 +252,11 @@ func dockerRun(image string, runOptions api.RunOptions, volumes []types.ServiceV
 var dockerizedEnvFileName = "dockerized.env"
 
 func getDockerizedRoot() string {
-	return filepath.Dir(filepath.Dir(os.Args[0]))
+	executable, err := os.Executable()
+	if err != nil {
+		panic("Cannot detect dockerized root directory: " + err.Error())
+	}
+	return filepath.Dir(filepath.Dir(executable))
 }
 
 func contains(s []string, str string) bool {
