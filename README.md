@@ -45,7 +45,10 @@ dockerized <command>
     - python
     - python2
   - ruby
-  - rustc (rust compiler)
+  - rust
+    - rustc
+  - prolog
+    - swipl (SWI-Prolog)
 - Unix
   - tree
   - zip

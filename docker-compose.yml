@@ -148,6 +148,9 @@ services:
 #      - "${HOME:-}/.dockerized/apps/gh:/root"
   swagger-codegen:
     image: "swaggerapi/swagger-codegen-cli-v3:${SWAGGER_CODEGEN_VERSION}"
+  swipl:
+    image: "swipl:${SWIPL_VERSION}"
+    entrypoint: [ "swipl" ]
   tree:
     <<: *alpine
     build:
