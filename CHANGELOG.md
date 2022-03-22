@@ -1,3 +1,10 @@
+# [2.12.0](https://github.com/datastack-net/dockerized/compare/v2.11.0...v2.12.0) (2022-03-22)
+
+
+### Features
+
+* **command:** Add azure cli ([6e210ef](https://github.com/datastack-net/dockerized/commit/6e210efec7c1afa0d94869653c9d23531b5addbf))
+
 # [2.11.0](https://github.com/datastack-net/dockerized/compare/v2.10.0...v2.11.0) (2022-03-21)
 
 
