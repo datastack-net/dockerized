@@ -26,10 +26,16 @@ services:
   aws:
     image: "amazon/aws-cli:${AWS_VERSION}"
     volumes:
-      - "${HOME:-}/.aws:/root/.aws"
+      - "${HOME:-home}/.aws:/root/.aws"
     environment:
       AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID:-}"
       AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY:-}"
+  az:
+    image: "mcr.microsoft.com/azure-cli:${AZ_VERSION}"
+    entrypoint: [ "az" ]
+    volumes:
+      - "${HOME:-home}/.ssh:/root/.ssh"
+      - "${HOME:-home}/.dockerized/apps/az:/root/.azure"
   bash:
     image: "bash"
     build:
@@ -48,7 +54,7 @@ services:
         BUILD_SCRIPT_ARGS: "${DOCTL_VERSION}"
     entrypoint: [ "doctl" ]
     volumes:
-      - "${HOME:-}/.dockerized/apps/doctl:/root"
+      - "${HOME:-home}/.dockerized/apps/doctl:/root"
   dotnet:
     image: "mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION}-alpine"
     entrypoint: [ "dotnet" ]
@@ -63,7 +69,7 @@ services:
         BUILD_SCRIPT_ARGS: "${GH_VERSION}"
     entrypoint: [ "/init.sh", "/gh/bin/gh" ]
     volumes:
-      - "${HOME:-}/.dockerized/apps/gh:/root"
+      - "${HOME:-home}/.dockerized/apps/gh:/root"
       - "./apps/gh/init.sh:/init.sh"
     environment:
       BROWSER: "echo"
@@ -100,7 +106,7 @@ services:
     entrypoint: [ "node" ]
     volumes:
       - "node_modules:/usr/local/lib/node_modules"
-      - "${HOME:-}/.dockerized/apps/node:/root"
+      - "${HOME:-home}/.dockerized/apps/node:/root"
   npm:
     <<: *node
     entrypoint: [ "npm" ]
@@ -129,7 +135,7 @@ services:
     entrypoint: [ "python" ]
     volumes:
       - "python_modules:/usr/local/lib/python${PYTHON_VERSION}/site-packages"
-      - "${HOME:-}/.dockerized/apps/python:/root"
+      - "${HOME:-home}/.dockerized/apps/python:/root"
   python2:
     image: "python:${PYTHON2_VERSION}"
   pip:
@@ -158,12 +164,12 @@ services:
       AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID:-}"
       AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY:-}"
     volumes:
-      - "${HOME:-}/.dockerized/apps/s3cmd:/root"
+      - "${HOME:-home}/.dockerized/apps/s3cmd:/root"
   #  semantic-release-cli:
   #    <<: *node
   #    entrypoint: [ "npx", "--package=semantic-release-cli@${SEMANTIC_RELEASE_VERSION}", "semantic-release-cli" ]
   #    volumes:
-  #      - "${HOME:-}/.dockerized/apps/gh:/root"
+  #      - "${HOME:-home}/.dockerized/apps/gh:/root"
   swagger-codegen:
     image: "swaggerapi/swagger-codegen-cli-v3:${SWAGGER_CODEGEN_VERSION}"
   swipl:
@@ -209,6 +215,8 @@ services:
     entrypoint: [ "/usr/bin/zip" ]
 
 volumes:
+  # Default for ${HOME}. Avoids creating directories on host machine when HOME isn't set.
+  home: {}
   node_modules: { }
   python_modules: { }
   pip_cache: { }

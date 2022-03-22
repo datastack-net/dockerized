@@ -13,7 +13,8 @@ dockerized <command>
 > Dockerized will also fall back to over 150 commands defined in [jessfraz/dockerfiles](https://github.com/jessfraz/dockerfiles).
 
 - Cloud
-  - [aws](apps/aws/README.md) 
+  - [aws](apps/aws/README.md)
+  - [az](apps/az/README.md) (Azure CLI)
   - [doctl](apps/doctl/README.md)
   - [s3cmd](apps/s3cmd/README.md)
 - Dev-Ops & Docker
