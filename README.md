@@ -152,6 +152,27 @@ dockerized npm install                # install packages.json
 
 ## Switching command versions 
 
+**Ad-hoc**
+
+Add `:<version>` to the end of the command to override the version.
+
+```shell
+dockerized node:15
+```
+
+
+**Listing versions**
+
+To see which versions are available, run:
+
+```shell
+dockerized node:?
+# or
+dockerized node:
+```
+
+**Environment Variables**
+
 Each command has a `<COMMAND>_VERSION` environment variable which you can override.
 
 - `python`: `PYTHON_VERSION`
@@ -188,13 +209,6 @@ This allows you to "lock" your tools to specific versions for your project.
 - Create a `dockerized.env` file in your project directory.
 - All commands executed within this directory will use the settings specified in this file.
 
-**Ad-hoc**
-
-Add `:<version>` to the end of the command to override the version.
-
-```shell
-dockerized node:15
-```
 
 **Ad-hoc (Unix)**
 
@@ -212,12 +226,6 @@ dockerized node:15
     set NODE_VERSION=15.0.0
     dockerized node
     ```
-
-**Ad-hoc (Windows Powershell)**
-
-It's currently not known how to specify the version of a command in a Powershell script through environment variables.
-
-As an alternative, you can create a `dockerized.env` file in the current directory.
 
 ## Localhost
 
