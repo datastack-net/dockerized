@@ -1,3 +1,10 @@
+# [2.13.0](https://github.com/datastack-net/dockerized/compare/v2.12.0...v2.13.0) (2022-03-23)
+
+
+### Features
+
+* Listing versions with <command>:? ([85653d8](https://github.com/datastack-net/dockerized/commit/85653d8dd3bde623249ea659f33aa390b8204563))
+
 # [2.12.0](https://github.com/datastack-net/dockerized/compare/v2.11.0...v2.12.0) (2022-03-22)
 
 
