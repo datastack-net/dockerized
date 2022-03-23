@@ -1,6 +1,13 @@
 package main
 
 import (
+	"encoding/json"
+	"github.com/hashicorp/go-version"
+	"io"
+	"net/http"
+)
+
+import (
 	"context"
 	"fmt"
 	"github.com/compose-spec/compose-go/cli"
@@ -10,6 +17,8 @@ import (
 	"github.com/docker/cli/cli/flags"
 	"github.com/docker/compose/v2/pkg/api"
 	"github.com/docker/compose/v2/pkg/compose"
+	"github.com/docker/distribution/reference"
+	"github.com/docker/hub-tool/pkg/hub"
 	"github.com/fatih/color"
 	"github.com/joho/godotenv"
 	"os"
@@ -79,54 +88,20 @@ func main() {
 	}
 
 	if commandVersion != "" {
-		rawProject, err := getRawProject(dockerizedDockerComposeFilePath)
-		if err != nil {
-			panic(err)
-		}
-
-		rawService, err := rawProject.GetService(commandName)
-
-		var versionVariableExpected = strings.ReplaceAll(strings.ToUpper(commandName), "-", "_") + "_VERSION"
-		var versionVariablesUsed []string
-		for _, variable := range ExtractVariables(rawService) {
-			if strings.HasSuffix(variable, "_VERSION") {
-				versionVariablesUsed = append(versionVariablesUsed, variable)
-			}
-		}
-
-		if len(versionVariablesUsed) == 0 {
-			fmt.Printf("Error: Version selection for %s is currently not supported.\n", commandName)
-			os.Exit(1)
-		}
-
-		versionKey := versionVariableExpected
-
-		if !contains(versionVariablesUsed, versionVariableExpected) {
-			if len(versionVariablesUsed) == 1 {
-				fmt.Printf("Error: To specify the version of %s, please set %s.\n",
-					commandName,
-					versionVariablesUsed[0],
-				)
+		if commandVersion == "?" {
+			err = PrintCommandVersions(dockerizedDockerComposeFilePath, commandName, optionVerbose)
+			if err != nil {
+				fmt.Println(err)
 				os.Exit(1)
-			} else if len(versionVariablesUsed) > 1 {
-				fmt.Println("Multiple version variables found:")
-				for _, variable := range versionVariablesUsed {
-					fmt.Println("  " + variable)
-				}
-				os.Exit(1)
+			} else {
+				os.Exit(0)
 			}
-		}
-
-		if optionVerbose {
-			fmt.Printf("Setting %s to %s...\n", versionKey, commandVersion)
-		}
-		err = os.Setenv(versionKey, commandVersion)
-		if err != nil {
-			panic(err)
+		} else {
+			setCommandVersion(dockerizedDockerComposeFilePath, commandName, optionVerbose, commandVersion)
 		}
 	}
 
-	project, err := getProject(dockerizedDockerComposeFilePath, true)
+	project, err := getProject(dockerizedDockerComposeFilePath)
 	if err != nil {
 		panic(err)
 	}
@@ -245,6 +220,231 @@ func main() {
 			fmt.Println(err)
 		}
 		os.Exit(1)
+	}
+}
+
+func getNpmPackageVersions(packageName string) ([]string, error) {
+	var registryUrl = "https://registry.npmjs.org/" + packageName
+	request, err := http.NewRequest(http.MethodGet, registryUrl, nil)
+	if err != nil {
+		return nil, err
+	}
+	request.Header.Add("Accept", "application/vnd.npm.install-v1+json")
+
+	client := &http.Client{}
+	response, err := client.Do(request)
+	if err != nil {
+		return nil, err
+	}
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			panic(err)
+		}
+	}(response.Body)
+
+	// parse json
+	var registryResponse map[string]interface{}
+	err = json.NewDecoder(response.Body).Decode(&registryResponse)
+	if err != nil {
+		return nil, err
+	}
+	// read versions
+	var versions = registryResponse["versions"].(map[string]interface{})
+	var versionKeys = make([]string, 0, len(versions))
+	for k := range versions {
+		versionKeys = append(versionKeys, k)
+	}
+	sort.Strings(versionKeys)
+	return versionKeys, nil
+}
+
+func PrintCommandVersions(dockerizedDockerComposeFilePath string, commandName string, verbose bool) error {
+	project, err := getProject(dockerizedDockerComposeFilePath)
+	if err != nil {
+		return err
+	}
+
+	service, err := project.GetService(commandName)
+	if err != nil {
+		return err
+	}
+
+	var semanticVersions []string
+	var rawVersions []string
+
+	isNpmPackage := len(service.Entrypoint) > 0 && service.Entrypoint[0] == "npx"
+	if isNpmPackage {
+		var packagePattern = regexp.MustCompile(`--package=([^@]+)@([^\s]+)`)
+		packageArgument := service.Entrypoint[1]
+		packageMatch := packagePattern.FindStringSubmatch(packageArgument)
+		var packageName = packageMatch[1]
+		rawVersions, err = getNpmPackageVersions(packageName)
+		if err != nil {
+			return err
+		}
+	} else {
+		// isDockerHubImage
+		if service.Build != nil {
+			fmt.Printf("Cannot determine versions for command %s because it has a build step.\n", commandName)
+			os.Exit(1)
+		}
+
+		ref, err := reference.ParseDockerRef(service.Image)
+		if err != nil {
+			return err
+		}
+
+		refDomain := reference.Domain(ref)
+
+		if refDomain != "docker.io" {
+			fmt.Printf("Listing versions for commands is currently only supported for docker.io images.\n")
+			os.Exit(1)
+		}
+
+		refPath := reference.Path(ref)
+
+		hubClient, err := hub.NewClient(hub.WithAllElements())
+
+		if err != nil {
+			return err
+		}
+		tags, _, err := hubClient.GetTags(refPath)
+		if err != nil {
+			return err
+		}
+
+		for _, tag := range tags {
+			var tagParts = strings.Split(tag.Name, ":")
+			var tagVersion = tagParts[1]
+			rawVersions = append(rawVersions, tagVersion)
+		}
+	}
+	sort.Strings(rawVersions)
+	rawVersions = unique(rawVersions)
+	semanticVersions, err = getSemanticVersions(rawVersions)
+	sortVersions(semanticVersions)
+	semanticVersions = unique(semanticVersions)
+
+	if verbose {
+		fmt.Printf("\n")
+		fmt.Printf("Raw versions:\n")
+		for _, rawVersion := range rawVersions {
+			fmt.Printf("%s\n", rawVersion)
+		}
+		fmt.Printf("\n")
+	}
+
+	if len(semanticVersions) == 0 {
+		fmt.Printf("No parseable versions found for command %s.\n", commandName)
+		if len(rawVersions) > 0 {
+			fmt.Printf("Found: %s\n", strings.Join(rawVersions, ", "))
+		}
+		os.Exit(1)
+	}
+
+	var versionGroups = make(map[string][]string)
+	var versionGroupKeys []string
+	for _, semanticVersion := range semanticVersions {
+		var v, err = version.NewVersion(semanticVersion)
+		if err != nil {
+			return err
+		}
+
+		var versionGroup string
+		var segments = v.Segments()
+		if len(segments) >= 2 {
+			versionGroup = fmt.Sprintf("%d.%d", segments[0], segments[1])
+		} else {
+			versionGroup = fmt.Sprintf("%d.0", segments[0])
+		}
+		versionGroups[versionGroup] = append(versionGroups[versionGroup], semanticVersion)
+		versionGroupKeys = append(versionGroupKeys, versionGroup)
+	}
+	versionGroupKeys = unique(versionGroupKeys)
+	sortVersions(versionGroupKeys)
+
+	for _, versionGroup := range versionGroupKeys {
+		var versions = versionGroups[versionGroup]
+		fmt.Printf("%s\n", strings.Join(versions, ", "))
+	}
+	return nil
+}
+
+func getSemanticVersions(rawVersions []string) ([]string, error) {
+	var semanticVersions []string
+	for _, rawVersion := range rawVersions {
+		var semanticVersion = regexp.MustCompile(`^v?(\d+(\.\d+)*$)`).FindStringSubmatch(rawVersion)
+		if semanticVersion != nil {
+			semanticVersions = append(semanticVersions, semanticVersion[1])
+		}
+	}
+	return semanticVersions, nil
+}
+
+func sortVersions(versions []string) {
+	sort.Slice(versions, func(i, j int) bool {
+		v1, e1 := version.NewVersion(versions[i])
+		v2, e2 := version.NewVersion(versions[j])
+		return e1 == nil && e2 == nil && v1.LessThan(v2)
+	})
+}
+
+func setCommandVersion(dockerizedDockerComposeFilePath string, commandName string, optionVerbose bool, commandVersion string) {
+	rawProject, err := getRawProject(dockerizedDockerComposeFilePath)
+	if err != nil {
+		panic(err)
+	}
+
+	rawService, err := rawProject.GetService(commandName)
+
+	var versionVariableExpected = strings.ReplaceAll(strings.ToUpper(commandName), "-", "_") + "_VERSION"
+	var variablesUsed []string
+	for _, variable := range ExtractVariables(rawService) {
+		variablesUsed = append(variablesUsed, variable)
+	}
+
+	for _, entryPointArgument := range rawService.Entrypoint {
+		for _, entryPointVariable := range ExtractVariablesFromString(entryPointArgument) {
+			variablesUsed = append(variablesUsed, entryPointVariable)
+		}
+	}
+
+	if len(variablesUsed) == 0 {
+		fmt.Printf("Error: Version selection for %s is currently not supported.\n", commandName)
+		os.Exit(1)
+	}
+
+	var versionVariablesUsed []string
+	for _, variable := range variablesUsed {
+		if strings.HasSuffix(variable, "_VERSION") {
+			versionVariablesUsed = append(versionVariablesUsed, variable)
+		}
+	}
+	versionKey := versionVariableExpected
+
+	if !contains(variablesUsed, versionVariableExpected) {
+		if len(versionVariablesUsed) == 1 {
+			fmt.Printf("Error: To specify the version of %s, please set %s.\n",
+				commandName,
+				versionVariablesUsed[0],
+			)
+			os.Exit(1)
+		} else if len(versionVariablesUsed) > 1 {
+			fmt.Println("Multiple version variables found:")
+			for _, versionVariable := range versionVariablesUsed {
+				fmt.Println("  " + versionVariable)
+			}
+			os.Exit(1)
+		}
+	}
+
+	if optionVerbose {
+		fmt.Printf("Setting %s to %s...\n", versionKey, commandVersion)
+	}
+	err = os.Setenv(versionKey, commandVersion)
+	if err != nil {
+		panic(err)
 	}
 }
 
@@ -371,7 +571,7 @@ func getRawProject(dockerComposeFilePath string) (*types.Project, error) {
 	return cli.ProjectFromOptions(options)
 }
 
-func getProject(dockerComposeFilePath string, interpolation bool) (*types.Project, error) {
+func getProject(dockerComposeFilePath string) (*types.Project, error) {
 	options, err := cli.NewProjectOptions([]string{
 		dockerComposeFilePath,
 	},
@@ -432,7 +632,7 @@ func getBackend() (*api.ServiceProxy, error) {
 }
 
 func dockerComposeBuild(dockerComposeFilePath string, buildOptions api.BuildOptions) error {
-	project, err := getProject(dockerComposeFilePath, true)
+	project, err := getProject(dockerComposeFilePath)
 	if err != nil {
 		return err
 	}
@@ -491,7 +691,7 @@ func dockerComposeRun(project *types.Project, runOptions api.RunOptions, volumes
 }
 
 func help(dockerComposeFilePath string) error {
-	project, err := getProject(dockerComposeFilePath, false)
+	project, err := getProject(dockerComposeFilePath)
 	if err != nil {
 		return err
 	}
@@ -502,27 +702,30 @@ func help(dockerComposeFilePath string) error {
 	fmt.Println("  dockerized go")
 	fmt.Println("  dockerized go:1.8 build")
 	fmt.Println("  dockerized --shell go")
+	fmt.Println("  dockerized go:?")
 	fmt.Println("")
-	fmt.Println("Commands:")
 
+	fmt.Println("Commands:")
 	services := project.ServiceNames()
 	sort.Strings(services)
 	for _, service := range services {
-		if service[0] == '_' {
-			continue
-		}
 		fmt.Printf("  %s\n", service)
 	}
-
-	fmt.Println("")
+	fmt.Println()
 
 	fmt.Println("Options:")
 	fmt.Println("      --build    Rebuild the container before running it.")
 	fmt.Println("      --shell    Start a shell inside the command container. Similar to `docker run --entrypoint=sh`.")
 	fmt.Println("  -v, --verbose  Log what dockerized is doing.")
 	fmt.Println("  -h, --help     Show this help.")
-
 	fmt.Println()
+
+	fmt.Println("Version:")
+	fmt.Println("  :<version>      The version of the command to run, e.g. 1, 1.8, 1.8.1.")
+	fmt.Println("  :?              List all available versions. E.g. `dockerized go:?`")
+	fmt.Println("  :               Same as ':?' .")
+	fmt.Println()
+
 	fmt.Println("Arguments:")
 	fmt.Println("  All arguments after <command> are passed to the command itself.")
 
@@ -554,6 +757,9 @@ func parseArguments() ([]string, string, string, []string) {
 		commandSplit := strings.Split(commandName, ":")
 		commandName = commandSplit[0]
 		commandVersion = commandSplit[1]
+		if commandVersion == "" {
+			commandVersion = "?"
+		}
 	}
 	return dockerizedOptions, commandName, commandVersion, commandArgs
 }
@@ -580,14 +786,21 @@ func ExtractVariables(rawService types.ServiceConfig) []string {
 			usedVariables = append(usedVariables, argKey)
 		}
 	}
-
-	pattern := regexp.MustCompile(`\$\{([^}]+)\}`)
-	for _, match := range pattern.FindAllStringSubmatch(rawService.Image, -1) {
-		usedVariables = append(usedVariables, match[1])
+	for _, imageVariable := range ExtractVariablesFromString(rawService.Image) {
+		usedVariables = append(usedVariables, imageVariable)
 	}
 
 	usedVariables = unique(usedVariables)
 	sort.Strings(usedVariables)
 
+	return usedVariables
+}
+
+func ExtractVariablesFromString(value string) []string {
+	var usedVariables []string
+	pattern := regexp.MustCompile(`\${([^}]+)}`)
+	for _, match := range pattern.FindAllStringSubmatch(value, -1) {
+		usedVariables = append(usedVariables, match[1])
+	}
 	return usedVariables
 }
