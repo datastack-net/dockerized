@@ -182,7 +182,7 @@ Each command has a `<COMMAND>_VERSION` environment variable which you can overri
 Notes:
 - Versions of some commands are determined by other commands.  
   For example, to configure the version of `npm`, you should override `NODE_VERSION`.
-- See [dockerized.env](dockerized.env) for a list of configurable versions.
+- See [.env](.env) for a list of configurable versions.
 
 
 
@@ -198,7 +198,7 @@ Notes:
     ```
   
 - List of configuration variables, and defaults:
-  - [dockerized.env](dockerized.env)
+  - [.env](.env)
 
 
 **Per directory**
