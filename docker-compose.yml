@@ -97,6 +97,15 @@ services:
     entrypoint: [ "java" ]
   jq:
     image: stedolan/jq
+  pdflatex:
+    image: "pdflatex"
+    build:
+      context: apps/alpine
+      dockerfile: ../alpine/Dockerfile
+      args:
+        ALPINE_VERSION: "${ALPINE_VERSION}"
+        ALPINE_PACKAGES: "texlive-full py-pygments gnuplot make git"
+    entrypoint: [ "pdflatex" ]
   lua:
     image: "${LUA_IMAGE}:${LUA_VERSION}"
     entrypoint: [ "lua" ]

@@ -61,6 +61,8 @@ dockerized <command>
 - Other utilities
   - youtube-dl (Youtube downloader)
   - jq
+  - (latex)
+    - pdflatex
   - protoc
   - swagger-codegen
 
