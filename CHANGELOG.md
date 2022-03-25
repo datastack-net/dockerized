@@ -1,3 +1,16 @@
+# [2.14.0](https://github.com/datastack-net/dockerized/compare/v2.13.0...v2.14.0) (2022-03-25)
+
+
+### Bug Fixes
+
+* Determine version variable from build.args Value, not Key ([4d5cf86](https://github.com/datastack-net/dockerized/commit/4d5cf86c4b457920b2d66e456679cae1beb76168))
+* Listing versions of vue ([ddb526e](https://github.com/datastack-net/dockerized/commit/ddb526e56d3cb18245625a2056cc572a5f3477e8))
+
+
+### Features
+
+* **command:** Add latex ([04a7d42](https://github.com/datastack-net/dockerized/commit/04a7d420cc3379192f1904d8a65d66649c580daa))
+
 # [2.13.0](https://github.com/datastack-net/dockerized/compare/v2.12.0...v2.13.0) (2022-03-23)
 
 
