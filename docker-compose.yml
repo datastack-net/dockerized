@@ -103,7 +103,7 @@ services:
       context: apps/alpine
       dockerfile: ../alpine/Dockerfile
       args:
-        ALPINE_VERSION: "${ALPINE_VERSION}"
+        ALPINE_VERSION: "${LATEX_ALPINE_VERSION}"
         ALPINE_PACKAGES: "texlive-full py-pygments gnuplot make git"
     entrypoint: [ "pdflatex" ]
   lua:

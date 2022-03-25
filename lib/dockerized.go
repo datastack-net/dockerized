@@ -404,12 +404,6 @@ func setCommandVersion(dockerizedDockerComposeFilePath string, commandName strin
 		variablesUsed = append(variablesUsed, variable)
 	}
 
-	for _, entryPointArgument := range rawService.Entrypoint {
-		for _, entryPointVariable := range ExtractVariablesFromString(entryPointArgument) {
-			variablesUsed = append(variablesUsed, entryPointVariable)
-		}
-	}
-
 	if len(variablesUsed) == 0 {
 		fmt.Printf("Error: Version selection for %s is currently not supported.\n", commandName)
 		os.Exit(1)
@@ -431,7 +425,7 @@ func setCommandVersion(dockerizedDockerComposeFilePath string, commandName strin
 			)
 			os.Exit(1)
 		} else if len(versionVariablesUsed) > 1 {
-			fmt.Println("Multiple version variables found:")
+			fmt.Printf("Error: To specify the version of %s, please set one of:\n", commandName)
 			for _, versionVariable := range versionVariablesUsed {
 				fmt.Println("  " + versionVariable)
 			}
@@ -782,12 +776,20 @@ func ExtractVariables(rawService types.ServiceConfig) []string {
 		usedVariables = append(usedVariables, envKey)
 	}
 	if rawService.Build != nil {
-		for argKey := range rawService.Build.Args {
-			usedVariables = append(usedVariables, argKey)
+		for _, argValue := range rawService.Build.Args {
+			for _, argValueVariable := range ExtractVariablesFromString(*argValue) {
+				usedVariables = append(usedVariables, argValueVariable)
+			}
 		}
 	}
 	for _, imageVariable := range ExtractVariablesFromString(rawService.Image) {
 		usedVariables = append(usedVariables, imageVariable)
+	}
+
+	for _, entryPointArgument := range rawService.Entrypoint {
+		for _, entryPointVariable := range ExtractVariablesFromString(entryPointArgument) {
+			usedVariables = append(usedVariables, entryPointVariable)
+		}
 	}
 
 	usedVariables = unique(usedVariables)
