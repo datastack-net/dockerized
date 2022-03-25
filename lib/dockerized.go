@@ -275,7 +275,7 @@ func PrintCommandVersions(dockerizedDockerComposeFilePath string, commandName st
 
 	isNpmPackage := len(service.Entrypoint) > 0 && service.Entrypoint[0] == "npx"
 	if isNpmPackage {
-		var packagePattern = regexp.MustCompile(`--package=([^@]+)@([^\s]+)`)
+		var packagePattern = regexp.MustCompile(`--package=(@?[^@]+)@([^\s]+)`)
 		packageArgument := service.Entrypoint[1]
 		packageMatch := packagePattern.FindStringSubmatch(packageArgument)
 		var packageName = packageMatch[1]
