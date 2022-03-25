@@ -7,12 +7,10 @@ For example, this is how `go` is added:
 ```yaml
 services:
   go:
-    <<: *default
     image: golang:latest
     entrypoint: [ "go" ]
 ```
 
-- `<<: *default` is a YAML reference that copies some default settings for the service. Just include it.
 - `image: golang:latest` specifies the docker image to use. You can find these on [Docker Hub](https://hub.docker.com/).
 - `entrypoint` is the command to run when the service starts.
 
@@ -33,7 +31,6 @@ Replace the version tag `latest` with `${GO_VERSION}`:
 
 ```yaml
   go:
-    <<: *default
     image: "golang:${GO_VERSION}"
     entrypoint: [ "go" ]
 ```
@@ -60,7 +57,7 @@ dockerized gh auth login
 ```
 
 - Choose SSH, and Browser authentication
-- See [gh](apps/gh/Readme.md) for more information.
+- See [gh](apps/gh/README.md) for more information.
 
 ```bash
 # Create a PR:
