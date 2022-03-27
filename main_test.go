@@ -69,7 +69,6 @@ services:
 }
 
 func TestUserCanLocallyCustomizeDockerizedCommands(t *testing.T) {
-	return
 	projectPath := dockerized.GetDockerizedRoot() + "/test/project_with_customized_service"
 
 	defer context().
