@@ -43,7 +43,8 @@ var options = []string{
 }
 
 func main() {
-	normalizeEnvironment()
+	dockerizedRoot := getDockerizedRoot()
+	normalizeEnvironment(dockerizedRoot)
 
 	dockerizedOptions, commandName, commandVersion, commandArgs := parseArguments()
 
@@ -60,7 +61,6 @@ func main() {
 
 	dockerizedDockerComposeFilePath := os.Getenv("COMPOSE_FILE")
 	if dockerizedDockerComposeFilePath == "" {
-		dockerizedRoot := getDockerizedRoot()
 		dockerizedDockerComposeFilePath = filepath.Join(dockerizedRoot, "docker-compose.yml")
 	}
 
@@ -528,7 +528,8 @@ func findLocalEnvFile(path string) (string, error) {
 	}
 	return "", fmt.Errorf("no local %s found", dockerizedEnvFileName)
 }
-func normalizeEnvironment() {
+func normalizeEnvironment(dockerizedRoot string) {
+	_ = os.Setenv("DOCKERIZED_ROOT", dockerizedRoot)
 	homeDir, _ := os.UserHomeDir()
 	if os.Getenv("HOME") == "" {
 		_ = os.Setenv("HOME", homeDir)
