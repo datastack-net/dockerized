@@ -26,6 +26,7 @@ fi
 case "$OSTYPE" in
 msys | cygwin)
   DOCKERIZED_COMPILE_GOOS=windows
+  DOCKERIZED_BINARY="${DOCKERIZED_BINARY}.exe"
   ;;
 darwin*)
   DOCKERIZED_COMPILE_GOOS=darwin
