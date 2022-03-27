@@ -31,6 +31,34 @@ func TestOverrideVersionWithEnvVar(t *testing.T) {
 	assert.Contains(t, output, "libprotoc 3.6.0")
 }
 
+func TestLocalEnvFileOverridesGlobalEnvFile(t *testing.T) {
+	var homePath = dockerized.GetDockerizedRoot() + "/test/home"
+	var projectPath = dockerized.GetDockerizedRoot() + "/test/project_override_global"
+	defer context().
+		WithHome(homePath).
+		WithHomeEnvFile("PROTOC_VERSION=3.6.0").
+		WithDir(projectPath).
+		WithCwd(projectPath).
+		WithFile(projectPath+"/dockerized.env", "PROTOC_VERSION=3.8.0").
+		Restore()
+	var output = testDockerized(t, []string{"-v", "protoc", "--version"})
+	assert.Contains(t, output, "libprotoc 3.8.0")
+}
+
+func TestRuntimeEnvOverridesLocalEnvFile(t *testing.T) {
+	var homePath = dockerized.GetDockerizedRoot() + "/test/home"
+	var projectPath = dockerized.GetDockerizedRoot() + "/test/project_override_global"
+	defer context().
+		WithHome(homePath).
+		WithDir(projectPath).
+		WithCwd(projectPath).
+		WithFile(projectPath+"/dockerized.env", "PROTOC_VERSION=3.8.0").
+		WithEnv("PROTOC_VERSION", "3.16.1").
+		Restore()
+	var output = testDockerized(t, []string{"protoc", "--version"})
+	assert.Contains(t, output, "libprotoc 3.16.1")
+}
+
 func TestCustomGlobalComposeFileAdditionalService(t *testing.T) {
 	homePath := dockerized.GetDockerizedRoot() + "/test/additional_service"
 
@@ -123,6 +151,14 @@ func (c *Context) WithFile(path string, content string) *Context {
 	return c
 }
 
+func (c *Context) WithDir(path string) *Context {
+	_ = os.MkdirAll(path, os.ModePerm)
+	c.after = append(c.after, func() {
+		_ = os.RemoveAll(path)
+	})
+	return c
+}
+
 func (c *Context) Execute(callback func()) {
 	for _, before := range c.before {
 		before()
@@ -187,6 +223,7 @@ func testDockerized(t *testing.T, args []string) string {
 	var output = capture(func() {
 		err, exitCode = RunCli(args)
 	})
+	println(output)
 	assert.Nil(t, err, fmt.Sprintf("error: %s", err))
 	assert.Equal(t, 0, exitCode)
 	return output
