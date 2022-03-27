@@ -27,7 +27,7 @@ jobs:
           bin/dockerized --shell $COMMAND -c 'echo $HOST_HOSTNAME' | tee ~/shell.log
           grep $(hostname) ~/shell.log
   IntegrationTest:
-    runson: ubuntu-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-go@v2
         with:
