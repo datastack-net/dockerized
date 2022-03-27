@@ -38,7 +38,7 @@ if (($DOCKERIZED_COMPILE -eq $true) -Or !(Test-Path "$DOCKERIZED_BINARY"))
         -v "${DOCKERIZED_ROOT}\.cache:/go/pkg" `
         -w /src `
         "golang:1.17.8" `
-        build -o /build/ lib/dockerized.go
+        build -o /build/ .
 
     if ($LASTEXITCODE -ne 0) {
         Write-StdErr "Failed to compile dockerized."

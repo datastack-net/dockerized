@@ -19,7 +19,7 @@ require (
 	github.com/docker/hub-tool v0.4.4
 	github.com/fatih/color v1.13.0
 	github.com/hashicorp/go-version v1.3.0
-	github.com/joho/godotenv v1.3.0
+	github.com/stretchr/testify v1.7.0
 )
 
 require (
@@ -88,6 +88,7 @@ require (
 	github.com/opencontainers/runc v1.1.0 // indirect
 	github.com/pelletier/go-toml v1.9.4 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/prometheus/client_golang v1.11.0 // indirect
 	github.com/prometheus/client_model v0.2.0 // indirect
 	github.com/prometheus/common v0.30.0 // indirect
@@ -128,6 +129,7 @@ require (
 	google.golang.org/protobuf v1.27.1 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
+	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 	k8s.io/apimachinery v0.22.5 // indirect
 	k8s.io/client-go v0.22.5 // indirect
 	k8s.io/klog/v2 v2.30.0 // indirect

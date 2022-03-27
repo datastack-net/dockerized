@@ -78,11 +78,11 @@ if [ "$DOCKERIZED_COMPILE" ] || [ ! -f "$DOCKERIZED_BINARY" ]; then
       -v "${DOCKERIZED_ROOT}/.cache:/go/pkg" \
       -w //src \
       "golang:1.17.8" \
-      build -ldflags "$GO_LDFLAGS" -o //build/ lib/dockerized.go
+      build -ldflags "$GO_LDFLAGS" -o //build/ .
   else
     (
     cd "$DOCKERIZED_ROOT"
-    go build -ldflags "$GO_LDFLAGS" -o build/ lib/dockerized.go
+    go build -ldflags "$GO_LDFLAGS" -o build/ .
     )
   fi
 

@@ -1,0 +1,49 @@
+package help
+
+import (
+	"fmt"
+	dockerized "github.com/datastack-net/dockerized/pkg"
+	"sort"
+)
+
+func Help(composeFilePaths []string) error {
+	project, err := dockerized.GetProject(composeFilePaths)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("Usage: dockerized [options] <command>[:version] [arguments]")
+	fmt.Println("")
+	fmt.Println("Examples:")
+	fmt.Println("  dockerized go")
+	fmt.Println("  dockerized go:1.8 build")
+	fmt.Println("  dockerized --shell go")
+	fmt.Println("  dockerized go:?")
+	fmt.Println("")
+
+	fmt.Println("Commands:")
+	services := project.ServiceNames()
+	sort.Strings(services)
+	for _, service := range services {
+		fmt.Printf("  %s\n", service)
+	}
+	fmt.Println()
+
+	fmt.Println("Options:")
+	fmt.Println("      --build    Rebuild the container before running it.")
+	fmt.Println("      --shell    Start a shell inside the command container. Similar to `docker run --entrypoint=sh`.")
+	fmt.Println("  -v, --verbose  Log what dockerized is doing.")
+	fmt.Println("  -h, --help     Show this help.")
+	fmt.Println()
+
+	fmt.Println("Version:")
+	fmt.Println("  :<version>      The version of the command to run, e.g. 1, 1.8, 1.8.1.")
+	fmt.Println("  :?              List all available versions. E.g. `dockerized go:?`")
+	fmt.Println("  :               Same as ':?' .")
+	fmt.Println()
+
+	fmt.Println("Arguments:")
+	fmt.Println("  All arguments after <command> are passed to the command itself.")
+
+	return nil
+}
