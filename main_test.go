@@ -112,6 +112,38 @@ services:
 	assert.Contains(t, output, "CUSTOM_123456")
 }
 
+func TestUserCanIncludeGlobalAndProjectComposeFile(t *testing.T) {
+	projectPath := dockerized.GetDockerizedRoot() + "/test/project" + strconv.Itoa(rand.Int())
+
+	context := context().
+		WithTempHome().
+		WithHomeEnvFile(`COMPOSE_FILE="${COMPOSE_FILE};${HOME}/docker-compose.dockerized.yml"`).
+		WithHomeFile("docker-compose.dockerized.yml", `
+version: "3"
+services:
+  home_cmd:
+    image: "alpine"
+    entrypoint: [ "echo", "HOME123" ]
+`).
+		WithDir(projectPath).
+		WithCwd(projectPath).
+		WithFile(projectPath+"/dockerized.env", `COMPOSE_FILE="${COMPOSE_FILE};${DOCKERIZED_PROJECT_ROOT}/docker-compose.dockerized.yml"`).
+		WithFile(projectPath+"/docker-compose.dockerized.yml", `
+version: "3"
+services:
+  project_cmd:
+    image: "alpine"
+    entrypoint: [ "echo", "PROJECT123" ]
+`)
+	defer context.Restore()
+	var outputProjectCmd = testDockerized(t, []string{"-v", "project_cmd"})
+	assert.Contains(t, outputProjectCmd, "PROJECT123")
+
+	var outputHomeCmd = testDockerized(t, []string{"-v", "home_cmd"})
+	assert.Contains(t, outputHomeCmd, "HOME123")
+
+}
+
 func (c *Context) WithEnv(key string, value string) *Context {
 	_ = os.Setenv(key, value)
 	return c
@@ -144,7 +176,7 @@ func (c *Context) WithCwd(path string) *Context {
 }
 
 func (c *Context) WithHomeEnvFile(content string) *Context {
-	return c.WithFile(c.homePath+"/dockerized.env", content)
+	return c.WithHomeFile("dockerized.env", content)
 }
 
 func (c *Context) WithFile(path string, content string) *Context {
