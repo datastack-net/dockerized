@@ -293,30 +293,8 @@ func LoadEnvFiles(hostCwd string, optionVerbose bool) error {
 		}
 	}
 
-	dockerizedEnvMap, err := dotenv.ReadWithLookup(func(key string) (string, bool) {
-		if os.Getenv(key) != "" {
-			return os.Getenv(key), true
-		} else {
-			return "", false
-		}
-	}, defaultEnvFile)
-	if err != nil {
-		return err
-	}
-
-	var lookupEnvOrDefault = func(key string) (string, bool) {
-		var envValue = os.Getenv(key)
-		if envValue != "" {
-			return envValue, true
-		}
-		if dockerizedEnvMap[key] != "" {
-			return dockerizedEnvMap[key], true
-		}
-		return "", false
-	}
-
 	var envMap = make(map[string]string)
-	err = func() error {
+	err := func() error {
 		for _, envFilePath := range envFiles {
 			file, err := os.Open(envFilePath)
 			if err != nil {
@@ -325,7 +303,16 @@ func LoadEnvFiles(hostCwd string, optionVerbose bool) error {
 			defer file.Close()
 
 			envFileMap, err := dotenv.ParseWithLookup(file, func(key string) (string, bool) {
-				return lookupEnvOrDefault(key)
+				// 1. Lookup in the environment
+				var envValue = os.Getenv(key)
+				if envValue != "" {
+					return envValue, true
+				}
+				// 2. Lookup in previous env files
+				if envMap[key] != "" {
+					return envMap[key], true
+				}
+				return "", false
 			})
 			if err != nil {
 				return err
