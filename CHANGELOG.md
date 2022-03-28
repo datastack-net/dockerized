@@ -1,3 +1,17 @@
+# [2.15.0](https://github.com/datastack-net/dockerized/compare/v2.14.0...v2.15.0) (2022-03-28)
+
+
+### Bug Fixes
+
+* compile and run the correct binary when sharing source between windows and wsl ([862edb4](https://github.com/datastack-net/dockerized/commit/862edb496dbf3915b9e164d948861ed9634aad67))
+
+
+### Features
+
+* Ability to add or customize commands with additional compose files ([15f2d8b](https://github.com/datastack-net/dockerized/commit/15f2d8b24861c16f1cc60e0a197effd01c67aea9))
+* Add your own commands, or customize the defaults ([e1d73e2](https://github.com/datastack-net/dockerized/commit/e1d73e2cd810abe20ebc7c5ced59d345e2d66943))
+* Logo for Dockerized ([6895b71](https://github.com/datastack-net/dockerized/commit/6895b7154d2dede95b078e075b694b86cc8e0099))
+
 # [2.14.0](https://github.com/datastack-net/dockerized/compare/v2.13.0...v2.14.0) (2022-03-25)
 
 
