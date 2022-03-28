@@ -1,4 +1,7 @@
-# Dockerized [![Compile and Test](https://github.com/datastack-net/dockerized/actions/workflows/test.yml/badge.svg)](https://github.com/datastack-net/dockerized/actions/workflows/test.yml)
+![Dockerized](dockerized-banner.png)
+
+# Dockerized [![Compile and Test](https://github.com/datastack-net/dockerized/actions/workflows/test.yml/badge.svg)](https://github.com/datastack-net/dockerized/actions/workflows/test.yml) 
+
 Run popular commandline tools without installing them.
 
 ```shell
