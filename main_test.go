@@ -5,7 +5,9 @@ import (
 	dockerized "github.com/datastack-net/dockerized/pkg"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
+	"k8s.io/apimachinery/pkg/util/rand"
 	"os"
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -32,10 +34,9 @@ func TestOverrideVersionWithEnvVar(t *testing.T) {
 }
 
 func TestLocalEnvFileOverridesGlobalEnvFile(t *testing.T) {
-	var homePath = dockerized.GetDockerizedRoot() + "/test/home"
 	var projectPath = dockerized.GetDockerizedRoot() + "/test/project_override_global"
 	defer context().
-		WithHome(homePath).
+		WithTempHome().
 		WithHomeEnvFile("PROTOC_VERSION=3.6.0").
 		WithDir(projectPath).
 		WithCwd(projectPath).
@@ -46,10 +47,9 @@ func TestLocalEnvFileOverridesGlobalEnvFile(t *testing.T) {
 }
 
 func TestRuntimeEnvOverridesLocalEnvFile(t *testing.T) {
-	var homePath = dockerized.GetDockerizedRoot() + "/test/home"
 	var projectPath = dockerized.GetDockerizedRoot() + "/test/project_override_global"
 	defer context().
-		WithHome(homePath).
+		WithTempHome().
 		WithDir(projectPath).
 		WithCwd(projectPath).
 		WithFile(projectPath+"/dockerized.env", "PROTOC_VERSION=3.8.0").
@@ -60,14 +60,10 @@ func TestRuntimeEnvOverridesLocalEnvFile(t *testing.T) {
 }
 
 func TestCustomGlobalComposeFileAdditionalService(t *testing.T) {
-	homePath := dockerized.GetDockerizedRoot() + "/test/additional_service"
-
-	println(strings.Join(os.Environ(), " / "))
-
 	defer context().
-		WithHome(homePath).
+		WithTempHome().
 		WithHomeEnvFile(`COMPOSE_FILE="${COMPOSE_FILE};${HOME}/docker-compose.yml"`).
-		WithFile(homePath+"/docker-compose.yml", `
+		WithHomeFile("docker-compose.yml", `
 version: "3"
 services:
   test:
@@ -79,12 +75,10 @@ services:
 }
 
 func TestUserCanGloballyCustomizeDockerizedCommands(t *testing.T) {
-	homePath := dockerized.GetDockerizedRoot() + "/test/customized_service"
-
 	defer context().
-		WithHome(homePath).
+		WithTempHome().
 		WithHomeEnvFile(`COMPOSE_FILE="${COMPOSE_FILE};${HOME}/docker-compose.yml"`).
-		WithFile(homePath+"/docker-compose.yml", `
+		WithHomeFile("docker-compose.yml", `
 version: "3"
 services:
   alpine:
@@ -98,10 +92,14 @@ services:
 
 func TestUserCanLocallyCustomizeDockerizedCommands(t *testing.T) {
 	projectPath := dockerized.GetDockerizedRoot() + "/test/project_with_customized_service"
+	projectSubPath := projectPath + "/sub"
 
 	defer context().
-		WithCwd(projectPath).
-		WithHomeEnvFile(`COMPOSE_FILE="${COMPOSE_FILE};docker-compose.yml"`).
+		WithTempHome().
+		WithDir(projectPath).
+		WithDir(projectSubPath).
+		WithCwd(projectSubPath).
+		WithFile(projectPath+"/dockerized.env", `COMPOSE_FILE="${COMPOSE_FILE};${DOCKERIZED_PROJECT_ROOT}/docker-compose.yml"`).
 		WithFile(projectPath+"/docker-compose.yml", `
 version: "3"
 services:
@@ -110,29 +108,35 @@ services:
       CUSTOM: "CUSTOM_123456"
 `).
 		Restore()
-	var output = testDockerized(t, []string{"alpine", "env"})
+	var output = testDockerized(t, []string{"-v", "alpine", "env"})
 	assert.Contains(t, output, "CUSTOM_123456")
 }
 
 func (c *Context) WithEnv(key string, value string) *Context {
 	_ = os.Setenv(key, value)
-	//c.after = append(c.after, func() {
-	//	_ = os.Unsetenv(key)
-	//})
 	return c
 }
 
 func (c *Context) WithHome(path string) *Context {
 	c.homePath = path
-	_ = os.MkdirAll(path, os.ModePerm)
+	c.WithDir(path)
 	c.WithEnv("HOME", path)
 	c.WithEnv("USERPROFILE", path)
 	return c
 }
 
+func (c *Context) WithTempHome() *Context {
+	var homePath = dockerized.GetDockerizedRoot() + "/test/home" + strconv.Itoa(rand.Int())
+	c.WithHome(homePath)
+	return c
+}
+
 func (c *Context) WithCwd(path string) *Context {
 	c.cwdBefore, _ = os.Getwd()
-	os.Chdir(path)
+	err := os.Chdir(path)
+	if err != nil {
+		panic(err)
+	}
 	c.after = append(c.after, func() {
 		os.Chdir(c.cwdBefore)
 	})
@@ -149,6 +153,10 @@ func (c *Context) WithFile(path string, content string) *Context {
 		_ = os.Remove(path)
 	})
 	return c
+}
+
+func (c *Context) WithHomeFile(path string, content string) *Context {
+	return c.WithFile(c.homePath+"/"+path, content)
 }
 
 func (c *Context) WithDir(path string) *Context {

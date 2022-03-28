@@ -269,19 +269,20 @@ func LoadEnvFiles(hostCwd string, optionVerbose bool) error {
 	var envFiles []string
 
 	// Default
-	dockerizedEnvFile := GetDockerizedRoot() + "/.env"
-	envFiles = append(envFiles, dockerizedEnvFile)
+	defaultEnvFile := GetDockerizedRoot() + "/.env"
+	envFiles = append(envFiles, defaultEnvFile)
 
 	// Global overrides
 	homeDir, _ := os.UserHomeDir()
-	userGlobalDockerizedEnvFile := filepath.Join(homeDir, dockerizedEnvFileName)
-	if _, err := os.Stat(userGlobalDockerizedEnvFile); err == nil {
-		envFiles = append(envFiles, userGlobalDockerizedEnvFile)
+	globalUserEnvFile := filepath.Join(homeDir, dockerizedEnvFileName)
+	if _, err := os.Stat(globalUserEnvFile); err == nil {
+		envFiles = append(envFiles, globalUserEnvFile)
 	}
 
-	// Local overrides
-	if localDockerizedEnvFile, err := findLocalEnvFile(hostCwd); err == nil {
-		envFiles = append(envFiles, localDockerizedEnvFile)
+	// Project overrides
+	if projectEnvFile, err := findProjectEnvFile(hostCwd); err == nil {
+		envFiles = append(envFiles, projectEnvFile)
+		os.Setenv("DOCKERIZED_PROJECT_ROOT", filepath.Dir(projectEnvFile))
 	}
 
 	envFiles = unique(envFiles)
@@ -298,22 +299,44 @@ func LoadEnvFiles(hostCwd string, optionVerbose bool) error {
 		} else {
 			return "", false
 		}
-	}, dockerizedEnvFile)
+	}, defaultEnvFile)
 	if err != nil {
 		return err
 	}
 
-	envMap, err := dotenv.ReadWithLookup(func(key string) (string, bool) {
-		if dockerizedEnvMap[key] != "" {
-			return dockerizedEnvMap[key], true
-		}
+	var lookupEnvOrDefault = func(key string) (string, bool) {
 		var envValue = os.Getenv(key)
 		if envValue != "" {
 			return envValue, true
-		} else {
-			return "", false
 		}
-	}, envFiles...)
+		if dockerizedEnvMap[key] != "" {
+			return dockerizedEnvMap[key], true
+		}
+		return "", false
+	}
+
+	var envMap = make(map[string]string)
+	err = func() error {
+		for _, envFilePath := range envFiles {
+			file, err := os.Open(envFilePath)
+			if err != nil {
+				return err
+			}
+			defer file.Close()
+
+			envFileMap, err := dotenv.ParseWithLookup(file, func(key string) (string, bool) {
+				return lookupEnvOrDefault(key)
+			})
+			if err != nil {
+				return err
+			}
+			for key, value := range envFileMap {
+				envMap[key] = value
+			}
+		}
+		return nil
+	}()
+
 	if err != nil {
 		return err
 	}
@@ -372,7 +395,7 @@ func GetDockerizedRoot() string {
 	return filepath.Dir(filepath.Dir(executable))
 }
 
-func findLocalEnvFile(path string) (string, error) {
+func findProjectEnvFile(path string) (string, error) {
 	envFilePath := ""
 	for i := 0; i < 10; i++ {
 		envFilePath = filepath.Join(path, dockerizedEnvFileName)
