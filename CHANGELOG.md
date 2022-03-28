@@ -1,3 +1,10 @@
+## [2.15.2](https://github.com/datastack-net/dockerized/compare/v2.15.1...v2.15.2) (2022-03-28)
+
+
+### Bug Fixes
+
+* Including Compose Files both globally and locally at the same time ([bcc2d94](https://github.com/datastack-net/dockerized/commit/bcc2d94c9764582086a2c7981ff80fcf1d832f89))
+
 ## [2.15.1](https://github.com/datastack-net/dockerized/compare/v2.15.0...v2.15.1) (2022-03-28)
 
 
