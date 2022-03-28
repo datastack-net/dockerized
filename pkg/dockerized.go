@@ -1,7 +1,9 @@
-package main
+package dockerized
 
 import (
 	"encoding/json"
+	"github.com/compose-spec/compose-go/dotenv"
+	"github.com/datastack-net/dockerized/pkg/util"
 	"github.com/hashicorp/go-version"
 	"io"
 	"net/http"
@@ -19,8 +21,6 @@ import (
 	"github.com/docker/compose/v2/pkg/compose"
 	"github.com/docker/distribution/reference"
 	"github.com/docker/hub-tool/pkg/hub"
-	"github.com/fatih/color"
-	"github.com/joho/godotenv"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -30,197 +30,20 @@ import (
 	"syscall"
 )
 
-var Version string
-
-var options = []string{
-	"--shell",
-	"--build",
-	"-h",
-	"--help",
-	"-v",
-	"--verbose",
-	"--version",
-}
-
-func main() {
-	normalizeEnvironment()
-
-	dockerizedOptions, commandName, commandVersion, commandArgs := parseArguments()
-
-	var optionHelp = contains(dockerizedOptions, "--help") || contains(dockerizedOptions, "-h")
-	var optionVerbose = contains(dockerizedOptions, "--verbose") || contains(dockerizedOptions, "-v")
-	var optionShell = contains(dockerizedOptions, "--shell")
-	var optionBuild = contains(dockerizedOptions, "--build")
-	var optionVersion = contains(dockerizedOptions, "--version")
-
-	if optionVersion {
-		fmt.Printf("dockerized %s\n", Version)
-		os.Exit(0)
+// Determine which docker-compose file to use. Assumes .env files are already loaded.
+func GetComposeFilePaths(dockerizedRoot string) []string {
+	var composeFilePaths []string
+	composeFilePath := os.Getenv("COMPOSE_FILE")
+	if composeFilePath == "" {
+		composeFilePaths = append(composeFilePaths, filepath.Join(dockerizedRoot, "docker-compose.yml"))
+	} else {
+		composePathSeparator := os.Getenv("COMPOSE_PATH_SEPARATOR")
+		if composePathSeparator == "" {
+			composePathSeparator = ";"
+		}
+		composeFilePaths = strings.Split(composeFilePath, composePathSeparator)
 	}
-
-	dockerizedDockerComposeFilePath := os.Getenv("COMPOSE_FILE")
-	if dockerizedDockerComposeFilePath == "" {
-		dockerizedRoot := getDockerizedRoot()
-		dockerizedDockerComposeFilePath = filepath.Join(dockerizedRoot, "docker-compose.yml")
-	}
-
-	if optionVerbose {
-		fmt.Println("Dockerized docker-compose file: ", dockerizedDockerComposeFilePath)
-	}
-
-	if commandName == "" || optionHelp {
-		err := help(dockerizedDockerComposeFilePath)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-		if optionHelp {
-			os.Exit(0)
-		} else {
-			os.Exit(1)
-		}
-	}
-
-	hostCwd, _ := os.Getwd()
-	var err = loadEnvFiles(hostCwd, optionVerbose)
-	if err != nil {
-		panic(err)
-	}
-
-	if commandVersion != "" {
-		if commandVersion == "?" {
-			err = PrintCommandVersions(dockerizedDockerComposeFilePath, commandName, optionVerbose)
-			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
-			} else {
-				os.Exit(0)
-			}
-		} else {
-			setCommandVersion(dockerizedDockerComposeFilePath, commandName, optionVerbose, commandVersion)
-		}
-	}
-
-	project, err := getProject(dockerizedDockerComposeFilePath)
-	if err != nil {
-		panic(err)
-	}
-
-	hostName, _ := os.Hostname()
-	hostCwdDirName := filepath.Base(hostCwd)
-	containerCwd := "/host"
-	if hostCwdDirName != "\\" {
-		containerCwd += "/" + hostCwdDirName
-	}
-
-	runOptions := api.RunOptions{
-		Service: commandName,
-		Environment: []string{
-			"HOST_HOSTNAME=" + hostName,
-		},
-		Command:    commandArgs,
-		AutoRemove: true,
-		Tty:        true,
-		WorkingDir: containerCwd,
-	}
-
-	volumes := []types.ServiceVolumeConfig{
-		{
-			Type:   "bind",
-			Source: hostCwd,
-			Target: containerCwd,
-		}}
-
-	if optionBuild {
-		if optionVerbose {
-			fmt.Printf("Building container image for %s...\n", commandName)
-		}
-		err := dockerComposeBuild(dockerizedDockerComposeFilePath, api.BuildOptions{
-			Services: []string{commandName},
-		})
-
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-	}
-
-	if optionShell {
-		if optionVerbose {
-			fmt.Printf("Opening shell in container for %s...\n", commandName)
-
-			if len(commandArgs) > 0 {
-				fmt.Printf("Passing arguments to shell: %s\n", commandArgs)
-			}
-		}
-
-		var ps1 = fmt.Sprintf(
-			"%s %s:\\w \\$ ",
-			color.BlueString("dockerized %s", commandName),
-			color.New(color.FgHiBlue).Add(color.Bold).Sprintf("\\u@\\h"),
-		)
-		var welcomeMessage = "Welcome to dockerized shell. Type 'exit' or press Ctrl+D to exit.\n"
-		welcomeMessage += "Mounted volumes:\n"
-
-		for _, volume := range volumes {
-			welcomeMessage += fmt.Sprintf("  %s -> %s\n", volume.Source, volume.Target)
-		}
-		service, err := project.GetService(commandName)
-		if err == nil {
-			for _, volume := range service.Volumes {
-				welcomeMessage += fmt.Sprintf("  %s -> %s\n", volume.Source, volume.Target)
-			}
-		}
-		welcomeMessage = strings.ReplaceAll(welcomeMessage, "\\", "\\\\")
-
-		shells := []string{
-			"bash",
-			"zsh",
-			"sh",
-		}
-		var shellDetectionCommands []string
-		for _, shell := range shells {
-			shellDetectionCommands = append(shellDetectionCommands, "command -v "+shell)
-		}
-		for _, shell := range shells {
-			shellDetectionCommands = append(shellDetectionCommands, "which "+shell)
-		}
-
-		var cmdPrintWelcome = fmt.Sprintf("echo '%s'", color.YellowString(welcomeMessage))
-		var cmdLaunchShell = fmt.Sprintf("$(%s)", strings.Join(shellDetectionCommands, " || "))
-
-		runOptions.Environment = append(runOptions.Environment, "PS1="+ps1)
-		runOptions.Entrypoint = []string{"/bin/sh"}
-
-		if len(commandArgs) > 0 {
-			runOptions.Command = []string{"-c", fmt.Sprintf("%s; %s \"%s\"", cmdPrintWelcome, cmdLaunchShell, strings.Join(commandArgs, "\" \""))}
-		} else {
-			runOptions.Command = []string{"-c", fmt.Sprintf("%s; %s", cmdPrintWelcome, cmdLaunchShell)}
-		}
-	}
-
-	if !contains(project.ServiceNames(), commandName) {
-		image := "r.j3ss.co/" + commandName
-		if optionVerbose {
-			fmt.Printf("Service %s not found in %s. Fallback to: %s.\n", commandName, dockerizedDockerComposeFilePath, image)
-			fmt.Printf("  This command, if it exists, will not support version switching.\n")
-			fmt.Printf("  See: https://github.com/jessfraz/dockerfiles\n")
-		}
-		err := dockerRun(image, runOptions, volumes)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-		os.Exit(0)
-	}
-
-	err = dockerComposeRun(project, runOptions, volumes)
-	if err != nil {
-		if optionVerbose {
-			fmt.Println(err)
-		}
-		os.Exit(1)
-	}
+	return composeFilePaths
 }
 
 func getNpmPackageVersions(packageName string) ([]string, error) {
@@ -259,8 +82,8 @@ func getNpmPackageVersions(packageName string) ([]string, error) {
 	return versionKeys, nil
 }
 
-func PrintCommandVersions(dockerizedDockerComposeFilePath string, commandName string, verbose bool) error {
-	project, err := getProject(dockerizedDockerComposeFilePath)
+func PrintCommandVersions(composeFilePaths []string, commandName string, verbose bool) error {
+	project, err := GetProject(composeFilePaths)
 	if err != nil {
 		return err
 	}
@@ -390,8 +213,8 @@ func sortVersions(versions []string) {
 	})
 }
 
-func setCommandVersion(dockerizedDockerComposeFilePath string, commandName string, optionVerbose bool, commandVersion string) {
-	rawProject, err := getRawProject(dockerizedDockerComposeFilePath)
+func SetCommandVersion(composeFilePaths []string, commandName string, optionVerbose bool, commandVersion string) {
+	rawProject, err := getRawProject(composeFilePaths)
 	if err != nil {
 		panic(err)
 	}
@@ -417,7 +240,7 @@ func setCommandVersion(dockerizedDockerComposeFilePath string, commandName strin
 	}
 	versionKey := versionVariableExpected
 
-	if !contains(variablesUsed, versionVariableExpected) {
+	if !util.Contains(variablesUsed, versionVariableExpected) {
 		if len(versionVariablesUsed) == 1 {
 			fmt.Printf("Error: To specify the version of %s, please set %s.\n",
 				commandName,
@@ -442,33 +265,95 @@ func setCommandVersion(dockerizedDockerComposeFilePath string, commandName strin
 	}
 }
 
-func loadEnvFiles(hostCwd string, optionVerbose bool) error {
-	homeDir, _ := os.UserHomeDir()
-	userGlobalDockerizedEnvFile := filepath.Join(homeDir, dockerizedEnvFileName)
-	localDockerizedEnvFile, err := findLocalEnvFile(hostCwd)
-
+func LoadEnvFiles(hostCwd string, optionVerbose bool) error {
 	var envFiles []string
 
-	if _, err := os.Stat(userGlobalDockerizedEnvFile); err == nil {
-		envFiles = append(envFiles, userGlobalDockerizedEnvFile)
-	}
-	if err == nil && !contains(envFiles, localDockerizedEnvFile) {
-		envFiles = append(envFiles, localDockerizedEnvFile)
+	// Default
+	defaultEnvFile := GetDockerizedRoot() + "/.env"
+	envFiles = append(envFiles, defaultEnvFile)
+
+	// Global overrides
+	homeDir, _ := os.UserHomeDir()
+	globalUserEnvFile := filepath.Join(homeDir, dockerizedEnvFileName)
+	if _, err := os.Stat(globalUserEnvFile); err == nil {
+		envFiles = append(envFiles, globalUserEnvFile)
 	}
 
+	// Project overrides
+	if projectEnvFile, err := findProjectEnvFile(hostCwd); err == nil {
+		envFiles = append(envFiles, projectEnvFile)
+		os.Setenv("DOCKERIZED_PROJECT_ROOT", filepath.Dir(projectEnvFile))
+	}
+
+	envFiles = unique(envFiles)
+
 	if optionVerbose {
-		// Print it in order of priority (lowest to highest)
 		for _, envFile := range envFiles {
-			fmt.Println("Loading: ", envFile)
+			fmt.Printf("Loading: '%s'\n", envFile)
 		}
 	}
-	// Load in reverse. GoDotEnv does not override vars, this allows runtime env-vars to override the env files.
-	for i := len(envFiles) - 1; i >= 0; i-- {
-		err := godotenv.Load(envFiles[i])
-		if err != nil {
-			return err
+
+	dockerizedEnvMap, err := dotenv.ReadWithLookup(func(key string) (string, bool) {
+		if os.Getenv(key) != "" {
+			return os.Getenv(key), true
+		} else {
+			return "", false
+		}
+	}, defaultEnvFile)
+	if err != nil {
+		return err
+	}
+
+	var lookupEnvOrDefault = func(key string) (string, bool) {
+		var envValue = os.Getenv(key)
+		if envValue != "" {
+			return envValue, true
+		}
+		if dockerizedEnvMap[key] != "" {
+			return dockerizedEnvMap[key], true
+		}
+		return "", false
+	}
+
+	var envMap = make(map[string]string)
+	err = func() error {
+		for _, envFilePath := range envFiles {
+			file, err := os.Open(envFilePath)
+			if err != nil {
+				return err
+			}
+			defer file.Close()
+
+			envFileMap, err := dotenv.ParseWithLookup(file, func(key string) (string, bool) {
+				return lookupEnvOrDefault(key)
+			})
+			if err != nil {
+				return err
+			}
+			for key, value := range envFileMap {
+				envMap[key] = value
+			}
+		}
+		return nil
+	}()
+
+	if err != nil {
+		return err
+	}
+
+	currentEnv := map[string]bool{}
+	rawEnv := os.Environ()
+	for _, rawEnvLine := range rawEnv {
+		key := strings.Split(rawEnvLine, "=")[0]
+		currentEnv[key] = true
+	}
+
+	for key, value := range envMap {
+		if !currentEnv[key] {
+			_ = os.Setenv(key, value)
 		}
 	}
+
 	return nil
 }
 
@@ -476,16 +361,16 @@ func dockerComposeRunAdHocService(service types.ServiceConfig, runOptions api.Ru
 	if service.Environment == nil {
 		service.Environment = map[string]*string{}
 	}
-	return dockerComposeRun(&types.Project{
+	return DockerComposeRun(&types.Project{
 		Name: "dockerized",
 		Services: []types.ServiceConfig{
 			service,
 		},
-		WorkingDir: getDockerizedRoot(),
+		WorkingDir: GetDockerizedRoot(),
 	}, runOptions, []types.ServiceVolumeConfig{})
 }
 
-func dockerRun(image string, runOptions api.RunOptions, volumes []types.ServiceVolumeConfig) error {
+func DockerRun(image string, runOptions api.RunOptions, volumes []types.ServiceVolumeConfig) error {
 	// Couldn't get 'docker run' to work, so instead define a Docker Compose Service and run that.
 	// This coincidentally allows re-using the same code for both 'docker run' and 'docker-compose run'
 	// - ContainerCreate is simple, but the logic to attach to it is very complex, and not exposed by the Docker SDK.
@@ -499,7 +384,10 @@ func dockerRun(image string, runOptions api.RunOptions, volumes []types.ServiceV
 
 var dockerizedEnvFileName = "dockerized.env"
 
-func getDockerizedRoot() string {
+func GetDockerizedRoot() string {
+	if os.Getenv("DOCKERIZED_ROOT") != "" {
+		return os.Getenv("DOCKERIZED_ROOT")
+	}
 	executable, err := os.Executable()
 	if err != nil {
 		panic("Cannot detect dockerized root directory: " + err.Error())
@@ -507,17 +395,7 @@ func getDockerizedRoot() string {
 	return filepath.Dir(filepath.Dir(executable))
 }
 
-func contains(s []string, str string) bool {
-	for _, v := range s {
-		if v == str {
-			return true
-		}
-	}
-
-	return false
-}
-
-func findLocalEnvFile(path string) (string, error) {
+func findProjectEnvFile(path string) (string, error) {
 	envFilePath := ""
 	for i := 0; i < 10; i++ {
 		envFilePath = filepath.Join(path, dockerizedEnvFileName)
@@ -528,7 +406,8 @@ func findLocalEnvFile(path string) (string, error) {
 	}
 	return "", fmt.Errorf("no local %s found", dockerizedEnvFileName)
 }
-func normalizeEnvironment() {
+func NormalizeEnvironment(dockerizedRoot string) {
+	_ = os.Setenv("DOCKERIZED_ROOT", dockerizedRoot)
 	homeDir, _ := os.UserHomeDir()
 	if os.Getenv("HOME") == "" {
 		_ = os.Setenv("HOME", homeDir)
@@ -546,10 +425,8 @@ func newSigContext() (context.Context, func()) {
 	return ctx, cancel
 }
 
-func getRawProject(dockerComposeFilePath string) (*types.Project, error) {
-	options, err := cli.NewProjectOptions([]string{
-		dockerComposeFilePath,
-	},
+func getRawProject(composeFilePaths []string) (*types.Project, error) {
+	options, err := cli.NewProjectOptions(composeFilePaths,
 		cli.WithInterpolation(false),
 		cli.WithLoadOptions(func(l *loader.Options) {
 			l.SkipValidation = true
@@ -565,17 +442,14 @@ func getRawProject(dockerComposeFilePath string) (*types.Project, error) {
 	return cli.ProjectFromOptions(options)
 }
 
-func getProject(dockerComposeFilePath string) (*types.Project, error) {
-	options, err := cli.NewProjectOptions([]string{
-		dockerComposeFilePath,
-	},
-		cli.WithDotEnv,
+func GetProject(composeFilePaths []string) (*types.Project, error) {
+	options, err := cli.NewProjectOptions([]string{},
 		cli.WithOsEnv,
 		cli.WithConfigFileEnv,
-	) //, cli.WithDefaultConfigPath
+	)
 
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 
 	return cli.ProjectFromOptions(options)
@@ -625,8 +499,8 @@ func getBackend() (*api.ServiceProxy, error) {
 	return backend, nil
 }
 
-func dockerComposeBuild(dockerComposeFilePath string, buildOptions api.BuildOptions) error {
-	project, err := getProject(dockerComposeFilePath)
+func DockerComposeBuild(composeFilePaths []string, buildOptions api.BuildOptions) error {
+	project, err := GetProject(composeFilePaths)
 	if err != nil {
 		return err
 	}
@@ -643,7 +517,7 @@ func dockerComposeBuild(dockerComposeFilePath string, buildOptions api.BuildOpti
 	return backend.Build(ctx, project, buildOptions)
 }
 
-func dockerComposeRun(project *types.Project, runOptions api.RunOptions, volumes []types.ServiceVolumeConfig) error {
+func DockerComposeRun(project *types.Project, runOptions api.RunOptions, volumes []types.ServiceVolumeConfig) error {
 	err := os.Chdir(project.WorkingDir)
 	if err != nil {
 		return err
@@ -682,80 +556,6 @@ func dockerComposeRun(project *types.Project, runOptions api.RunOptions, volumes
 		return fmt.Errorf("docker-compose exited with code %d", exitCode)
 	}
 	return nil
-}
-
-func help(dockerComposeFilePath string) error {
-	project, err := getProject(dockerComposeFilePath)
-	if err != nil {
-		return err
-	}
-
-	fmt.Println("Usage: dockerized [options] <command>[:version] [arguments]")
-	fmt.Println("")
-	fmt.Println("Examples:")
-	fmt.Println("  dockerized go")
-	fmt.Println("  dockerized go:1.8 build")
-	fmt.Println("  dockerized --shell go")
-	fmt.Println("  dockerized go:?")
-	fmt.Println("")
-
-	fmt.Println("Commands:")
-	services := project.ServiceNames()
-	sort.Strings(services)
-	for _, service := range services {
-		fmt.Printf("  %s\n", service)
-	}
-	fmt.Println()
-
-	fmt.Println("Options:")
-	fmt.Println("      --build    Rebuild the container before running it.")
-	fmt.Println("      --shell    Start a shell inside the command container. Similar to `docker run --entrypoint=sh`.")
-	fmt.Println("  -v, --verbose  Log what dockerized is doing.")
-	fmt.Println("  -h, --help     Show this help.")
-	fmt.Println()
-
-	fmt.Println("Version:")
-	fmt.Println("  :<version>      The version of the command to run, e.g. 1, 1.8, 1.8.1.")
-	fmt.Println("  :?              List all available versions. E.g. `dockerized go:?`")
-	fmt.Println("  :               Same as ':?' .")
-	fmt.Println()
-
-	fmt.Println("Arguments:")
-	fmt.Println("  All arguments after <command> are passed to the command itself.")
-
-	return nil
-}
-
-func parseArguments() ([]string, string, string, []string) {
-	commandName := ""
-	var commandArgs []string
-	var dockerizedOptions []string
-	var commandVersion string
-	for _, arg := range os.Args[1:] {
-		if arg[0] == '-' && commandName == "" {
-			if contains(options, arg) {
-				dockerizedOptions = append(dockerizedOptions, arg)
-			} else {
-				fmt.Println("Unknown option:", arg)
-				os.Exit(1)
-			}
-		} else {
-			if commandName == "" {
-				commandName = arg
-			} else {
-				commandArgs = append(commandArgs, arg)
-			}
-		}
-	}
-	if strings.ContainsRune(commandName, ':') {
-		commandSplit := strings.Split(commandName, ":")
-		commandName = commandSplit[0]
-		commandVersion = commandSplit[1]
-		if commandVersion == "" {
-			commandVersion = "?"
-		}
-	}
-	return dockerizedOptions, commandName, commandVersion, commandArgs
 }
 
 func unique(s []string) []string {

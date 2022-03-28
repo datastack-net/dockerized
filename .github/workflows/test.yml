@@ -26,6 +26,17 @@ jobs:
         run: |
           bin/dockerized --shell $COMMAND -c 'echo $HOST_HOSTNAME' | tee ~/shell.log
           grep $(hostname) ~/shell.log
+  IntegrationTest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-go@v2
+        with:
+          go-version: '1.17.8'
+      - name: Checkout Dockerized
+        uses: actions/checkout@v2
+      - name: go test
+        run: |
+          DOCKERIZED_ROOT=$(pwd) go test -p 1 .
   CompileAndTest:
     runs-on: ${{ matrix.os }}
     strategy:

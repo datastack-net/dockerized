@@ -5,7 +5,7 @@ services:
     &alpine
     image: "alpine_${ALPINE_VERSION}"
     build:
-      context: apps/alpine
+      context: "${DOCKERIZED_ROOT:-.}/apps/alpine"
       args:
         ALPINE_VERSION: "${ALPINE_VERSION}"
         ALPINE_PACKAGES: "tree"
@@ -17,8 +17,9 @@ services:
     entrypoint: [ "ansible-playbook" ]
   ab:
     <<: *alpine
+    image: "ab"
     build:
-      context: apps/alpine
+      context: "${DOCKERIZED_ROOT:-.}/apps/alpine"
       args:
         ALPINE_VERSION: "${ALPINE_VERSION}"
         ALPINE_PACKAGES: "apache2-ssl apache2-utils ca-certificates"
@@ -37,9 +38,9 @@ services:
       - "${HOME:-home}/.ssh:/root/.ssh"
       - "${HOME:-home}/.dockerized/apps/az:/root/.azure"
   bash:
-    image: "bash"
+    image: "dockerized_bash"
     build:
-      context: apps/alpine
+      context: "${DOCKERIZED_ROOT:-.}/apps/alpine"
       args:
         ALPINE_VERSION: "${ALPINE_VERSION}"
         ALPINE_PACKAGES: "bash"
@@ -47,8 +48,8 @@ services:
   doctl:
     image: "doctl:${DOCTL_VERSION}"
     build:
-      context: apps/doctl
-      dockerfile: ../alpine/Dockerfile
+      context: "${DOCKERIZED_ROOT:-.}/apps/doctl"
+      dockerfile: "${DOCKERIZED_ROOT:-.}/apps/alpine/Dockerfile"
       args:
         ALPINE_VERSION: "${ALPINE_VERSION}"
         BUILD_SCRIPT_ARGS: "${DOCTL_VERSION}"
@@ -61,8 +62,8 @@ services:
   gh:
     image: "gh:${GH_VERSION}"
     build:
-      context: apps/gh
-      dockerfile: ../alpine/Dockerfile
+      context: "${DOCKERIZED_ROOT:-.}/apps/gh"
+      dockerfile: "${DOCKERIZED_ROOT:-.}/apps/alpine/Dockerfile"
       args:
         ALPINE_VERSION: "${ALPINE_VERSION}"
         ALPINE_PACKAGES: "git openssh-client"
@@ -70,7 +71,7 @@ services:
     entrypoint: [ "/init.sh", "/gh/bin/gh" ]
     volumes:
       - "${HOME:-home}/.dockerized/apps/gh:/root"
-      - "./apps/gh/init.sh:/init.sh"
+      - "${DOCKERIZED_ROOT:-.}/apps/gh/init.sh:/init.sh"
     environment:
       BROWSER: "echo"
   git:
@@ -100,8 +101,8 @@ services:
   pdflatex:
     image: "pdflatex"
     build:
-      context: apps/alpine
-      dockerfile: ../alpine/Dockerfile
+      context: "${DOCKERIZED_ROOT:-.}/apps/alpine"
+      dockerfile: "${DOCKERIZED_ROOT:-.}/apps/alpine/Dockerfile"
       args:
         ALPINE_VERSION: "${LATEX_ALPINE_VERSION}"
         ALPINE_PACKAGES: "texlive-full py-pygments gnuplot make git"
@@ -133,7 +134,7 @@ services:
   protoc:
     image: "protoc:${PROTOC_VERSION}"
     build:
-      context: apps/protoc
+      context: "${DOCKERIZED_ROOT:-.}/apps/protoc"
       args:
         PROTOC_VERSION: "${PROTOC_VERSION}"
         PROTOC_BASE: "${PROTOC_BASE}"
@@ -164,7 +165,7 @@ services:
     entrypoint: [ "rustc" ]
   s3cmd:
     build:
-      context: apps/s3cmd
+      context: "${DOCKERIZED_ROOT:-.}/apps/s3cmd"
       args:
         S3CMD_VERSION: "${S3CMD_VERSION}"
         S3CMD_BASE: "${S3CMD_BASE}"
@@ -187,7 +188,7 @@ services:
   telnet:
     <<: *alpine
     build:
-      context: apps/alpine
+      context: "${DOCKERIZED_ROOT:-.}/apps/alpine"
       args:
         ALPINE_VERSION: "${ALPINE_VERSION}"
         ALPINE_PACKAGES: "busybox-extras"
@@ -195,7 +196,7 @@ services:
   tree:
     <<: *alpine
     build:
-      context: apps/alpine
+      context: "${DOCKERIZED_ROOT:-.}/apps/alpine"
       args:
         ALPINE_VERSION: "${ALPINE_VERSION}"
         ALPINE_PACKAGES: "tree"
@@ -217,7 +218,7 @@ services:
   zip:
     image: "zip"
     build:
-      context: apps/alpine
+      context: "${DOCKERIZED_ROOT:-.}/apps/alpine"
       args:
         ALPINE_VERSION: "${ALPINE_VERSION}"
         ALPINE_PACKAGES: "zip"

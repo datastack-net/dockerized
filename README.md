@@ -1,4 +1,7 @@
-# Dockerized [![Compile and Test](https://github.com/datastack-net/dockerized/actions/workflows/test.yml/badge.svg)](https://github.com/datastack-net/dockerized/actions/workflows/test.yml)
+![Dockerized](dockerized-banner.png)
+
+# Dockerized [![Compile and Test](https://github.com/datastack-net/dockerized/actions/workflows/test.yml/badge.svg)](https://github.com/datastack-net/dockerized/actions/workflows/test.yml) 
+
 Run popular commandline tools without installing them.
 
 ```shell
@@ -9,7 +12,7 @@ dockerized <command>
 
 ## Supported commands
 
-> If your favorite command is not included, it can be added very easily. See [Add a command](DEV.md).  
+> If your favorite command is not included, it can be added very easily. See [Customization](#customization).  
 > Dockerized will also fall back to over 150 commands defined in [jessfraz/dockerfiles](https://github.com/jessfraz/dockerfiles).
 
 - Cloud
@@ -154,7 +157,7 @@ dockerized npm install                # install packages.json
 
 ## Switching command versions 
 
-**Ad-hoc**
+### Ad-hoc
 
 Add `:<version>` to the end of the command to override the version.
 
@@ -163,7 +166,7 @@ dockerized node:15
 ```
 
 
-**Listing versions**
+### Listing versions
 
 To see which versions are available, run:
 
@@ -173,7 +176,7 @@ dockerized node:?
 dockerized node:
 ```
 
-**Environment Variables**
+### Environment Variables
 
 Each command has a `<COMMAND>_VERSION` environment variable which you can override.
 
@@ -203,12 +206,12 @@ Notes:
   - [.env](.env)
 
 
-**Per directory**
+**Per project (directory)**
 
-You can also specify version and other settings per directory.
+You can also specify version and other settings per directory and its subdirectory.
 This allows you to "lock" your tools to specific versions for your project.
 
-- Create a `dockerized.env` file in your project directory.
+- Create a `dockerized.env` file in the root of your project directory.
 - All commands executed within this directory will use the settings specified in this file.
 
 
@@ -228,6 +231,111 @@ This allows you to "lock" your tools to specific versions for your project.
     set NODE_VERSION=15.0.0
     dockerized node
     ```
+
+## Customization
+
+Dockerized uses [Docker Compose](https://docs.docker.com/compose/overview/) to run commands, which are defined in a Compose File.
+The default commands are listed in [docker-compose.yml](docker-compose.yml). You can add your own commands or customize the defaults, by loading a custom Compose File.
+
+The `COMPOSE_FILE` environment variable defines which files to load. This variable is set by the included [.env](.env) file, and your own `dockerized.env` files, as explained in [Environment Variables](#environment-variables). To load an additional Compose File, add the path to the file to the `COMPOSE_FILE` environment variable.
+
+
+### Including an additional Compose File
+
+**Globally**
+
+To change global settings, create a file `dockerized.env` in your home directory, which loads an extra Compose File.
+In this example, the Compose File is also in the home directory, referenced relative to the `${HOME}` directory. The original variable `${COMPOSE_FILE}` is included to preserve the default commands. Omit it if you want to completely replace the default commands.
+
+```bash
+# ~/dockerized.env
+COMPOSE_FILE="${COMPOSE_FILE};${HOME}/docker-compose.yml"
+```
+
+```yaml
+# ~/docker-compose.yml
+```
+
+**Per Project**
+
+To change settings within a specific directory, create a file `dockerized.env` in the root of that directory, which loads the extra Compose File. `${DOCKERIZED_PROJECT_ROOT}` refers to the absolute path to the root of the project.
+ 
+```shell
+# ./dockerized.env
+COMPOSE_FILE="${COMPOSE_FILE};${DOCKERIZED_PROJECT_ROOT}/docker-compose.yml"
+```
+
+```yaml
+# ./docker-compose.yml
+```
+
+### Adding custom commands
+
+After adding your custom Compose File to `COMPOSE_FILE`, you can add your own commands. 
+
+```yaml
+# docker-compose.yml
+version: "3"
+services:
+  du:
+    image: alpine
+    entrypoint: ["du"]
+```
+
+> Now you can run `dockerized du` to see the size of the current directory.
+
+> To learn how to support versioning, see [Development Guide: Configurable Version](DEV.md#configurable-version).
+
+You can also mount a directory to the container:
+
+```yaml
+# docker-compose.yml
+version: "3"
+services:
+  du:
+    image: alpine
+    entrypoint: ["du"]
+    volumes:
+      - "${HOME}/.config:/root/.config"
+      - "${DOCKERIZED_PROJECT_ROOT}/foobar:/foobar"
+```
+
+> Make sure host volumes are **absolute paths**. For paths relative to home and the project root, you can use `${HOME}` and `${DOCKERIZED_PROJECT_ROOT}`.
+
+> It is possible to use **relative paths** in the service definitions, but then your Compose File must be loaded **before** the default: `COMPOSE_FILE=${DOCKERIZED_PROJECT_ROOT}/docker-compose.yml;${COMPOSE_FILE}`. All paths are relative to the first Compose File. Compose Files are also merged in the order they are specified, with the last Compose File overriding earlier ones. Because of this, if you want to override the default Compose File, you must load it before _your_ file, and you can't use relative paths.
+
+> To keep **compatibility** with docker-compose, you can specify a default value for `DOCKERIZED_PROJECT_ROOT`, for example: `${DOCKERIZED_PROJECT_ROOT:-.}` sets the default to `.`, allowing you to run like this as well: `docker-compose --rm du -sh /foobar`.
+
+To customize existing commands, you can override or add properties to the `services` section of the Compose File, for the command you want to customize. For example, this is how to set an extra environment variable for `dockerized aws`:
+
+```yaml
+# docker-compose.yml
+version: "3"
+services:
+  aws:
+    environment:
+      AWS_DEFAULT_REGION: "us-east-1"
+```
+
+If you'd like to pass environment variables directly from your `dockerized.env` file, you can expose the variable as follows:
+
+```bash
+# dockerized.env
+AWS_DEFAULT_REGION="us-east-1"
+```
+
+```yaml
+# docker-compose.yml
+version: "3"
+services:
+  aws:
+    environment:
+      AWS_DEFAULT_REGION: "${AWS_DEFAULT_REGION}"
+```
+
+
+
+For more information on extending Compose Files, see the Docker Compose documentation: [Multiple Compose Files](https://docs.docker.com/compose/extends/#multiple-compose-files). Note that the `extends` keyword is not supported in the Docker Compose version used by Dockerized.
 
 ## Localhost
 
