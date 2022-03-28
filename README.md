@@ -248,6 +248,7 @@ To change global settings, create a file `dockerized.env` in your home directory
 In this example, the Compose File is also in the home directory, referenced relative to the `${HOME}` directory. The original variable `${COMPOSE_FILE}` is included to preserve the default commands. Omit it if you want to completely replace the default commands.
 
 ```bash
+# ~/dockerized.env
 COMPOSE_FILE="${COMPOSE_FILE};${HOME}/docker-compose.yml"
 ```
  
@@ -256,6 +257,7 @@ COMPOSE_FILE="${COMPOSE_FILE};${HOME}/docker-compose.yml"
 To change settings within a specific directory, create a file `dockerized.env` in the root of that directory, which loads the extra Compose File. `${DOCKERIZED_PROJECT_ROOT}` refers to the absolute path to the root of the project.
  
 ```shell
+# ./dockerized.env
 COMPOSE_FILE="${COMPOSE_FILE};${DOCKERIZED_PROJECT_ROOT}/docker-compose.yml"
 ```
 
@@ -288,6 +290,7 @@ services:
       - "${HOME}/.config:/root/.config"
       - "${DOCKERIZED_PROJECT_ROOT}/foobar:/foobar"
 ```
+
 > Make sure host volumes are **absolute paths**. For paths relative to home and the project root, you can use `${HOME}` and `${DOCKERIZED_PROJECT_ROOT}`.
 
 > It is possible to use **relative paths** in the service definitions, but then your Compose File must be loaded **before** the default: `COMPOSE_FILE=${DOCKERIZED_PROJECT_ROOT}/docker-compose.yml;${COMPOSE_FILE}`. All paths are relative to the first Compose File. Compose Files are also merged in the order they are specified, with the last Compose File overriding earlier ones. Because of this, if you want to override the default Compose File, you must load it before _your_ file, and you can't use relative paths.
