@@ -258,7 +258,6 @@ To change settings within a specific directory, create a file `dockerized.env` i
 ```shell
 COMPOSE_FILE="${COMPOSE_FILE};${DOCKERIZED_PROJECT_ROOT}/docker-compose.yml"
 ```
-`${DOCKERIZED_PROJECT_ROOT}` contains absolute path to the project directory. In this example it is `myproject`.
 
 ### Adding custom commands
 
@@ -266,6 +265,7 @@ Your custom compose file can be called whatever you want. Just make sure it is i
 
 Adding a new command to the Compose File:
 ```yaml
+# docker-compose.yml
 version: "3"
 services:
   du:
@@ -278,20 +278,52 @@ services:
 You can also mount a directory to the container:
 
 ```yaml
+# docker-compose.yml
 version: "3"
 services:
   du:
     image: alpine
     entrypoint: ["du"]
     volumes:
-      - "${DOCKERIZED_PROJECT_ROOT}/foobar:/foobar"
       - "${HOME}/.config:/root/.config"
+      - "${DOCKERIZED_PROJECT_ROOT}/foobar:/foobar"
 ```
 > Make sure host volumes are **absolute paths**. For paths relative to home and the project root, you can use `${HOME}` and `${DOCKERIZED_PROJECT_ROOT}`.
 
 > It is possible to use **relative paths** in the service definitions, but then your Compose File must be loaded **before** the default: `COMPOSE_FILE=${DOCKERIZED_PROJECT_ROOT}/docker-compose.yml;${COMPOSE_FILE}`. All paths are relative to the first Compose File. Compose Files are also merged in the order they are specified, with the last Compose File overriding earlier ones. Because of this, if you want to override the default Compose File, you must load it before _your_ file, and you can't use relative paths.
 
-> To keep **compatibility** with docker-compose, you can specify a default value for `DOCKERIZED_ROOT` with the following syntax`${DOCKERIZED_PROJECT_ROOT:-someDefaultValue}` instead. For example, `${DOCKERIZED_PROJECT_ROOT:-.}` sets the default to `.`, the compose file directory, allowing you to run your command with docker-compose: `docker-compose --rm du -sh /foobar`.
+> To keep **compatibility** with docker-compose, you can specify a default value for `DOCKERIZED_PROJECT_ROOT`, for example: `${DOCKERIZED_PROJECT_ROOT:-.}` sets the default to `.`, allowing you to run like this as well: `docker-compose --rm du -sh /foobar`.
+
+To customize existing commands, you can override or add properties to the `services` section of the Compose File, for the command you want to customize. For example, this is how to set an extra environment variable for `dockerized aws`:
+
+```yaml
+# docker-compose.yml
+version: "3"
+services:
+  aws:
+    environment:
+      AWS_DEFAULT_REGION: "us-east-1"
+```
+
+If you'd like to pass environment variables directly from your `dockerized.env` file, you can expose the variable as follows:
+
+```bash
+# dockerized.env
+AWS_DEFAULT_REGION="us-east-1"
+```
+
+```yaml
+# docker-compose.yml
+version: "3"
+services:
+  aws:
+    environment:
+      AWS_DEFAULT_REGION: "${AWS_DEFAULT_REGION}"
+```
+
+
+
+For more information on extending Compose Files, see the Docker Compose documentation: [Multiple Compose Files](https://docs.docker.com/compose/extends/#multiple-compose-files). Note that the `extends` keyword is not supported in the Docker Compose version used by Dockerized.
 
 ## Localhost
 
