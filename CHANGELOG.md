@@ -1,3 +1,10 @@
+## [2.15.1](https://github.com/datastack-net/dockerized/compare/v2.15.0...v2.15.1) (2022-03-28)
+
+
+### Bug Fixes
+
+* Include binaries ([c3f1dda](https://github.com/datastack-net/dockerized/commit/c3f1ddac3fe772175b413637e7ca09effc1bdb29))
+
 # [2.15.0](https://github.com/datastack-net/dockerized/compare/v2.14.0...v2.15.0) (2022-03-28)
 
 
