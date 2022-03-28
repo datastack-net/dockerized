@@ -25,7 +25,8 @@ jobs:
           GOOS: ${{ matrix.target.GOOS }}
           GOARCH: ${{ matrix.target.GOARCH }}
         run: |
-          bin/dockerized go build -o release/${{ matrix.target.name }}/bin/ lib/dockerized.go
+          bin/dockerized go build -o release/${{ matrix.target.name }}/bin/ .
+          ls -l release/${{ matrix.target.name }}/bin/dockerized*
       - name: Zip
         working-directory: release/${{ matrix.target.name }}
         run: |
