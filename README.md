@@ -251,7 +251,11 @@ In this example, the Compose File is also in the home directory, referenced rela
 # ~/dockerized.env
 COMPOSE_FILE="${COMPOSE_FILE};${HOME}/docker-compose.yml"
 ```
- 
+
+```yaml
+# ~/docker-compose.yml
+```
+
 **Per Project**
 
 To change settings within a specific directory, create a file `dockerized.env` in the root of that directory, which loads the extra Compose File. `${DOCKERIZED_PROJECT_ROOT}` refers to the absolute path to the root of the project.
@@ -261,11 +265,14 @@ To change settings within a specific directory, create a file `dockerized.env` i
 COMPOSE_FILE="${COMPOSE_FILE};${DOCKERIZED_PROJECT_ROOT}/docker-compose.yml"
 ```
 
+```yaml
+# ./docker-compose.yml
+```
+
 ### Adding custom commands
 
-Your custom compose file can be called whatever you want. Just make sure it is in the `${COMPOSE_FILE}` variable.
+After adding your custom Compose File to `COMPOSE_FILE`, you can add your own commands. 
 
-Adding a new command to the Compose File:
 ```yaml
 # docker-compose.yml
 version: "3"
@@ -275,7 +282,9 @@ services:
     entrypoint: ["du"]
 ```
 
->Now you can run `dockerized du` to see the size of the current directory.
+> Now you can run `dockerized du` to see the size of the current directory.
+
+> To learn how to support versioning, see [Development Guide: Configurable Version](DEV.md#configurable-version).
 
 You can also mount a directory to the container:
 
