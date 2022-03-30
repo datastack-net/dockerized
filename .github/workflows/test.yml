@@ -81,6 +81,14 @@ jobs:
         run: dockerized/bin/dockerized protoc --version
         shell: bash
 
+      - name: "Test: dockerized returns inner exit code"
+        run: |
+          # Run a command that returns 100, check that dockerized returns 100
+          EXITCODE=$(dockerized/bin/dockerized bash -c 'exit 100' &>/dev/null || echo $?)
+          echo "Exit code: $EXITCODE"
+          [ $EXITCODE -eq 100 ]
+        shell: bash
+
       # region windows
       - if: runner.os == 'windows'
         name: "dockerized --compile (cmd)"

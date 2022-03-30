@@ -18,7 +18,11 @@ var Version string
 var contains = util.Contains
 
 func main() {
-	RunCli(os.Args[1:])
+	err, exitCode := RunCli(os.Args[1:])
+	if err != nil {
+		fmt.Printf("%s\n", err)
+	}
+	os.Exit(exitCode)
 }
 
 func RunCli(args []string) (err error, exitCode int) {
@@ -183,18 +187,10 @@ func RunCli(args []string) (err error, exitCode int) {
 			fmt.Printf("  This command, if it exists, will not support version switching.\n")
 			fmt.Printf("  See: https://github.com/jessfraz/dockerfiles\n")
 		}
-		err := dockerized.DockerRun(image, runOptions, volumes)
-		if err != nil {
-			return err, 1
-		}
-		return nil, 0
+		return dockerized.DockerRun(image, runOptions, volumes)
 	}
 
-	err = dockerized.DockerComposeRun(project, runOptions, volumes)
-	if err != nil {
-		return err, 1
-	}
-	return nil, 0
+	return dockerized.DockerComposeRun(project, runOptions, volumes)
 }
 
 func parseArguments(args []string) ([]string, string, string, []string) {
