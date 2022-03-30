@@ -18,7 +18,11 @@ var Version string
 var contains = util.Contains
 
 func main() {
-	RunCli(os.Args[1:])
+	err, exitCode := RunCli(os.Args[1:])
+	if err != nil {
+		fmt.Printf("%s\n", err)
+	}
+	os.Exit(exitCode)
 }
 
 func RunCli(args []string) (err error, exitCode int) {
