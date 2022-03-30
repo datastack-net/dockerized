@@ -344,7 +344,7 @@ func LoadEnvFiles(hostCwd string, optionVerbose bool) error {
 	return nil
 }
 
-func dockerComposeRunAdHocService(service types.ServiceConfig, runOptions api.RunOptions) error {
+func dockerComposeRunAdHocService(service types.ServiceConfig, runOptions api.RunOptions) (error, int) {
 	if service.Environment == nil {
 		service.Environment = map[string]*string{}
 	}
@@ -357,7 +357,7 @@ func dockerComposeRunAdHocService(service types.ServiceConfig, runOptions api.Ru
 	}, runOptions, []types.ServiceVolumeConfig{})
 }
 
-func DockerRun(image string, runOptions api.RunOptions, volumes []types.ServiceVolumeConfig) error {
+func DockerRun(image string, runOptions api.RunOptions, volumes []types.ServiceVolumeConfig) (error, int) {
 	// Couldn't get 'docker run' to work, so instead define a Docker Compose Service and run that.
 	// This coincidentally allows re-using the same code for both 'docker run' and 'docker-compose run'
 	// - ContainerCreate is simple, but the logic to attach to it is very complex, and not exposed by the Docker SDK.
@@ -504,10 +504,10 @@ func DockerComposeBuild(composeFilePaths []string, buildOptions api.BuildOptions
 	return backend.Build(ctx, project, buildOptions)
 }
 
-func DockerComposeRun(project *types.Project, runOptions api.RunOptions, volumes []types.ServiceVolumeConfig) error {
+func DockerComposeRun(project *types.Project, runOptions api.RunOptions, volumes []types.ServiceVolumeConfig) (error, int) {
 	err := os.Chdir(project.WorkingDir)
 	if err != nil {
-		return err
+		return err, 1
 	}
 	ctx, _ := newSigContext()
 
@@ -525,24 +525,24 @@ func DockerComposeRun(project *types.Project, runOptions api.RunOptions, volumes
 
 	backend, err := getBackend()
 	if err != nil {
-		return err
+		return err, 1
 	}
 
 	err = dockerComposeUpNetworkOnly(backend, ctx, project)
 	if err != nil {
-		return err
+		return err, 1
 	}
 
 	project.Services = []types.ServiceConfig{service}
 
 	exitCode, err := backend.RunOneOffContainer(ctx, project, runOptions)
 	if err != nil {
-		return err
+		return err, exitCode
 	}
 	if exitCode != 0 {
-		return fmt.Errorf("docker-compose exited with code %d", exitCode)
+		return fmt.Errorf("%s exited with code %d", serviceName, exitCode), exitCode
 	}
-	return nil
+	return nil, 0
 }
 
 func unique(s []string) []string {
