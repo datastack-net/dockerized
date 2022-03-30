@@ -15,11 +15,11 @@ services:
     volumes:
       - "${HOME}/.ssh:/dockerized/host/home/.ssh"
       - ./apps/ansible/init.sh:/init.sh
+    environment:
+      - ANSIBLE_CONFIG=ansible.cfg
   ansible-playbook:
     <<: *ansible
     entrypoint: [ "/init.sh", "ansible-playbook" ]
-    environment:
-      - ANSIBLE_CONFIG=ansible.cfg
   ab:
     <<: *alpine
     image: "ab"
