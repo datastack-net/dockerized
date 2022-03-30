@@ -1,3 +1,10 @@
+## [2.15.3](https://github.com/datastack-net/dockerized/compare/v2.15.2...v2.15.3) (2022-03-30)
+
+
+### Bug Fixes
+
+* Printing of errors and returning correct exit code ([#28](https://github.com/datastack-net/dockerized/issues/28)) ([47df2fe](https://github.com/datastack-net/dockerized/commit/47df2feabcc102954b6bd8924fce5485e3a9c569)), closes [#27](https://github.com/datastack-net/dockerized/issues/27)
+
 ## [2.15.2](https://github.com/datastack-net/dockerized/compare/v2.15.1...v2.15.2) (2022-03-28)
 
 
