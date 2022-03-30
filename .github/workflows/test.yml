@@ -84,7 +84,9 @@ jobs:
       - name: "Test: dockerized returns inner exit code"
         run: |
           # Run a command that returns 100, check that dockerized returns 100
-          [ $(dockerized bash -c 'exit 100'  2>&1 1>/dev/null || echo $?) -eq 100 ]
+          EXITCODE=$(dockerized bash -c 'exit 100' 2>&1 1>/dev/null || echo $?)
+          echo "Exit code: $EXITCODE"
+          [ $EXITCODE -eq 100 ]
         shell: bash
 
       # region windows
