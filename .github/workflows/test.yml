@@ -83,10 +83,8 @@ jobs:
 
       - name: "Test: dockerized returns inner exit code"
         run: |
-          set +e
-          dockerized/bin/dockerized bash -c 'exit 100'
-          set -e
-          [ $? -eq 100 ]
+          # Run a command that returns 100, check that dockerized returns 100
+          [ $(dockerized bash -c 'exit 100'  2>&1 1>/dev/null || echo $?) -eq 100 ]
         shell: bash
 
       # region windows
