@@ -1,3 +1,10 @@
+# [2.16.0](https://github.com/datastack-net/dockerized/compare/v2.15.3...v2.16.0) (2022-03-31)
+
+
+### Features
+
+* Ansible can read ansible.cfg and ssh keys from host ([792f3f2](https://github.com/datastack-net/dockerized/commit/792f3f283814ea6a959b65c787ef97a652ec408a))
+
 ## [2.15.3](https://github.com/datastack-net/dockerized/compare/v2.15.2...v2.15.3) (2022-03-30)
 
 
