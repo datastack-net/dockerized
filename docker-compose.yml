@@ -11,10 +11,15 @@ services:
         ALPINE_PACKAGES: "tree"
   ansible: &ansible
     image: "willhallonline/ansible:${ANSIBLE_VERSION}-${ANSIBLE_BASE}"
-    entrypoint: [ "ansible" ]
+    entrypoint: [ "/init.sh", "ansible" ]
+    volumes:
+      - "${HOME}/.ssh:/dockerized/host/home/.ssh"
+      - ./apps/ansible/init.sh:/init.sh
+    environment:
+      - ANSIBLE_CONFIG=ansible.cfg
   ansible-playbook:
     <<: *ansible
-    entrypoint: [ "ansible-playbook" ]
+    entrypoint: [ "/init.sh", "ansible-playbook" ]
   ab:
     <<: *alpine
     image: "ab"
