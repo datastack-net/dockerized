@@ -1,3 +1,10 @@
+# [2.19.0](https://github.com/datastack-net/dockerized/compare/v2.18.0...v2.19.0) (2022-04-03)
+
+
+### Features
+
+* **dockerized:** add -p option to map a port ([#31](https://github.com/datastack-net/dockerized/issues/31)) ([8b2e37e](https://github.com/datastack-net/dockerized/commit/8b2e37eb873cd46e416d4c05d532af23decd5514))
+
 # [2.18.0](https://github.com/datastack-net/dockerized/compare/v2.17.0...v2.18.0) (2022-04-03)
 
 
