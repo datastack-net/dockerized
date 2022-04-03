@@ -504,7 +504,7 @@ func DockerComposeBuild(composeFilePaths []string, buildOptions api.BuildOptions
 	return backend.Build(ctx, project, buildOptions)
 }
 
-func DockerComposeRun(project *types.Project, runOptions api.RunOptions, volumes []types.ServiceVolumeConfig) (error, int) {
+func DockerComposeRun(project *types.Project, runOptions api.RunOptions, volumes []types.ServiceVolumeConfig, serviceOptions ...func(config *types.ServiceConfig) error) (error, int) {
 	err := os.Chdir(project.WorkingDir)
 	if err != nil {
 		return err, 1
@@ -520,6 +520,14 @@ func DockerComposeRun(project *types.Project, runOptions api.RunOptions, volumes
 
 	stopGracePeriod := types.Duration(1)
 	service.Volumes = append(service.Volumes, volumes...)
+
+	for _, serviceOption := range serviceOptions {
+		err = serviceOption(&service)
+		if err != nil {
+			return err, 1
+		}
+	}
+
 	service.StopGracePeriod = &stopGracePeriod
 	service.StdinOpen = true
 

@@ -9,3 +9,8 @@ func Contains(s []string, str string) bool {
 
 	return false
 }
+
+func HasKey(m map[string]string, key string) bool {
+	_, ok := m[key]
+	return ok
+}
