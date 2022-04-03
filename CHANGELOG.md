@@ -1,3 +1,15 @@
+# [2.18.0](https://github.com/datastack-net/dockerized/compare/v2.17.0...v2.18.0) (2022-04-03)
+
+
+### Bug Fixes
+
+* version specification for dolt ([1bc2f79](https://github.com/datastack-net/dockerized/commit/1bc2f799b3b349b1f2eb92c828d2d18ba6c44d40))
+
+
+### Features
+
+* **command:** add mysql ([e1ad799](https://github.com/datastack-net/dockerized/commit/e1ad799983782303d3da742f5312ab7c7310bd96))
+
 # [2.17.0](https://github.com/datastack-net/dockerized/compare/v2.16.0...v2.17.0) (2022-04-03)
 
 
