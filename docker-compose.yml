@@ -99,7 +99,7 @@ services:
   ghci:
     image: "haskell:${GHCI_VERSION}"
     entrypoint: [ "ghci" ]
-  go:
+  go: &go
     image: "golang:${GO_VERSION}"
     entrypoint: [ "go" ]
     volumes:
@@ -107,6 +107,9 @@ services:
     environment:
       GOOS: "${GOOS:-}"
       GOARCH: "${GOARCH:-}"
+  gofmt:
+    <<: *go
+    entrypoint: [ "gofmt" ]
   helm:
     image: "alpine/helm:${HELM_VERSION}"
   http:

@@ -30,11 +30,13 @@ dockerized <command>
 - Languages & SDKs
   - [dotnet](apps/dotnet/README.md)
   - go
+    - gofmt 
   - (haskell)
     - ghci
   - java
   - perl
   - php
+    - composer 
   - lua
   - node
     - [npm](apps/npm/README.md)
