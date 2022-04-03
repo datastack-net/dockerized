@@ -1,3 +1,12 @@
+# [2.17.0](https://github.com/datastack-net/dockerized/compare/v2.16.0...v2.17.0) (2022-04-03)
+
+
+### Features
+
+* **command:** add composer ([13bf11c](https://github.com/datastack-net/dockerized/commit/13bf11c3cba54a5aebf39901769b2c2f743891d5))
+* **command:** add dolt ([5851ba2](https://github.com/datastack-net/dockerized/commit/5851ba296d9147c00bbceca7e47c7fc2f9fec182))
+* **command:** add gofmt ([6a54469](https://github.com/datastack-net/dockerized/commit/6a54469c92b9b935d20b9e278bd719f6cc18b81a))
+
 # [2.16.0](https://github.com/datastack-net/dockerized/compare/v2.15.3...v2.16.0) (2022-03-31)
 
 
