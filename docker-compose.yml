@@ -133,6 +133,10 @@ services:
   lua:
     image: "${LUA_IMAGE}:${LUA_VERSION}"
     entrypoint: [ "lua" ]
+  mysql:
+    image: "mysql:${MYSQL_VERSION}"
+    entrypoint: [ "mysql" ]
+    network_mode: "host"
   node:
     &node
     image: "node:${NODE_VERSION}"
