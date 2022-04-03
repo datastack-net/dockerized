@@ -1,3 +1,15 @@
+#!/usr/bin/env bash
 DOLT_VERSION=$1
-apk add --no-cache bash curl
-wget -O - https://github.com/dolthub/dolt/releases/${DOLT_VERSION}/download/install.sh | bash
+
+set -e
+
+if [ -z "$DOLT_VERSION" ]; then
+  echo "$DOLT_VERSION not set"
+  exit 1
+fi
+
+if [ "$DOLT_VERSION" == "latest" ]; then
+  curl -L https://github.com/dolthub/dolt/releases/latest/download/install.sh | bash
+else
+  curl -L https://github.com/dolthub/dolt/releases/download/v${DOLT_VERSION}/install.sh | bash
+fi

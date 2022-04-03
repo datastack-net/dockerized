@@ -64,6 +64,7 @@ dockerized <command>
   - tree
   - zip
 - Other utilities
+  - dolt 
   - youtube-dl (Youtube downloader)
   - jq
   - (latex)
