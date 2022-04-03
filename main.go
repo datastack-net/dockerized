@@ -16,6 +16,7 @@ import (
 var Version string
 
 var contains = util.Contains
+var hasKey = util.HasKey
 
 func main() {
 	err, exitCode := RunCli(os.Args[1:])
@@ -28,11 +29,12 @@ func main() {
 func RunCli(args []string) (err error, exitCode int) {
 	dockerizedOptions, commandName, commandVersion, commandArgs := parseArguments(args)
 
-	var optionHelp = contains(dockerizedOptions, "--help") || contains(dockerizedOptions, "-h")
-	var optionVerbose = contains(dockerizedOptions, "--verbose") || contains(dockerizedOptions, "-v")
-	var optionShell = contains(dockerizedOptions, "--shell")
-	var optionBuild = contains(dockerizedOptions, "--build")
-	var optionVersion = contains(dockerizedOptions, "--version")
+	var optionHelp = hasKey(dockerizedOptions, "--help") || hasKey(dockerizedOptions, "-h")
+	var optionVerbose = hasKey(dockerizedOptions, "--verbose") || hasKey(dockerizedOptions, "-v")
+	var optionShell = hasKey(dockerizedOptions, "--shell")
+	var optionBuild = hasKey(dockerizedOptions, "--build")
+	var optionVersion = hasKey(dockerizedOptions, "--version")
+	var optionPort = hasKey(dockerizedOptions, "-p")
 
 	dockerizedRoot := dockerized.GetDockerizedRoot()
 	dockerized.NormalizeEnvironment(dockerizedRoot)
@@ -104,6 +106,29 @@ func RunCli(args []string) (err error, exitCode int) {
 		AutoRemove: true,
 		Tty:        true,
 		WorkingDir: containerCwd,
+	}
+
+	var serviceOptions []func(config *types.ServiceConfig) error
+
+	if optionPort {
+		var port = dockerizedOptions["-p"]
+		if port == "" {
+			return fmt.Errorf("port option requires a port number"), 1
+		}
+		if optionVerbose {
+			fmt.Printf("Mapping port: %s\n", port)
+		}
+		serviceOptions = append(serviceOptions, func(config *types.ServiceConfig) error {
+			if !strings.ContainsRune(port, ':') {
+				port = port + ":" + port
+			}
+			portConfig, err := types.ParsePortConfig(port)
+			if err != nil {
+				return err
+			}
+			config.Ports = portConfig
+			return nil
+		})
 	}
 
 	volumes := []types.ServiceVolumeConfig{
@@ -190,38 +215,53 @@ func RunCli(args []string) (err error, exitCode int) {
 		return dockerized.DockerRun(image, runOptions, volumes)
 	}
 
-	return dockerized.DockerComposeRun(project, runOptions, volumes)
+	return dockerized.DockerComposeRun(project, runOptions, volumes, serviceOptions...)
 }
 
-func parseArguments(args []string) ([]string, string, string, []string) {
+func parseArguments(args []string) (map[string]string, string, string, []string) {
 	var options = []string{
 		"--shell",
 		"--build",
 		"-h",
 		"--help",
+		"-p",
 		"-v",
 		"--verbose",
 		"--version",
+	}
+
+	var optionsWithParameters = []string{
+		"-p",
 	}
 
 	commandName := ""
 	var commandArgs []string
 	var dockerizedOptions []string
 	var commandVersion string
+
+	var optionMap = make(map[string]string)
+	var optionBefore = ""
+
 	for _, arg := range args {
 		if arg[0] == '-' && commandName == "" {
 			if util.Contains(options, arg) {
-				dockerizedOptions = append(dockerizedOptions, arg)
+				var option = arg
+				dockerizedOptions = append(dockerizedOptions, option)
+				optionBefore = option
+				optionMap[option] = ""
 			} else {
 				fmt.Println("Unknown option:", arg)
 				os.Exit(1)
 			}
 		} else {
-			if commandName == "" {
+			if contains(optionsWithParameters, optionBefore) {
+				optionMap[optionBefore] = arg
+			} else if commandName == "" {
 				commandName = arg
 			} else {
 				commandArgs = append(commandArgs, arg)
 			}
+			optionBefore = ""
 		}
 	}
 	if strings.ContainsRune(commandName, ':') {
@@ -232,5 +272,5 @@ func parseArguments(args []string) ([]string, string, string, []string) {
 			commandVersion = "?"
 		}
 	}
-	return dockerizedOptions, commandName, commandVersion, commandArgs
+	return optionMap, commandName, commandVersion, commandArgs
 }
