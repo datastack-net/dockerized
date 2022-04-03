@@ -20,8 +20,9 @@ dockerized <command>
   - [az](apps/az/README.md) (Azure CLI)
   - [doctl](apps/doctl/README.md)
   - [s3cmd](apps/s3cmd/README.md)
-- Database Clients
-  - mysql 
+- Database
+  - dolt
+  - mysql
 - Dev-Ops & Docker
   - ansible
     - ansible-playbook
@@ -66,7 +67,6 @@ dockerized <command>
   - tree
   - zip
 - Other utilities
-  - dolt 
   - youtube-dl (Youtube downloader)
   - jq
   - (latex)
