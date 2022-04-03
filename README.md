@@ -20,6 +20,8 @@ dockerized <command>
   - [az](apps/az/README.md) (Azure CLI)
   - [doctl](apps/doctl/README.md)
   - [s3cmd](apps/s3cmd/README.md)
+- Database Clients
+  - mysql 
 - Dev-Ops & Docker
   - ansible
     - ansible-playbook
