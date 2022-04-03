@@ -50,6 +50,8 @@ services:
         ALPINE_VERSION: "${ALPINE_VERSION}"
         ALPINE_PACKAGES: "bash"
     entrypoint: [ "/bin/bash" ]
+  composer:
+    image: "composer:${COMPOSER_VERSION}"
   doctl:
     image: "doctl:${DOCTL_VERSION}"
     build:
