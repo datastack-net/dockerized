@@ -63,6 +63,18 @@ services:
     entrypoint: [ "doctl" ]
     volumes:
       - "${HOME:-home}/.dockerized/apps/doctl:/root"
+  dolt:
+    image: "dockerized_dolt"
+    build:
+      context: "${DOCKERIZED_ROOT:-.}/apps/dolt"
+      dockerfile: "${DOCKERIZED_ROOT:-.}/apps/alpine/Dockerfile"
+      args:
+        ALPINE_VERSION: "${ALPINE_VERSION}"
+        BUILD_SCRIPT_ARGS: "${DOLT_VERSION}"
+    volumes:
+      - "${DOCKERIZED_ROOT:-.}/apps/dolt/init.sh:/init.sh"
+      - "${HOME:-home}/.dockerized/apps/dolt:/root"
+    entrypoint: [ "dolt" ]
   dotnet:
     image: "mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION}-alpine"
     entrypoint: [ "dotnet" ]
