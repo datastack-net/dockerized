@@ -6,6 +6,7 @@ on:
 jobs:
   ShellTest:
     strategy:
+      max-parallel: 1
       fail-fast: true
       matrix:
         command:
