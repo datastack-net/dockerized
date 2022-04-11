@@ -12,7 +12,6 @@ jobs:
       fail-fast: true
       matrix:
         command:
-          - go
           - aws
           - dotnet
           - go
