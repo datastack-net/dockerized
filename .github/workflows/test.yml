@@ -9,6 +9,7 @@ on:
 jobs:
   ShellTest:
     strategy:
+      fail-fast: false
       matrix:
         command:
           - aws
