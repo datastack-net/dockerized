@@ -1,3 +1,10 @@
+## [2.19.1](https://github.com/datastack-net/dockerized/compare/v2.19.0...v2.19.1) (2022-04-11)
+
+
+### Bug Fixes
+
+* run dockerized from dos ([107bea9](https://github.com/datastack-net/dockerized/commit/107bea9d5e269e467988f4557c5ba648b1da9efc))
+
 # [2.19.0](https://github.com/datastack-net/dockerized/compare/v2.18.0...v2.19.0) (2022-04-03)
 
 
