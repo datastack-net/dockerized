@@ -23,8 +23,7 @@ jobs:
           grep -q '^Linux' ~/compose.log
   ShellTest:
     strategy:
-      max-parallel: 1
-      fail-fast: true
+      fail-fast: false
       matrix:
         command:
           - go
