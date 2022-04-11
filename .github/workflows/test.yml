@@ -26,9 +26,15 @@ jobs:
       fail-fast: false
       matrix:
         command:
-          - go
           - aws
+          - dotnet
+          - go
+          - java
+          - node
+          - perl
+          - php
           - python
+          - ruby
           - rustc
           - zip
     runs-on: ubuntu-20.04
