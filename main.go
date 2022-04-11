@@ -90,7 +90,11 @@ func RunCli(args []string) (err error, exitCode int) {
 		return err, 1
 	}
 
-	hostName, _ := os.Hostname()
+	hostName, err := os.Hostname()
+	if err != nil {
+		return err, 1
+	}
+
 	hostCwdDirName := filepath.Base(hostCwd)
 	containerCwd := "/host"
 	if hostCwdDirName != "\\" {
