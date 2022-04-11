@@ -245,6 +245,14 @@ func TestOverrideVersionWithGlobalEnvFile(t *testing.T) {
 	assert.Contains(t, output, "3.8.0")
 }
 
+func TestEnvironmentHostName(t *testing.T) {
+	expectedHostName, err := os.Hostname()
+	assert.Nil(t, err)
+	assert.NotNil(t, expectedHostName)
+	var output = testDockerized(t, []string{"--shell", "go", "-c", "echo $HOST_HOSTNAME"})
+	assert.Contains(t, output, expectedHostName)
+}
+
 func capture(callback func()) string {
 	read, write, _ := os.Pipe()
 	os.Stdout = write
