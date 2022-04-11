@@ -14,7 +14,14 @@ jobs:
         command:
           - go
           - aws
+          - dotnet
+          - go
+          - java
+          - node
+          - perl
+          - php
           - python
+          - ruby
           - rustc
           - zip
     runs-on: ubuntu-latest
