@@ -41,7 +41,7 @@ jobs:
         env:
           COMMAND: "${{matrix.command}}"
         run: |
-          bin/dockerized -v --shell $COMMAND -c env 2>&1 | tee ~/shell.log
+          build/dockerized -v --shell $COMMAND -c env 2>&1 | tee ~/shell.log
           grep HOST_HOSTNAME=$(hostname) ~/shell.log
   IntegrationTest:
     runs-on: ubuntu-latest
