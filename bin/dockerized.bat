@@ -1,3 +1,3 @@
 @ECHO OFF
-SET DOCKERIZED_ROOT="%~dp0%\.."
-PowerShell -NoProfile -ExecutionPolicy Bypass -Command "& '%DOCKERIZED_ROOT%\bin\dockerized.ps1' %*"
+SET _DOCKERIZED_PS=%~dp0%dockerized.ps1
+PowerShell -NoProfile -ExecutionPolicy Bypass -Command "& '%_DOCKERIZED_PS%' %*"
