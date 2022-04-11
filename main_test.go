@@ -253,6 +253,12 @@ func TestEnvironmentHostName(t *testing.T) {
 	assert.Contains(t, output, expectedHostName)
 }
 
+func TestShell(t *testing.T) {
+	var output = testDockerized(t, []string{"--shell", "go", "--version"})
+	assert.Contains(t, output, "Welcome to dockerized shell.")
+	assert.Contains(t, output, "GNU bash")
+}
+
 func capture(callback func()) string {
 	read, write, _ := os.Pipe()
 	os.Stdout = write
