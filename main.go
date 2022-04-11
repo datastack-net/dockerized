@@ -5,7 +5,7 @@ import (
 	"github.com/compose-spec/compose-go/types"
 	dockerized "github.com/datastack-net/dockerized/pkg"
 	"github.com/datastack-net/dockerized/pkg/help"
-	util "github.com/datastack-net/dockerized/pkg/util"
+	"github.com/datastack-net/dockerized/pkg/util"
 	"github.com/docker/compose/v2/pkg/api"
 	"github.com/fatih/color"
 	"os"

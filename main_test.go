@@ -47,7 +47,7 @@ func TestLocalEnvFileOverridesGlobalEnvFile(t *testing.T) {
 }
 
 func TestRuntimeEnvOverridesLocalEnvFile(t *testing.T) {
-	var projectPath = dockerized.GetDockerizedRoot() + "/test/project_override_global"
+	var projectPath = dockerized.GetDockerizedRoot() + "/test/project_override_local"
 	defer context().
 		WithTempHome().
 		WithDir(projectPath).
@@ -246,6 +246,7 @@ func TestOverrideVersionWithGlobalEnvFile(t *testing.T) {
 }
 
 func TestEnvironmentHostName(t *testing.T) {
+	defer context().Restore()
 	expectedHostName, err := os.Hostname()
 	assert.Nil(t, err)
 	assert.NotNil(t, expectedHostName)
@@ -254,6 +255,7 @@ func TestEnvironmentHostName(t *testing.T) {
 }
 
 func TestShell(t *testing.T) {
+	defer context().Restore()
 	var output = testDockerized(t, []string{"--shell", "go", "--version"})
 	assert.Contains(t, output, "Welcome to dockerized shell.")
 	assert.Contains(t, output, "GNU bash")

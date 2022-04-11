@@ -4,6 +4,23 @@ on:
     branches:
       - master
 jobs:
+  DockerComposeTest:
+    strategy:
+      fail-fast: false
+      matrix:
+        command:
+          - go
+          - aws
+          - python
+          - rustc
+          - zip
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: "Test: docker-compose ${{matrix.command}}"
+        run: |
+          DOCKERIZED_ROOT=$GITHUB_WORKSPACE docker compose run --rm --entrypoint=uname ${{matrix.command}} 2>&1 | tee ~/compose.log
+          grep -q '^Linux' ~/compose.log
   ShellTest:
     strategy:
       max-parallel: 1
