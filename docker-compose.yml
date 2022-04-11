@@ -77,7 +77,7 @@ services:
       - "${HOME:-home}/.dockerized/apps/dolt:/root"
     entrypoint: [ "dolt" ]
   dotnet:
-    image: "mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION}-alpine"
+    image: "mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION}"
     entrypoint: [ "dotnet" ]
   gh:
     image: "gh:${GH_VERSION}"
