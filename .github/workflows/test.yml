@@ -36,9 +36,9 @@ jobs:
       - name: "dockerized --entrypoint sh ${{matrix.command}}"
         run:  bin/dockerized -v --entrypoint sh ${{matrix.command}} -c 'echo $HOST_HOSTNAME' | tee ~/sh.log
       - name: "Assert"
-        run:  |
-          grep $(hostname) ~/shell.log && echo "Shell test succeeded"
-          grep $(hostname) ~/sh.log && echo "Entrypoint test succeeded"
+        run: |
+          grep $(hostname) ~/shell.log
+          grep $(hostname) ~/sh.log
   IntegrationTest:
     runs-on: ubuntu-latest
     steps:
