@@ -32,7 +32,7 @@ jobs:
       - name: "dockerized --pull ${{matrix.command}}"
         run:  bin/dockerized --pull ${{matrix.command}}
       - name: "dockerized --shell ${{matrix.command}}"
-        run:  bin/dockerized -v --shell ${{matrix.command}} -c 'echo $HOST_HOSTNAME' | tee ~/shell.log
+        run:  bin/dockerized -v --shell ${{matrix.command}} -c env | tee ~/shell.log
       - name: "dockerized --entrypoint sh ${{matrix.command}}"
         run:  bin/dockerized -v --entrypoint sh ${{matrix.command}} -c 'echo $HOST_HOSTNAME' | tee ~/sh.log
       - name: "Assert"
