@@ -35,10 +35,16 @@ jobs:
         run:  bin/dockerized -v --shell ${{matrix.command}} -c env | tee ~/shell.log
       - name: "dockerized --entrypoint sh ${{matrix.command}}"
         run:  bin/dockerized -v --entrypoint sh ${{matrix.command}} -c 'echo $HOST_HOSTNAME' | tee ~/sh.log
+      - name: "dockerized --entrypoint sh ${{matrix.command}} (detect shell)"
+        run:  bin/dockerized -v --entrypoint sh ${{matrix.command}} -c '$(command -v bash || command -v zsh || command -v sh || which bash || which zsh || which sh) -c env' | tee ~/detect.log
       - name: "Assert"
         run: |
+          echo "Test --shell"
           grep $(hostname) ~/shell.log
+          echo "Test --entrypoint sh"
           grep $(hostname) ~/sh.log
+          echo "Test --entrypoint sh (detect shell)"
+          grep $(hostname) ~/detect.log
   IntegrationTest:
     runs-on: ubuntu-latest
     steps:
