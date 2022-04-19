@@ -181,11 +181,11 @@ func RunCli(args []string) (err error, exitCode int) {
 			fmt.Printf("Setting up shell in container for %s...\n", commandName)
 		}
 
-		var ps1 = fmt.Sprintf(
-			"%s %s:\\w \\$ ",
-			color.BlueString("dockerized %s", commandName),
-			color.New(color.FgHiBlue).Add(color.Bold).Sprintf("\\u@\\h"),
-		)
+		//var ps1 = fmt.Sprintf(
+		//	"%s %s:\\w \\$ ",
+		//	color.BlueString("dockerized %s", commandName),
+		//	color.New(color.FgHiBlue).Add(color.Bold).Sprintf("\\u@\\h"),
+		//)
 		var welcomeMessage = "Welcome to dockerized shell. Type 'exit' or press Ctrl+D to exit.\n"
 		welcomeMessage += "Mounted volumes:\n"
 
@@ -228,7 +228,7 @@ func RunCli(args []string) (err error, exitCode int) {
 			shellArgs = append(shellArgs, cmdLaunchShell)
 		}
 
-		runOptions.Environment = append(runOptions.Environment, "PS1="+ps1)
+		//runOptions.Environment = append(runOptions.Environment, "PS1="+ps1)
 		runOptions.Entrypoint = []string{"/bin/sh"}
 		runOptions.Command = []string{"-c", strings.Join(shellArgs, "; ")}
 	}
