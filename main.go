@@ -36,6 +36,7 @@ func RunCli(args []string) (err error, exitCode int) {
 	var optionBuild = hasKey(dockerizedOptions, "--build")
 	var optionVersion = hasKey(dockerizedOptions, "--version")
 	var optionPort = hasKey(dockerizedOptions, "-p")
+	var optionEntrypoint = hasKey(dockerizedOptions, "--entrypoint")
 
 	dockerizedRoot := dockerized.GetDockerizedRoot()
 	dockerized.NormalizeEnvironment(dockerizedRoot)
@@ -152,6 +153,10 @@ func RunCli(args []string) (err error, exitCode int) {
 		}
 	}
 
+	if optionShell && optionEntrypoint {
+		return fmt.Errorf("--shell and --entrypoint are mutually exclusive"), 1
+	}
+
 	if optionShell {
 		if optionVerbose {
 			fmt.Printf("Opening shell in container for %s...\n", commandName)
@@ -206,6 +211,14 @@ func RunCli(args []string) (err error, exitCode int) {
 		}
 	}
 
+	if optionEntrypoint {
+		var entrypoint = dockerizedOptions["--entrypoint"]
+		if optionVerbose {
+			fmt.Printf("Setting entrypoint to %s\n", entrypoint)
+		}
+		runOptions.Entrypoint = strings.Split(entrypoint, " ")
+	}
+
 	if !contains(project.ServiceNames(), commandName) {
 		image := "r.j3ss.co/" + commandName
 		if optionVerbose {
@@ -221,11 +234,12 @@ func RunCli(args []string) (err error, exitCode int) {
 
 func parseArguments(args []string) (map[string]string, string, string, []string) {
 	var options = []string{
-		"--shell",
 		"--build",
 		"-h",
 		"--help",
 		"-p",
+		"--shell",
+		"--entrypoint",
 		"-v",
 		"--verbose",
 		"--version",
@@ -233,6 +247,7 @@ func parseArguments(args []string) (map[string]string, string, string, []string)
 
 	var optionsWithParameters = []string{
 		"-p",
+		"--entrypoint",
 	}
 
 	commandName := ""
