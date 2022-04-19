@@ -178,11 +178,7 @@ func RunCli(args []string) (err error, exitCode int) {
 
 	if optionShell {
 		if optionVerbose {
-			fmt.Printf("Opening shell in container for %s...\n", commandName)
-
-			if len(commandArgs) > 0 {
-				fmt.Printf("Passing arguments to shell: %s\n", commandArgs)
-			}
+			fmt.Printf("Setting up shell in container for %s...\n", commandName)
 		}
 
 		var ps1 = fmt.Sprintf(
@@ -220,14 +216,21 @@ func RunCli(args []string) (err error, exitCode int) {
 		var cmdPrintWelcome = fmt.Sprintf("echo '%s'", color.YellowString(welcomeMessage))
 		var cmdLaunchShell = fmt.Sprintf("$(%s)", strings.Join(shellDetectionCommands, " || "))
 
-		runOptions.Environment = append(runOptions.Environment, "PS1="+ps1)
-		runOptions.Entrypoint = []string{"/bin/sh"}
+		var shellArgs []string
+		var showWelcome = false
+		if showWelcome {
+			shellArgs = append(shellArgs, cmdPrintWelcome)
+		}
 
 		if len(commandArgs) > 0 {
-			runOptions.Command = []string{"-c", fmt.Sprintf("%s; %s \"%s\"", cmdPrintWelcome, cmdLaunchShell, strings.Join(commandArgs, "\" \""))}
+			shellArgs = append(shellArgs, fmt.Sprintf("%s \"%s\"", cmdLaunchShell, strings.Join(commandArgs, "\" \"")))
 		} else {
-			runOptions.Command = []string{"-c", fmt.Sprintf("%s; %s", cmdPrintWelcome, cmdLaunchShell)}
+			shellArgs = append(shellArgs, cmdLaunchShell)
 		}
+
+		runOptions.Environment = append(runOptions.Environment, "PS1="+ps1)
+		runOptions.Entrypoint = []string{"/bin/sh"}
+		runOptions.Command = []string{"-c", strings.Join(shellArgs, "; ")}
 	}
 
 	if optionEntrypoint {
@@ -236,6 +239,11 @@ func RunCli(args []string) (err error, exitCode int) {
 			fmt.Printf("Setting entrypoint to %s\n", entrypoint)
 		}
 		runOptions.Entrypoint = strings.Split(entrypoint, " ")
+	}
+
+	if optionVerbose {
+		fmt.Printf("Entrypoint: %s\n", runOptions.Entrypoint)
+		fmt.Printf("Command:    %s\n", runOptions.Command)
 	}
 
 	if !contains(project.ServiceNames(), commandName) {
