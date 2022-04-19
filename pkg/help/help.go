@@ -6,8 +6,8 @@ import (
 	"sort"
 )
 
-func Help(composeFilePaths []string) error {
-	project, err := dockerized.GetProject(composeFilePaths)
+func Help() error {
+	project, err := dockerized.GetProject()
 	if err != nil {
 		return err
 	}

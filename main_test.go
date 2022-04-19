@@ -23,6 +23,7 @@ type Context struct {
 }
 
 func TestHelp(t *testing.T) {
+	defer context().Restore()
 	output := testDockerized(t, []string{"--help"})
 	assert.Contains(t, output, "Usage:")
 }
@@ -243,6 +244,22 @@ func TestOverrideVersionWithGlobalEnvFile(t *testing.T) {
 	var output = testDockerized(t, []string{"protoc", "--version"})
 
 	assert.Contains(t, output, "3.8.0")
+}
+
+func TestEnvironmentHostName(t *testing.T) {
+	defer context().Restore()
+	expectedHostName, err := os.Hostname()
+	assert.Nil(t, err)
+	assert.NotNil(t, expectedHostName)
+	var output = testDockerized(t, []string{"--shell", "go", "-c", "echo $HOST_HOSTNAME"})
+	assert.Contains(t, output, expectedHostName)
+}
+
+func TestShell(t *testing.T) {
+	defer context().Restore()
+	var output = testDockerized(t, []string{"--shell", "go", "--help"})
+	assert.Contains(t, output, "Welcome to dockerized shell.")
+	assert.Contains(t, output, "BusyBox v1.33.1")
 }
 
 func capture(callback func()) string {

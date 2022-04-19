@@ -33,7 +33,9 @@ func RunCli(args []string) (err error, exitCode int) {
 	var optionVerbose = hasKey(dockerizedOptions, "--verbose") || hasKey(dockerizedOptions, "-v")
 	var optionShell = hasKey(dockerizedOptions, "--shell")
 	var optionBuild = hasKey(dockerizedOptions, "--build")
+	var optionPull = hasKey(dockerizedOptions, "--pull")
 	var optionVersion = hasKey(dockerizedOptions, "--version")
+	var optionDigest = hasKey(dockerizedOptions, "--digest")
 	var optionPort = hasKey(dockerizedOptions, "-p")
 
 	dockerizedRoot := dockerized.GetDockerizedRoot()
@@ -61,7 +63,7 @@ func RunCli(args []string) (err error, exitCode int) {
 	}
 
 	if commandName == "" || optionHelp {
-		err := help.Help(composeFilePaths)
+		err := help.Help()
 		if err != nil {
 			return err, 1
 		}
@@ -74,7 +76,7 @@ func RunCli(args []string) (err error, exitCode int) {
 
 	if commandVersion != "" {
 		if commandVersion == "?" {
-			err = dockerized.PrintCommandVersions(composeFilePaths, commandName, optionVerbose)
+			err = dockerized.PrintCommandVersions(commandName, optionVerbose)
 			if err != nil {
 				return err, 1
 			} else {
@@ -85,7 +87,7 @@ func RunCli(args []string) (err error, exitCode int) {
 		}
 	}
 
-	project, err := dockerized.GetProject(composeFilePaths)
+	project, err := dockerized.GetProject()
 	if err != nil {
 		return err, 1
 	}
@@ -142,13 +144,31 @@ func RunCli(args []string) (err error, exitCode int) {
 		if optionVerbose {
 			fmt.Printf("Building container image for %s...\n", commandName)
 		}
-		err := dockerized.DockerComposeBuild(composeFilePaths, api.BuildOptions{
+		err := dockerized.DockerComposeBuild(api.BuildOptions{
 			Services: []string{commandName},
 		})
 
 		if err != nil {
 			return err, 1
 		}
+	} else if optionPull {
+		err = dockerized.Pull(commandName)
+		if err != nil {
+			return err, 1
+		}
+		if !optionDigest {
+			return nil, 0
+		}
+	}
+
+	if optionDigest {
+		digest, err := dockerized.GetDigest(commandName)
+
+		if err != nil {
+			return err, 0
+		}
+		fmt.Println(digest)
+		return nil, 0
 	}
 
 	if optionShell {
@@ -220,11 +240,13 @@ func RunCli(args []string) (err error, exitCode int) {
 
 func parseArguments(args []string) (map[string]string, string, string, []string) {
 	var options = []string{
-		"--shell",
 		"--build",
 		"-h",
 		"--help",
 		"-p",
+		"--pull",
+		"--digest",
+		"--shell",
 		"-v",
 		"--verbose",
 		"--version",
