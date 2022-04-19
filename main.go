@@ -229,7 +229,7 @@ func RunCli(args []string) (err error, exitCode int) {
 		}
 
 		//runOptions.Environment = append(runOptions.Environment, "PS1="+ps1)
-		runOptions.Entrypoint = []string{"/bin/sh"}
+		runOptions.Entrypoint = []string{"sh"}
 		runOptions.Command = []string{"-c", strings.Join(shellArgs, "; ")}
 	}
 
