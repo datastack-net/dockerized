@@ -29,13 +29,12 @@ jobs:
         uses: actions/checkout@v2
       - name: Compile
         run:  bin/dockerized --compile
-      - name: "Test: dockerized --shell ${{matrix.command}}"
-        env:
-          COMMAND: "${{matrix.command}}"
-        run: |
-          bin/dockerized --pull $COMMAND
-          bin/dockerized -v --shell $COMMAND -c 'echo $HOST_HOSTNAME' | tee ~/shell.log
-          grep $(hostname) ~/shell.log
+      - name: "dockerized --pull ${{matrix.command}}"
+        run:  bin/dockerized --pull ${{matrix.command}}
+      - name: "dockerized --shell ${{matrix.command}}"
+        run:  bin/dockerized -v --shell ${{matrix.command}} -c 'echo $HOST_HOSTNAME' | tee ~/shell.log
+      - name: "verify"
+        run:  grep $(hostname) ~/shell.log
   IntegrationTest:
     runs-on: ubuntu-latest
     steps:
