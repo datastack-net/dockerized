@@ -34,7 +34,7 @@ jobs:
           COMMAND: "${{matrix.command}}"
         run: |
           bin/dockerized --pull $COMMAND
-          bin/dockerized --shell $COMMAND -c 'echo $HOST_HOSTNAME' | tee ~/shell.log
+          bin/dockerized -v --shell $COMMAND -c 'echo $HOST_HOSTNAME' | tee ~/shell.log
           grep $(hostname) ~/shell.log
   IntegrationTest:
     runs-on: ubuntu-latest
