@@ -33,8 +33,12 @@ jobs:
         run:  bin/dockerized --pull ${{matrix.command}}
       - name: "dockerized --shell ${{matrix.command}}"
         run:  bin/dockerized -v --shell ${{matrix.command}} -c 'echo $HOST_HOSTNAME' | tee ~/shell.log
-      - name: "verify"
-        run:  grep $(hostname) ~/shell.log
+      - name: "dockerized --shell ${{matrix.command}}"
+        run:  bin/dockerized -v --entrypoint sh ${{matrix.command}} -c 'echo $HOST_HOSTNAME' | tee ~/sh.log
+      - name: "Assert"
+        run:  |
+          grep $(hostname) ~/shell.log && echo "Shell test succeeded"
+          grep $(hostname) ~/sh.log && echo "Entrypoint test succeeded"
   IntegrationTest:
     runs-on: ubuntu-latest
     steps:
