@@ -37,9 +37,9 @@ jobs:
 #        env:
 #          DOCKERIZED_ROOT: "."
 #        run:  "docker compose run --entrypoint=/bin/bash --rm -e HOST_HOSTNAME=$(hostname) ${{matrix.command}} -c env"
+#      - name: "dockerized --shell ${{matrix.command}} hello world"
+#        run:  bin/dockerized -v --shell ${{matrix.command}} -c 'echo hello world'
       - name: "dockerized --shell ${{matrix.command}}"
-        run:  bin/dockerized -v --shell ${{matrix.command}} -c 'echo hello world'
-      - name: "dockerized --shell ${{matrix.command}} (second run)"
         run:  bin/dockerized -v --shell ${{matrix.command}} -c env | tee ~/shell.log
       - name: "Assert"
         run: |
