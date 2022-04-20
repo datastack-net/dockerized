@@ -31,8 +31,8 @@ jobs:
         run:  bin/dockerized --compile
       - name: "dockerized --pull ${{matrix.command}}"
         run:  bin/dockerized --pull ${{matrix.command}}
-      - name: "pre-run"
-        run:  bin/dockerized -v --shell ${{matrix.command}} -c 'exit 0'
+#      - name: "pre-run"
+#        run:  bin/dockerized -v --shell ${{matrix.command}} -c 'exit 0'
 #      - name: "docker-compose run"
 #        env:
 #          DOCKERIZED_ROOT: "."
