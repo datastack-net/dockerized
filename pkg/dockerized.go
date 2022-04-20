@@ -446,23 +446,9 @@ func GetProject() (*types.Project, error) {
 	return cli.ProjectFromOptions(options)
 }
 
-func dockerComposeUpNetworkOnly(backend *api.ServiceProxy, ctx context.Context, project *types.Project) error {
+func dockerComposeUpPrepare(backend *api.ServiceProxy, ctx context.Context, project types.Project) error {
 	project.Services = []types.ServiceConfig{}
-	upOptions := api.UpOptions{
-		Create: api.CreateOptions{
-			Services:      []string{},
-			RemoveOrphans: true,
-			Recreate:      "always",
-		},
-	}
-	err := backend.Up(ctx, project, upOptions)
-
-	// docker compose up will return error if there is no service to start, but the network will have been created.
-	expectedErrorMessage := "no container found for project \"" + project.Name + "\": not found"
-	if err == nil || api.IsNotFoundError(err) && err.Error() == expectedErrorMessage {
-		return nil
-	}
-	return err
+	return backend.Create(ctx, &project, api.CreateOptions{})
 }
 
 func GetDigest(serviceName string) (string, error) {
@@ -590,7 +576,7 @@ func DockerComposeRun(project *types.Project, runOptions api.RunOptions, volumes
 		return err, 1
 	}
 
-	err = dockerComposeUpNetworkOnly(backend, ctx, project)
+	err = dockerComposeUpPrepare(backend, ctx, *project)
 	if err != nil {
 		return err, 1
 	}
@@ -599,6 +585,10 @@ func DockerComposeRun(project *types.Project, runOptions api.RunOptions, volumes
 
 	exitCode, err := backend.RunOneOffContainer(ctx, project, runOptions)
 	if err != nil {
+		if exitCode == 0 {
+			exitCode = 1
+		}
+
 		return err, exitCode
 	}
 	if exitCode != 0 {
