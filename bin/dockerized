@@ -87,12 +87,13 @@ if [ "$DOCKERIZED_COMPILE" ] || [ ! -f "$DOCKERIZED_BINARY" ]; then
   fi
 
   if [ $? -ne 0 ]; then
-    echo "Failed to compile dockerized" >&2
+    echo "Failed to compile dockerized." >&2
     exit 1
   fi
 
+  echo "Compiled dockerized." >&2
+
   if [ $# -eq 0 ]; then
-    echo "Compiled dockerized" >&2
     exit 0
   fi
 fi
