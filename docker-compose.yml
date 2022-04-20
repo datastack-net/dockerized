@@ -108,6 +108,8 @@ services:
     environment:
       GOOS: "${GOOS:-}"
       GOARCH: "${GOARCH:-}"
+    labels:
+      net.dockerized.shell: "/bin/bash"
   gofmt:
     <<: *go
     entrypoint: [ "gofmt" ]
