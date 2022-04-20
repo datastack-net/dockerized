@@ -8,6 +8,7 @@ import (
 	"github.com/datastack-net/dockerized/pkg/labels"
 	util "github.com/datastack-net/dockerized/pkg/util"
 	"github.com/docker/compose/v2/pkg/api"
+	"github.com/moby/term"
 	"os"
 	"path/filepath"
 	"strings"
@@ -107,7 +108,6 @@ func RunCli(args []string) (err error, exitCode int) {
 		}
 		return nil, 0
 	}
-
 	runOptions := api.RunOptions{
 		Service: commandName,
 		Environment: []string{
@@ -115,7 +115,7 @@ func RunCli(args []string) (err error, exitCode int) {
 		},
 		Command:    commandArgs,
 		AutoRemove: true,
-		Tty:        false,
+		Tty:        term.IsTerminal(os.Stdout.Fd()),
 		WorkingDir: containerCwd,
 	}
 
