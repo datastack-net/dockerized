@@ -1,3 +1,11 @@
+## [2.19.2](https://github.com/datastack-net/dockerized/compare/v2.19.1...v2.19.2) (2022-04-20)
+
+
+### Bug Fixes
+
+* --shell tests failing due to non-tty environment ([b7e9790](https://github.com/datastack-net/dockerized/commit/b7e979044d5652bd7bdc97db3f5d61c9127ba77d))
+* --shell tests failing due to non-tty environment ([c2f13c4](https://github.com/datastack-net/dockerized/commit/c2f13c4abeae5526e68cae9d615f2410a687c771)), closes [#39](https://github.com/datastack-net/dockerized/issues/39)
+
 ## [2.19.1](https://github.com/datastack-net/dockerized/compare/v2.19.0...v2.19.1) (2022-04-11)
 
 
