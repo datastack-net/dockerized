@@ -153,6 +153,8 @@ services:
   perl:
     image: perl:${PERL_VERSION}
     entrypoint: [ "perl" ]
+    labels:
+      net.dockerized.shell: "${PERL_SHELL:-/bin/bash}"
   php:
     image: "php:${PHP_VERSION}"
   psql:

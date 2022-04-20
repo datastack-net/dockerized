@@ -5,6 +5,7 @@ import (
 	"github.com/compose-spec/compose-go/types"
 	dockerized "github.com/datastack-net/dockerized/pkg"
 	"github.com/datastack-net/dockerized/pkg/help"
+	"github.com/datastack-net/dockerized/pkg/labels"
 	util "github.com/datastack-net/dockerized/pkg/util"
 	"github.com/docker/compose/v2/pkg/api"
 	"github.com/fatih/color"
@@ -200,21 +201,12 @@ func RunCli(args []string) (err error, exitCode int) {
 		}
 		welcomeMessage = strings.ReplaceAll(welcomeMessage, "\\", "\\\\")
 
-		shells := []string{
-			"bash",
-			"zsh",
-			"sh",
-		}
-		var shellDetectionCommands []string
-		for _, shell := range shells {
-			shellDetectionCommands = append(shellDetectionCommands, "command -v "+shell)
-		}
-		for _, shell := range shells {
-			shellDetectionCommands = append(shellDetectionCommands, "which "+shell)
-		}
-
 		var cmdPrintWelcome = fmt.Sprintf("echo '%s'", color.YellowString(welcomeMessage))
-		var cmdLaunchShell = fmt.Sprintf("$(%s)", strings.Join(shellDetectionCommands, " || "))
+
+		var cmdLaunchShell = "sh"
+		if service.Labels[labels.Shell] != "" {
+			cmdLaunchShell = service.Labels[labels.Shell]
+		}
 
 		var shellArgs []string
 		var showWelcome = false
