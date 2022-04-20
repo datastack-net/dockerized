@@ -358,7 +358,7 @@ func dockerComposeRunAdHocService(service types.ServiceConfig, runOptions api.Ru
 			service,
 		},
 		WorkingDir: GetDockerizedRoot(),
-	}, runOptions, []types.ServiceVolumeConfig{})
+	}, runOptions, []types.ServiceVolumeConfig{}, false)
 }
 
 func DockerRun(image string, runOptions api.RunOptions, volumes []types.ServiceVolumeConfig) (error, int) {
@@ -544,7 +544,7 @@ func DockerComposeBuild(buildOptions api.BuildOptions) error {
 	return backend.Build(ctx, project, buildOptions)
 }
 
-func DockerComposeRun(project *types.Project, runOptions api.RunOptions, volumes []types.ServiceVolumeConfig, serviceOptions ...func(config *types.ServiceConfig) error) (error, int) {
+func DockerComposeRun(project *types.Project, runOptions api.RunOptions, volumes []types.ServiceVolumeConfig, verbose bool, serviceOptions ...func(config *types.ServiceConfig) error) (error, int) {
 	err := os.Chdir(project.WorkingDir)
 	if err != nil {
 		return err, 1
@@ -576,6 +576,9 @@ func DockerComposeRun(project *types.Project, runOptions api.RunOptions, volumes
 		return err, 1
 	}
 
+	if verbose {
+		fmt.Println("Preparing compose environment...")
+	}
 	err = dockerComposeUpPrepare(backend, ctx, *project)
 	if err != nil {
 		return err, 1
@@ -583,7 +586,16 @@ func DockerComposeRun(project *types.Project, runOptions api.RunOptions, volumes
 
 	project.Services = []types.ServiceConfig{service}
 
+	if verbose {
+		fmt.Println("Running one-off container...")
+	}
+
 	exitCode, err := backend.RunOneOffContainer(ctx, project, runOptions)
+
+	if verbose {
+		fmt.Printf("Container exited with code %d.\n", exitCode)
+	}
+
 	if err != nil {
 		if exitCode == 0 {
 			exitCode = 1

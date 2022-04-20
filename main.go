@@ -240,7 +240,7 @@ func RunCli(args []string) (err error, exitCode int) {
 		return dockerized.DockerRun(image, runOptions, volumes)
 	}
 
-	return dockerized.DockerComposeRun(project, runOptions, volumes, serviceOptions...)
+	return dockerized.DockerComposeRun(project, runOptions, volumes, optionVerbose, serviceOptions...)
 }
 
 func parseArguments(args []string) (map[string]string, string, string, []string) {
