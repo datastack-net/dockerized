@@ -6,8 +6,8 @@ import (
 	"sort"
 )
 
-func Help(composeFilePaths []string) error {
-	project, err := dockerized.GetProject(composeFilePaths)
+func Help() error {
+	project, err := dockerized.GetProject()
 	if err != nil {
 		return err
 	}
@@ -31,6 +31,9 @@ func Help(composeFilePaths []string) error {
 
 	fmt.Println("Options:")
 	fmt.Println("      --build       Rebuild the container before running it.")
+	fmt.Println("      --commands    List all available commands.")
+	fmt.Println("      --entrypoint <entrypoint>")
+	fmt.Println("                    Override the default entrypoint of the command container.")
 	fmt.Println("      --shell       Start a shell inside the command container. Similar to `docker run --entrypoint=sh`.")
 	fmt.Println("  -p <port>         Exposes given port to host, e.g. -p 8080")
 	fmt.Println("  -p <port>:<port>  Maps host port to container port, e.g. -p 80:8080")

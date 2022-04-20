@@ -5,9 +5,10 @@ import (
 	"github.com/compose-spec/compose-go/types"
 	dockerized "github.com/datastack-net/dockerized/pkg"
 	"github.com/datastack-net/dockerized/pkg/help"
+	"github.com/datastack-net/dockerized/pkg/labels"
 	util "github.com/datastack-net/dockerized/pkg/util"
 	"github.com/docker/compose/v2/pkg/api"
-	"github.com/fatih/color"
+	"github.com/moby/term"
 	"os"
 	"path/filepath"
 	"strings"
@@ -33,8 +34,12 @@ func RunCli(args []string) (err error, exitCode int) {
 	var optionVerbose = hasKey(dockerizedOptions, "--verbose") || hasKey(dockerizedOptions, "-v")
 	var optionShell = hasKey(dockerizedOptions, "--shell")
 	var optionBuild = hasKey(dockerizedOptions, "--build")
+	var optionPull = hasKey(dockerizedOptions, "--pull")
 	var optionVersion = hasKey(dockerizedOptions, "--version")
+	var optionDigest = hasKey(dockerizedOptions, "--digest")
 	var optionPort = hasKey(dockerizedOptions, "-p")
+	var optionEntrypoint = hasKey(dockerizedOptions, "--entrypoint")
+	var optionCommands = hasKey(dockerizedOptions, "--commands")
 
 	dockerizedRoot := dockerized.GetDockerizedRoot()
 	dockerized.NormalizeEnvironment(dockerizedRoot)
@@ -61,7 +66,7 @@ func RunCli(args []string) (err error, exitCode int) {
 	}
 
 	if commandName == "" || optionHelp {
-		err := help.Help(composeFilePaths)
+		err := help.Help()
 		if err != nil {
 			return err, 1
 		}
@@ -74,7 +79,7 @@ func RunCli(args []string) (err error, exitCode int) {
 
 	if commandVersion != "" {
 		if commandVersion == "?" {
-			err = dockerized.PrintCommandVersions(composeFilePaths, commandName, optionVerbose)
+			err = dockerized.PrintCommandVersions(commandName, optionVerbose)
 			if err != nil {
 				return err, 1
 			} else {
@@ -85,7 +90,7 @@ func RunCli(args []string) (err error, exitCode int) {
 		}
 	}
 
-	project, err := dockerized.GetProject(composeFilePaths)
+	project, err := dockerized.GetProject()
 	if err != nil {
 		return err, 1
 	}
@@ -97,6 +102,12 @@ func RunCli(args []string) (err error, exitCode int) {
 		containerCwd += "/" + hostCwdDirName
 	}
 
+	if optionCommands {
+		for _, service := range project.Services {
+			fmt.Printf("%s\n", service.Name)
+		}
+		return nil, 0
+	}
 	runOptions := api.RunOptions{
 		Service: commandName,
 		Environment: []string{
@@ -104,7 +115,7 @@ func RunCli(args []string) (err error, exitCode int) {
 		},
 		Command:    commandArgs,
 		AutoRemove: true,
-		Tty:        true,
+		Tty:        term.IsTerminal(os.Stdout.Fd()),
 		WorkingDir: containerCwd,
 	}
 
@@ -142,29 +153,47 @@ func RunCli(args []string) (err error, exitCode int) {
 		if optionVerbose {
 			fmt.Printf("Building container image for %s...\n", commandName)
 		}
-		err := dockerized.DockerComposeBuild(composeFilePaths, api.BuildOptions{
+		err := dockerized.DockerComposeBuild(api.BuildOptions{
 			Services: []string{commandName},
 		})
 
 		if err != nil {
 			return err, 1
 		}
+	} else if optionPull {
+		err = dockerized.Pull(commandName)
+		if err != nil {
+			return err, 1
+		}
+		if !optionDigest {
+			return nil, 0
+		}
+	}
+
+	if optionDigest {
+		digest, err := dockerized.GetDigest(commandName)
+
+		if err != nil {
+			return err, 0
+		}
+		fmt.Println(digest)
+		return nil, 0
+	}
+
+	if optionShell && optionEntrypoint {
+		return fmt.Errorf("--shell and --entrypoint are mutually exclusive"), 1
 	}
 
 	if optionShell {
 		if optionVerbose {
-			fmt.Printf("Opening shell in container for %s...\n", commandName)
-
-			if len(commandArgs) > 0 {
-				fmt.Printf("Passing arguments to shell: %s\n", commandArgs)
-			}
+			fmt.Printf("Setting up shell in container for %s...\n", commandName)
 		}
 
-		var ps1 = fmt.Sprintf(
-			"%s %s:\\w \\$ ",
-			color.BlueString("dockerized %s", commandName),
-			color.New(color.FgHiBlue).Add(color.Bold).Sprintf("\\u@\\h"),
-		)
+		//var ps1 = fmt.Sprintf(
+		//	"%s %s:\\w \\$ ",
+		//	color.BlueString("dockerized %s", commandName),
+		//	color.New(color.FgHiBlue).Add(color.Bold).Sprintf("\\u@\\h"),
+		//)
 		var welcomeMessage = "Welcome to dockerized shell. Type 'exit' or press Ctrl+D to exit.\n"
 		welcomeMessage += "Mounted volumes:\n"
 
@@ -179,30 +208,26 @@ func RunCli(args []string) (err error, exitCode int) {
 		}
 		welcomeMessage = strings.ReplaceAll(welcomeMessage, "\\", "\\\\")
 
-		shells := []string{
-			"bash",
-			"zsh",
-			"sh",
-		}
-		var shellDetectionCommands []string
-		for _, shell := range shells {
-			shellDetectionCommands = append(shellDetectionCommands, "command -v "+shell)
-		}
-		for _, shell := range shells {
-			shellDetectionCommands = append(shellDetectionCommands, "which "+shell)
+		var shell = "sh"
+		if service.Labels[labels.Shell] != "" {
+			shell = service.Labels[labels.Shell]
 		}
 
-		var cmdPrintWelcome = fmt.Sprintf("echo '%s'", color.YellowString(welcomeMessage))
-		var cmdLaunchShell = fmt.Sprintf("$(%s)", strings.Join(shellDetectionCommands, " || "))
+		runOptions.Entrypoint = []string{shell}
+		runOptions.Command = commandArgs
+	}
 
-		runOptions.Environment = append(runOptions.Environment, "PS1="+ps1)
-		runOptions.Entrypoint = []string{"/bin/sh"}
-
-		if len(commandArgs) > 0 {
-			runOptions.Command = []string{"-c", fmt.Sprintf("%s; %s \"%s\"", cmdPrintWelcome, cmdLaunchShell, strings.Join(commandArgs, "\" \""))}
-		} else {
-			runOptions.Command = []string{"-c", fmt.Sprintf("%s; %s", cmdPrintWelcome, cmdLaunchShell)}
+	if optionEntrypoint {
+		var entrypoint = dockerizedOptions["--entrypoint"]
+		if optionVerbose {
+			fmt.Printf("Setting entrypoint to %s\n", entrypoint)
 		}
+		runOptions.Entrypoint = strings.Split(entrypoint, " ")
+	}
+
+	if optionVerbose {
+		fmt.Printf("Entrypoint: %s\n", runOptions.Entrypoint)
+		fmt.Printf("Command:    %s\n", runOptions.Command)
 	}
 
 	if !contains(project.ServiceNames(), commandName) {
@@ -215,16 +240,20 @@ func RunCli(args []string) (err error, exitCode int) {
 		return dockerized.DockerRun(image, runOptions, volumes)
 	}
 
-	return dockerized.DockerComposeRun(project, runOptions, volumes, serviceOptions...)
+	return dockerized.DockerComposeRun(project, runOptions, volumes, optionVerbose, serviceOptions...)
 }
 
 func parseArguments(args []string) (map[string]string, string, string, []string) {
 	var options = []string{
-		"--shell",
 		"--build",
 		"-h",
 		"--help",
 		"-p",
+		"--pull",
+		"--digest",
+		"--commands",
+		"--shell",
+		"--entrypoint",
 		"-v",
 		"--verbose",
 		"--version",
@@ -232,6 +261,7 @@ func parseArguments(args []string) (map[string]string, string, string, []string)
 
 	var optionsWithParameters = []string{
 		"-p",
+		"--entrypoint",
 	}
 
 	commandName := ""

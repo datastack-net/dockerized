@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/compose-spec/compose-go/dotenv"
 	"github.com/datastack-net/dockerized/pkg/util"
+	"github.com/docker/docker/client"
 	"github.com/hashicorp/go-version"
 	"io"
 	"net/http"
@@ -30,7 +31,7 @@ import (
 	"syscall"
 )
 
-// Determine which docker-compose file to use. Assumes .env files are already loaded.
+// GetComposeFilePaths Determine which docker-compose file to use. Assumes .env files are already loaded.
 func GetComposeFilePaths(dockerizedRoot string) []string {
 	var composeFilePaths []string
 	composeFilePath := os.Getenv("COMPOSE_FILE")
@@ -82,8 +83,8 @@ func getNpmPackageVersions(packageName string) ([]string, error) {
 	return versionKeys, nil
 }
 
-func PrintCommandVersions(composeFilePaths []string, commandName string, verbose bool) error {
-	project, err := GetProject(composeFilePaths)
+func PrintCommandVersions(commandName string, verbose bool) error {
+	project, err := GetProject()
 	if err != nil {
 		return err
 	}
@@ -269,7 +270,7 @@ func LoadEnvFiles(hostCwd string, optionVerbose bool) error {
 	var envFiles []string
 
 	// Default
-	defaultEnvFile := GetDockerizedRoot() + "/.env"
+	defaultEnvFile := filepath.Join(GetDockerizedRoot(), ".env")
 	envFiles = append(envFiles, defaultEnvFile)
 
 	// Global overrides
@@ -282,7 +283,10 @@ func LoadEnvFiles(hostCwd string, optionVerbose bool) error {
 	// Project overrides
 	if projectEnvFile, err := findProjectEnvFile(hostCwd); err == nil {
 		envFiles = append(envFiles, projectEnvFile)
-		os.Setenv("DOCKERIZED_PROJECT_ROOT", filepath.Dir(projectEnvFile))
+		err := os.Setenv("DOCKERIZED_PROJECT_ROOT", filepath.Dir(projectEnvFile))
+		if err != nil {
+			return err
+		}
 	}
 
 	envFiles = unique(envFiles)
@@ -354,7 +358,7 @@ func dockerComposeRunAdHocService(service types.ServiceConfig, runOptions api.Ru
 			service,
 		},
 		WorkingDir: GetDockerizedRoot(),
-	}, runOptions, []types.ServiceVolumeConfig{})
+	}, runOptions, []types.ServiceVolumeConfig{}, false)
 }
 
 func DockerRun(image string, runOptions api.RunOptions, volumes []types.ServiceVolumeConfig) (error, int) {
@@ -429,7 +433,7 @@ func getRawProject(composeFilePaths []string) (*types.Project, error) {
 	return cli.ProjectFromOptions(options)
 }
 
-func GetProject(composeFilePaths []string) (*types.Project, error) {
+func GetProject() (*types.Project, error) {
 	options, err := cli.NewProjectOptions([]string{},
 		cli.WithOsEnv,
 		cli.WithConfigFileEnv,
@@ -442,23 +446,59 @@ func GetProject(composeFilePaths []string) (*types.Project, error) {
 	return cli.ProjectFromOptions(options)
 }
 
-func dockerComposeUpNetworkOnly(backend *api.ServiceProxy, ctx context.Context, project *types.Project) error {
+func dockerComposeUpPrepare(backend *api.ServiceProxy, ctx context.Context, project types.Project) error {
 	project.Services = []types.ServiceConfig{}
-	upOptions := api.UpOptions{
-		Create: api.CreateOptions{
-			Services:      []string{},
-			RemoveOrphans: true,
-			Recreate:      "always",
-		},
-	}
-	err := backend.Up(ctx, project, upOptions)
+	return backend.Create(ctx, &project, api.CreateOptions{})
+}
 
-	// docker compose up will return error if there is no service to start, but the network will have been created.
-	expectedErrorMessage := "no container found for project \"" + project.Name + "\": not found"
-	if err == nil || api.IsNotFoundError(err) && err.Error() == expectedErrorMessage {
-		return nil
+func GetDigest(serviceName string) (string, error) {
+	project, err := GetProject()
+	if err != nil {
+		return "", err
 	}
-	return err
+
+	service, err := project.GetService(serviceName)
+	if err != nil {
+		return "", err
+	}
+
+	dockerCli, err := getDockerCli()
+	if err != nil {
+		return "", err
+	}
+
+	ctx, _ := newSigContext()
+	data, _, err := dockerCli.Client().ImageInspectWithRaw(ctx, service.Image)
+
+	if err != nil {
+		if client.IsErrNotFound(err) {
+			return "", fmt.Errorf("%w\nTry --pull", err)
+		}
+		return "", err
+	}
+
+	return data.RepoDigests[0], nil
+}
+
+func Pull(serviceName string) error {
+	project, err := GetProject()
+
+	service, err := project.GetService(serviceName)
+	if err != nil {
+		return err
+	}
+	project.Services = []types.ServiceConfig{service}
+
+	backend, err := getBackend()
+	if err != nil {
+		return err
+	}
+
+	ctx, _ := newSigContext()
+	return backend.Pull(ctx, project, api.PullOptions{
+		Quiet:          false,
+		IgnoreFailures: false,
+	})
 }
 
 func getDockerCli() (*command.DockerCli, error) {
@@ -486,8 +526,8 @@ func getBackend() (*api.ServiceProxy, error) {
 	return backend, nil
 }
 
-func DockerComposeBuild(composeFilePaths []string, buildOptions api.BuildOptions) error {
-	project, err := GetProject(composeFilePaths)
+func DockerComposeBuild(buildOptions api.BuildOptions) error {
+	project, err := GetProject()
 	if err != nil {
 		return err
 	}
@@ -504,7 +544,7 @@ func DockerComposeBuild(composeFilePaths []string, buildOptions api.BuildOptions
 	return backend.Build(ctx, project, buildOptions)
 }
 
-func DockerComposeRun(project *types.Project, runOptions api.RunOptions, volumes []types.ServiceVolumeConfig, serviceOptions ...func(config *types.ServiceConfig) error) (error, int) {
+func DockerComposeRun(project *types.Project, runOptions api.RunOptions, volumes []types.ServiceVolumeConfig, verbose bool, serviceOptions ...func(config *types.ServiceConfig) error) (error, int) {
 	err := os.Chdir(project.WorkingDir)
 	if err != nil {
 		return err, 1
@@ -536,15 +576,34 @@ func DockerComposeRun(project *types.Project, runOptions api.RunOptions, volumes
 		return err, 1
 	}
 
-	err = dockerComposeUpNetworkOnly(backend, ctx, project)
+	if verbose {
+		fmt.Println("Preparing compose environment...")
+	}
+	err = dockerComposeUpPrepare(backend, ctx, *project)
 	if err != nil {
 		return err, 1
 	}
 
 	project.Services = []types.ServiceConfig{service}
 
+	if verbose {
+		fmt.Println("Running one-off container...")
+	}
+
 	exitCode, err := backend.RunOneOffContainer(ctx, project, runOptions)
+
+	if verbose {
+		fmt.Printf("Container exited with code %d.\n", exitCode)
+		if err != nil {
+			fmt.Printf("Error: %s\n", err.Error())
+		}
+	}
+
 	if err != nil {
+		if exitCode == 0 {
+			exitCode = 1
+		}
+
 		return err, exitCode
 	}
 	if exitCode != 0 {
