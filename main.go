@@ -8,7 +8,6 @@ import (
 	"github.com/datastack-net/dockerized/pkg/labels"
 	util "github.com/datastack-net/dockerized/pkg/util"
 	"github.com/docker/compose/v2/pkg/api"
-	"github.com/fatih/color"
 	"os"
 	"path/filepath"
 	"strings"
@@ -209,28 +208,13 @@ func RunCli(args []string) (err error, exitCode int) {
 		}
 		welcomeMessage = strings.ReplaceAll(welcomeMessage, "\\", "\\\\")
 
-		var cmdPrintWelcome = fmt.Sprintf("echo '%s'", color.YellowString(welcomeMessage))
-
-		var cmdLaunchShell = "sh"
+		var shell = "sh"
 		if service.Labels[labels.Shell] != "" {
-			cmdLaunchShell = service.Labels[labels.Shell]
+			shell = service.Labels[labels.Shell]
 		}
 
-		var shellArgs []string
-		var showWelcome = false
-		if showWelcome {
-			shellArgs = append(shellArgs, cmdPrintWelcome)
-		}
-
-		if len(commandArgs) > 0 {
-			shellArgs = append(shellArgs, fmt.Sprintf("%s \"%s\"", cmdLaunchShell, strings.Join(commandArgs, "\" \"")))
-		} else {
-			shellArgs = append(shellArgs, cmdLaunchShell)
-		}
-
-		//runOptions.Environment = append(runOptions.Environment, "PS1="+ps1)
-		runOptions.Entrypoint = []string{"sh"}
-		runOptions.Command = []string{"-c", strings.Join(shellArgs, "; ")}
+		runOptions.Entrypoint = []string{shell}
+		runOptions.Command = commandArgs
 	}
 
 	if optionEntrypoint {
