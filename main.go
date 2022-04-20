@@ -39,6 +39,7 @@ func RunCli(args []string) (err error, exitCode int) {
 	var optionDigest = hasKey(dockerizedOptions, "--digest")
 	var optionPort = hasKey(dockerizedOptions, "-p")
 	var optionEntrypoint = hasKey(dockerizedOptions, "--entrypoint")
+	var optionCommands = hasKey(dockerizedOptions, "--commands")
 
 	dockerizedRoot := dockerized.GetDockerizedRoot()
 	dockerized.NormalizeEnvironment(dockerizedRoot)
@@ -99,6 +100,13 @@ func RunCli(args []string) (err error, exitCode int) {
 	containerCwd := "/host"
 	if hostCwdDirName != "\\" {
 		containerCwd += "/" + hostCwdDirName
+	}
+
+	if optionCommands {
+		for _, service := range project.Services {
+			fmt.Printf("%s\n", service.Name)
+		}
+		return nil, 0
 	}
 
 	runOptions := api.RunOptions{
@@ -259,6 +267,7 @@ func parseArguments(args []string) (map[string]string, string, string, []string)
 		"-p",
 		"--pull",
 		"--digest",
+		"--commands",
 		"--shell",
 		"--entrypoint",
 		"-v",
