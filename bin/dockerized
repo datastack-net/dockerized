@@ -59,7 +59,9 @@ x86_64)
 i*86)
   DOCKERIZED_COMPILE_GOARCH=386
   ;;
-
+arm64 | aarch64)
+  DOCKERIZED_COMPILE_GOARCH=arm64
+  ;;
 esac
 
 if [ "$DOCKERIZED_COMPILE" ] || [ ! -f "$DOCKERIZED_BINARY" ]; then
