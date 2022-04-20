@@ -33,10 +33,10 @@ jobs:
         run:  bin/dockerized --pull ${{matrix.command}}
       - name: "pre-run"
         run:  bin/dockerized -v --shell ${{matrix.command}} -c 'exit 0'
-      - name: "docker-compose run"
-        env:
-          DOCKERIZED_ROOT: "."
-        run:  "docker compose run --entrypoint=/bin/bash --rm -e HOST_HOSTNAME=$(hostname) ${{matrix.command}} -c env"
+#      - name: "docker-compose run"
+#        env:
+#          DOCKERIZED_ROOT: "."
+#        run:  "docker compose run --entrypoint=/bin/bash --rm -e HOST_HOSTNAME=$(hostname) ${{matrix.command}} -c env"
       - name: "dockerized --shell ${{matrix.command}}"
         run:  bin/dockerized -v --shell ${{matrix.command}} -c env | tee ~/shell.log
       - name: "Assert"
