@@ -32,7 +32,7 @@ jobs:
       - name: "dockerized --pull ${{matrix.command}}"
         run:  bin/dockerized --pull ${{matrix.command}}
       - name: "pre-run"
-        run:  bin/dockerized -v --shell ${{matrix.command}} -c exit 0
+        run:  bin/dockerized -v --shell ${{matrix.command}} -c 'exit 0'
       - name: "docker-compose run"
         env:
           DOCKERIZED_ROOT: "."
