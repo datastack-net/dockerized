@@ -594,6 +594,9 @@ func DockerComposeRun(project *types.Project, runOptions api.RunOptions, volumes
 
 	if verbose {
 		fmt.Printf("Container exited with code %d.\n", exitCode)
+		if err != nil {
+			fmt.Printf("Error: %s\n", err.Error())
+		}
 	}
 
 	if err != nil {
