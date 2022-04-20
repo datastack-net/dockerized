@@ -257,9 +257,8 @@ func TestEnvironmentHostName(t *testing.T) {
 
 func TestShell(t *testing.T) {
 	defer context().Restore()
-	var output = testDockerized(t, []string{"--shell", "go", "--help"})
-	assert.Contains(t, output, "Welcome to dockerized shell.")
-	assert.Contains(t, output, "BusyBox v1.33.1")
+	var output = testDockerized(t, []string{"--shell", "go", "--version"})
+	assert.Contains(t, output, "GNU bash")
 }
 
 func capture(callback func()) string {
