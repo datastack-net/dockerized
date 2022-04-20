@@ -115,7 +115,7 @@ func RunCli(args []string) (err error, exitCode int) {
 		},
 		Command:    commandArgs,
 		AutoRemove: true,
-		Tty:        true,
+		Tty:        false,
 		WorkingDir: containerCwd,
 	}
 
