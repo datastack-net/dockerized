@@ -202,6 +202,13 @@ services:
       AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY:-}"
     volumes:
       - "${HOME:-home}/.dockerized/apps/s3cmd:/root"
+  scrapy:
+    image: aciobanu/scrapy:${SCRAPY_VERSION}
+    build:
+      context: "${DOCKERIZED_ROOT:-.}/apps/scrapy"
+      args:
+        SCRAPY_VERSION: ${SCRAPY_VERSION}
+    entrypoint: [ "scrapy" ]
   #  semantic-release-cli:
   #    <<: *node
   #    entrypoint: [ "npx", "--package=semantic-release-cli@${SEMANTIC_RELEASE_VERSION}", "semantic-release-cli" ]
