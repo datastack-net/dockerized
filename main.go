@@ -98,6 +98,13 @@ func RunCli(args []string) (err error, exitCode int) {
 		containerCwd += "/" + hostCwdDirName
 	}
 
+	var user = ""
+	var userId = os.Getuid()
+	var groupId = os.Getgid()
+	if userId > 0 && groupId > 0 {
+		user = fmt.Sprintf("%d:%d", userId, groupId)
+	}
+
 	runOptions := api.RunOptions{
 		Service: commandName,
 		Environment: []string{
@@ -107,6 +114,7 @@ func RunCli(args []string) (err error, exitCode int) {
 		AutoRemove: true,
 		Tty:        term.IsTerminal(os.Stdout.Fd()),
 		WorkingDir: containerCwd,
+		User:       user,
 	}
 
 	var serviceOptions []func(config *types.ServiceConfig) error
