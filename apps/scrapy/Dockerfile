@@ -1,7 +1,6 @@
 FROM alpine:latest
 
 ARG SCRAPY_VERSION=""
-RUN echo SCRAPY_VERSION=$SCRAPY_VERSION
 
 ENV BUILD_DEPS gcc \
     cargo \
