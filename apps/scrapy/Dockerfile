@@ -23,10 +23,4 @@ RUN apk -U add \
     && apk -U del ${BUILD_DEPS} \
     && rm -rf /var/cache/apk/*
 
-WORKDIR /runtime/app
-
-COPY entrypoint.sh /runtime/entrypoint.sh
-RUN chmod +x /runtime/entrypoint.sh
-
-ENTRYPOINT ["/runtime/entrypoint.sh"]
-CMD ["scrapy"]
+ENTRYPOINT ["/usr/bin/scrapy"]
