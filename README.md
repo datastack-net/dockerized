@@ -67,12 +67,13 @@ dockerized <command>
   - tree
   - zip
 - Other utilities
-  - youtube-dl (Youtube downloader)
   - jq
   - (latex)
     - pdflatex
   - protoc
+  - scrapy
   - swagger-codegen
+  - youtube-dl (Youtube downloader)
 
 ## Installation
 
