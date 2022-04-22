@@ -66,22 +66,26 @@ esac
 
 if [ "$DOCKERIZED_COMPILE" ] || [ ! -f "$DOCKERIZED_BINARY" ]; then
   echo "Compiling dockerized..." >&2
+  rm -f "$DOCKERIZED_BINARY"
+
   GIT_COMMIT=$(cd $DOCKERIZED_ROOT; git rev-list -1 HEAD)
   GO_BUILD_ARGS="-ldflags '-X main.Version=${GIT_COMMIT}'"
   GO_LDFLAGS="-X main.Version=${GIT_COMMIT}"
   if [ "${DOCKERIZED_COMPILE:-docker}" == "docker" ]; then
-    rm -f "$DOCKERIZED_BINARY"
+    # Create a volume for go pkg cache instead of local mount (#33)
+    DOCKERIZED_COMPILE_VOLUME="dockerized_compile_${DOCKERIZED_COMPILE_GOOS}_${DOCKERIZED_COMPILE_GOARCH}"
+    docker volume create --driver local "${DOCKERIZED_COMPILE_VOLUME}"
+
     CMD_BUILD="go build -ldflags \"$GO_LDFLAGS\" -o //build/ ."
-    # Fix permissions of compiled binary (Linux and MacOS)
-    CMD_CHOWN="chown $(id -u):$(id -g) //build/$(basename $DOCKERIZED_BINARY)"
-    CMD_CHMOD="chmod +x //build/$(basename $DOCKERIZED_BINARY)"
+    CMD_CHOWN="chown $(id -u):$(id -g) //build/$(basename $DOCKERIZED_BINARY)" # fix permissions (#33)
+    CMD_CHMOD="chmod +x //build/$(basename $DOCKERIZED_BINARY)" # fix executable bit (#33)
     docker run \
       --rm \
       -e "GOOS=${DOCKERIZED_COMPILE_GOOS}" \
       -e "GOARCH=${DOCKERIZED_COMPILE_GOARCH}" \
       -v "${DOCKERIZED_ROOT}:/src" \
       -v "${DOCKERIZED_ROOT}/build:/build" \
-      -v "${DOCKERIZED_ROOT}/.cache:/go/pkg" \
+      -v "${DOCKERIZED_COMPILE_VOLUME}:/go/pkg" \
       -w //src \
       "golang:1.17.8" \
       bash -c "$CMD_BUILD && $CMD_CHOWN && $CMD_CHMOD"
