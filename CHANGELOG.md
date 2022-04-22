@@ -1,3 +1,10 @@
+## [2.19.4](https://github.com/datastack-net/dockerized/compare/v2.19.3...v2.19.4) (2022-04-22)
+
+
+### Bug Fixes
+
+* Does not compile in docker under Apple Silicon ([94928c6](https://github.com/datastack-net/dockerized/commit/94928c61477afc08a8bca1d598b31e01f9d5e146)), closes [#33](https://github.com/datastack-net/dockerized/issues/33)
+
 ## [2.19.3](https://github.com/datastack-net/dockerized/compare/v2.19.2...v2.19.3) (2022-04-20)
 
 
