@@ -70,9 +70,13 @@ if [ "$DOCKERIZED_COMPILE" ] || [ ! -f "$DOCKERIZED_BINARY" ]; then
   GO_BUILD_ARGS="-ldflags '-X main.Version=${GIT_COMMIT}'"
   GO_LDFLAGS="-X main.Version=${GIT_COMMIT}"
   if [ "${DOCKERIZED_COMPILE:-docker}" == "docker" ]; then
+    rm -f "$DOCKERIZED_BINARY"
+    CMD_BUILD="go build -ldflags \"$GO_LDFLAGS\" -o //build/ ."
+    # Fix permissions of compiled binary (Linux and MacOS)
+    CMD_CHOWN="chown $(id -u):$(id -g) //build/$(basename $DOCKERIZED_BINARY)"
+    CMD_CHMOD="chmod +x //build/$(basename $DOCKERIZED_BINARY)"
     docker run \
       --rm \
-      --entrypoint=go \
       -e "GOOS=${DOCKERIZED_COMPILE_GOOS}" \
       -e "GOARCH=${DOCKERIZED_COMPILE_GOARCH}" \
       -v "${DOCKERIZED_ROOT}:/src" \
@@ -80,7 +84,7 @@ if [ "$DOCKERIZED_COMPILE" ] || [ ! -f "$DOCKERIZED_BINARY" ]; then
       -v "${DOCKERIZED_ROOT}/.cache:/go/pkg" \
       -w //src \
       "golang:1.17.8" \
-      build -ldflags "$GO_LDFLAGS" -o //build/ .
+      bash -c "$CMD_BUILD && $CMD_CHOWN && $CMD_CHMOD"
   else
     (
     cd "$DOCKERIZED_ROOT"
