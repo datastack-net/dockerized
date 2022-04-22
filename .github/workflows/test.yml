@@ -53,7 +53,7 @@ jobs:
         os:
           - ubuntu-20.04
 #          - windows-2022
-          - macos-10.15
+#          - macos-10.15
       max-parallel: 1
       fail-fast: true
     steps:
