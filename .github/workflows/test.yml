@@ -52,8 +52,8 @@ jobs:
       matrix:
         os:
           - ubuntu-20.04
-#          - windows-2022
-#          - macos-10.15
+          - windows-2022
+          - macos-10.15
       max-parallel: 1
       fail-fast: true
     steps:
@@ -69,25 +69,6 @@ jobs:
           path: dockerized
 
       - run: dockerized/bin/dockerized --help
-        shell: bash
-
-      - run: dockerized/bin/dockerized go version
-        shell: bash
-
-      - name: "Test: version from environment variable"
-        run: GO_VERSION=1.16.15 dockerized/bin/dockerized go version | grep "go1.16.15"
-        shell: bash
-
-      - name: "Test: version from dockerized.env"
-        run: |
-          mkdir -p project
-          cd project
-          echo 'GO_VERSION=1.17.8' > dockerized.env
-          ../dockerized/bin/dockerized go version | grep "1.17.8"
-        shell: bash
-
-      - name: "Test: command that requires building (protoc)"
-        run: dockerized/bin/dockerized protoc --version
         shell: bash
 
       - name: "Test: dockerized returns inner exit code"
