@@ -27,6 +27,20 @@ func TestHelp(t *testing.T) {
 	assert.Contains(t, output, "Usage:")
 }
 
+func TestEntrypoint(t *testing.T) {
+	var projectDir = dockerized.GetDockerizedRoot() + "/test/test_entrypoint"
+	defer context().
+		WithDir(projectDir).
+		WithCwd(projectDir).
+		WithFile("foo.txt", "foo").
+		WithFile("bar.txt", "bar").
+		Restore()
+
+	output := testDockerized(t, []string{"--entrypoint", "ls", "go"})
+	assert.Contains(t, output, "foo.txt")
+	assert.Contains(t, output, "bar.txt")
+}
+
 func TestOverrideVersionWithEnvVar(t *testing.T) {
 	defer context().WithEnv("PROTOC_VERSION", "3.6.0").Restore()
 	var output = testDockerized(t, []string{"protoc", "--version"})
