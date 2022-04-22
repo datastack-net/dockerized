@@ -1,3 +1,13 @@
+# [2.21.0](https://github.com/datastack-net/dockerized/compare/v2.20.0...v2.21.0) (2022-04-22)
+
+
+### Features
+
+* **command:** add scrapy ([2277338](https://github.com/datastack-net/dockerized/commit/2277338082119d8424c9b583a2719fc60ab7e871))
+* **command:** add scrapy - Making agreed upon changes ([e8d4e6a](https://github.com/datastack-net/dockerized/commit/e8d4e6af7ec7e3a4282281b4820648bbd0a946f0))
+* **command:** add scrapy - Removed logging ([7551c2b](https://github.com/datastack-net/dockerized/commit/7551c2b17f82255d969cc42cc3bf70f58321fa23))
+* **command:** add scrapy Dockerfile ([25bf7dd](https://github.com/datastack-net/dockerized/commit/25bf7dda41a83a267bc6c3d2d2f4c08135b8c25f))
+
 # [2.20.0](https://github.com/datastack-net/dockerized/compare/v2.19.4...v2.20.0) (2022-04-22)
 
 
