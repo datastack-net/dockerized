@@ -1,3 +1,10 @@
+# [2.20.0](https://github.com/datastack-net/dockerized/compare/v2.19.4...v2.20.0) (2022-04-22)
+
+
+### Features
+
+* add option --entrypoint ([29697b6](https://github.com/datastack-net/dockerized/commit/29697b6c57973e4d99ab2a7c2a4526b3de48b4a7))
+
 ## [2.19.4](https://github.com/datastack-net/dockerized/compare/v2.19.3...v2.19.4) (2022-04-22)
 
 
