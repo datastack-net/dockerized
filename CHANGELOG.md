@@ -4,9 +4,6 @@
 ### Features
 
 * **command:** add scrapy ([2277338](https://github.com/datastack-net/dockerized/commit/2277338082119d8424c9b583a2719fc60ab7e871))
-* **command:** add scrapy - Making agreed upon changes ([e8d4e6a](https://github.com/datastack-net/dockerized/commit/e8d4e6af7ec7e3a4282281b4820648bbd0a946f0))
-* **command:** add scrapy - Removed logging ([7551c2b](https://github.com/datastack-net/dockerized/commit/7551c2b17f82255d969cc42cc3bf70f58321fa23))
-* **command:** add scrapy Dockerfile ([25bf7dd](https://github.com/datastack-net/dockerized/commit/25bf7dda41a83a267bc6c3d2d2f4c08135b8c25f))
 
 # [2.20.0](https://github.com/datastack-net/dockerized/compare/v2.19.4...v2.20.0) (2022-04-22)
 
@@ -34,7 +31,6 @@
 
 ### Bug Fixes
 
-* --shell tests failing due to non-tty environment ([b7e9790](https://github.com/datastack-net/dockerized/commit/b7e979044d5652bd7bdc97db3f5d61c9127ba77d))
 * --shell tests failing due to non-tty environment ([c2f13c4](https://github.com/datastack-net/dockerized/commit/c2f13c4abeae5526e68cae9d615f2410a687c771)), closes [#39](https://github.com/datastack-net/dockerized/issues/39)
 
 ## [2.19.1](https://github.com/datastack-net/dockerized/compare/v2.19.0...v2.19.1) (2022-04-11)
