@@ -1,3 +1,10 @@
+# [2.22.0](https://github.com/datastack-net/dockerized/compare/v2.21.0...v2.22.0) (2022-04-29)
+
+
+### Features
+
+* **command:** Add mkdocs ([e84d96c](https://github.com/datastack-net/dockerized/commit/e84d96c86714728d15e186a49fc25fa6dd199b7d))
+
 # [2.21.0](https://github.com/datastack-net/dockerized/compare/v2.20.0...v2.21.0) (2022-04-22)
 
 
