@@ -166,6 +166,8 @@ services:
         PROTOC_VERSION: "${PROTOC_VERSION}"
         PROTOC_BASE: "${PROTOC_BASE}"
         PROTOC_ARCH: "${PROTOC_ARCH}"
+  python2:
+    image: "python:${PYTHON2_VERSION}"
   python:
     &python
     image: "python:${PYTHON_VERSION}"
@@ -173,11 +175,20 @@ services:
     volumes:
       - "python_modules:/usr/local/lib/python${PYTHON_VERSION}/site-packages"
       - "${HOME:-home}/.dockerized/apps/python:/root"
-  python2:
-    image: "python:${PYTHON2_VERSION}"
+  # region python
   pip:
     <<: *python
     entrypoint: [ "pip" ]
+  mkdocs:
+    image: "mkdocs:${MKDOCS_VERSION}"
+    entrypoint: [ "python", "-m", "mkdocs" ]
+    build:
+      context: "${DOCKERIZED_ROOT:-.}/apps/pip"
+      dockerfile: "${DOCKERIZED_ROOT:-.}/apps/pip/Dockerfile"
+      args:
+        PYTHON_VERSION: "${PYTHON_VERSION}"
+        PIP_PACKAGES: "mkdocs ${MKDOCS_PACKAGES:-}"
+  # endregion
   ruby: &ruby
     image: "ruby:${RUBY_VERSION}"
     entrypoint: [ "ruby" ]
@@ -260,7 +271,7 @@ services:
 
 volumes:
   # Default for ${HOME}. Avoids creating directories on host machine when HOME isn't set.
-  home: {}
+  home: { }
   node_modules: { }
   python_modules: { }
   pip_cache: { }
