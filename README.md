@@ -40,6 +40,8 @@ dockerized <command>
   - perl
   - php
     - composer 
+  - (prolog)
+    - swipl (SWI-Prolog)
   - lua
   - node
     - [npm](apps/npm/README.md)
@@ -55,19 +57,18 @@ dockerized <command>
     - rake
   - (rust)
     - rustc
-  - (prolog)
-    - swipl (SWI-Prolog)
   - typescript
     - tsc
-- Networking:
+- Networking
   - http
   - telnet
   - wget
 - Unix
   - tree
   - zip
-- Other utilities
+- Other
   - jq
+  - [mkdocs](apps/mkdocs/README.md)
   - (latex)
     - pdflatex
   - protoc
