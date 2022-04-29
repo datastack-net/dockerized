@@ -134,7 +134,7 @@ Run any supported command, but within Docker.
 dockerized <command>
 ```
 
-Examples:
+**Examples**:
 
 ```bash
 dockerized node --version             # v16.13.0
@@ -142,6 +142,8 @@ dockerized vue create new-project     # create a project with vue cli
 dockerized tsc --init                 # initialize typescript for the current directory
 dockerized npm install                # install packages.json
 ```
+
+See [CLI Reference](CLI_REFERENCE.md) for all options.
 
 ## Use Cases
 
@@ -207,10 +209,6 @@ Notes:
     PYTHON_VERSION=3.8.5
     TYPESCRIPT_VERSION=4.6.2
     ```
-  
-- List of configuration variables, and defaults:
-  - [.env](.env)
-
 
 **Per project (directory)**
 
