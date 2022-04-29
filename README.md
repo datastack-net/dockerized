@@ -189,15 +189,12 @@ dockerized node:
 
 Each command has a `<COMMAND>_VERSION` environment variable which you can override.
 
-- `python`: `PYTHON_VERSION`
-- `node`: `NODE_VERSION`
-- `tsc`: `TSC_VERSION`
+- python &rarr; `PYTHON_VERSION`
+- node &rarr; `NODE_VERSION`
+- tsc &rarr; `TSC_VERSION`
+- npm &rarr; `NODE_VERSION` ⚠ npm's version is determined by node. 
 
-Notes:
-- Versions of some commands are determined by other commands.  
-  For example, to configure the version of `npm`, you should override `NODE_VERSION`.
-- See [.env](.env) for a list of configurable versions.
-
+> See [.env](.env) for a list of configurable versions.
 
 
 **Global**
