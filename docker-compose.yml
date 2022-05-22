@@ -156,8 +156,14 @@ services:
   php:
     image: "php:${PHP_VERSION}"
   psql:
-    image: "postgres:${PSQL_VERSION}"
+    image: "postgres:${POSTGRES_VERSION}"
     entrypoint: [ "psql" ]
+  pg_dump:
+    image: "postgres:${POSTGRES_VERSION}"
+    entrypoint: [ "pg_dump" ]
+  pg_dumpall:
+    image: "postgres:${POSTGRES_VERSION}"
+    entrypoint: [ "pg_dumpall" ]
   protoc:
     image: "protoc:${PROTOC_VERSION}"
     build:
