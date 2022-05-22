@@ -23,6 +23,10 @@ dockerized <command>
 - Database
   - dolt
   - mysql
+  - [postgres](apps/postgres/README.md)
+    - psql
+    - pg_dump
+    - pg_dumpall
 - Dev-Ops & Docker
   - ansible
     - ansible-playbook
