@@ -1,3 +1,10 @@
+# [2.23.0](https://github.com/datastack-net/dockerized/compare/v2.22.0...v2.23.0) (2022-05-22)
+
+
+### Features
+
+* **command:** Add postgres - psql, pg_dump, pg_dumpall ([1df9aaa](https://github.com/datastack-net/dockerized/commit/1df9aaa0141645858f4ed8699c51435eca395fb0))
+
 # [2.22.0](https://github.com/datastack-net/dockerized/compare/v2.21.0...v2.22.0) (2022-04-29)
 
 
