@@ -1,3 +1,10 @@
+# [2.24.0](https://github.com/datastack-net/dockerized/compare/v2.23.0...v2.24.0) (2022-07-28)
+
+
+### Features
+
+* **command:** Add mssql ([2a4962d](https://github.com/datastack-net/dockerized/commit/2a4962d22941f9fc48b41a7514ec577d354547bd))
+
 # [2.23.0](https://github.com/datastack-net/dockerized/compare/v2.22.0...v2.23.0) (2022-05-22)
 
 
