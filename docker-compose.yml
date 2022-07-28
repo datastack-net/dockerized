@@ -133,6 +133,11 @@ services:
   lua:
     image: "${LUA_IMAGE}:${LUA_VERSION}"
     entrypoint: [ "lua" ]
+  mssql:
+    image: "mcr.microsoft.com/mssql/server:${MSSQL_VERSION}"
+    environment:
+      SA_PASSWORD: "${SA_PASSWORD:-}"
+      ACCEPT_EULA: "Y"
   mysql:
     image: "mysql:${MYSQL_VERSION}"
     entrypoint: [ "mysql" ]

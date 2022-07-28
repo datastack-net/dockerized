@@ -22,6 +22,7 @@ dockerized <command>
   - [s3cmd](apps/s3cmd/README.md)
 - Database
   - dolt
+  - [mssql](apps/mssql/README.md)
   - mysql
   - [postgres](apps/postgres/README.md)
     - psql
