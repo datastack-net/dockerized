@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/compose-spec/compose-go/types"
-	dockerized "github.com/datastack-net/dockerized/pkg"
+	. "github.com/datastack-net/dockerized/pkg"
 	"github.com/datastack-net/dockerized/pkg/help"
 	util "github.com/datastack-net/dockerized/pkg/util"
 	"github.com/docker/compose/v2/pkg/api"
@@ -30,16 +30,27 @@ func main() {
 func RunCli(args []string) (err error, exitCode int) {
 	dockerizedOptions, commandName, commandVersion, commandArgs := parseArguments(args)
 
-	var optionHelp = hasKey(dockerizedOptions, "--help") || hasKey(dockerizedOptions, "-h")
-	var optionVerbose = hasKey(dockerizedOptions, "--verbose") || hasKey(dockerizedOptions, "-v")
-	var optionShell = hasKey(dockerizedOptions, "--shell")
-	var optionBuild = hasKey(dockerizedOptions, "--build")
-	var optionVersion = hasKey(dockerizedOptions, "--version")
-	var optionPort = hasKey(dockerizedOptions, "-p")
-	var optionEntrypoint = hasKey(dockerizedOptions, "--entrypoint")
+	var optionHelp = hasKey(dockerizedOptions, OptionHelp) || hasKey(dockerizedOptions, ShortOptionHelp)
+	var optionVerbose = hasKey(dockerizedOptions, OptionVerbose) || hasKey(dockerizedOptions, ShortOptionVerbose)
+	var optionShell = hasKey(dockerizedOptions, OptionShell)
+	var optionBuild = hasKey(dockerizedOptions, OptionBuild)
+	var optionBuildPull = hasKey(dockerizedOptions, OptionBuildPull)
+	var optionBuildNoCache = hasKey(dockerizedOptions, OptionBuildNoCache)
+	var optionVersion = hasKey(dockerizedOptions, OptionVersion)
+	var optionPort = hasKey(dockerizedOptions, ShortOptionPort)
+	var optionEntrypoint = hasKey(dockerizedOptions, OptionEntrypoint)
 
-	dockerizedRoot := dockerized.GetDockerizedRoot()
-	dockerized.NormalizeEnvironment(dockerizedRoot)
+	if !optionBuild {
+		if optionBuildPull {
+			return fmt.Errorf("%s option requires %s option", OptionBuildPull, OptionBuild), 1
+		}
+		if optionBuildNoCache {
+			return fmt.Errorf("%s option requires %s option", OptionBuildNoCache, OptionBuild), 1
+		}
+	}
+
+	dockerizedRoot := GetDockerizedRoot()
+	NormalizeEnvironment(dockerizedRoot)
 
 	if optionVerbose {
 		fmt.Printf("Dockerized root: %s\n", dockerizedRoot)
@@ -51,12 +62,12 @@ func RunCli(args []string) (err error, exitCode int) {
 	}
 
 	hostCwd, _ := os.Getwd()
-	err = dockerized.LoadEnvFiles(hostCwd, optionVerbose)
+	err = LoadEnvFiles(hostCwd, optionVerbose)
 	if err != nil {
 		return err, 1
 	}
 
-	composeFilePaths := dockerized.GetComposeFilePaths(dockerizedRoot)
+	composeFilePaths := GetComposeFilePaths(dockerizedRoot)
 
 	if optionVerbose {
 		fmt.Printf("Compose files: %s\n", strings.Join(composeFilePaths, ", "))
@@ -76,18 +87,18 @@ func RunCli(args []string) (err error, exitCode int) {
 
 	if commandVersion != "" {
 		if commandVersion == "?" {
-			err = dockerized.PrintCommandVersions(composeFilePaths, commandName, optionVerbose)
+			err = PrintCommandVersions(composeFilePaths, commandName, optionVerbose)
 			if err != nil {
 				return err, 1
 			} else {
 				return nil, 0
 			}
 		} else {
-			dockerized.SetCommandVersion(composeFilePaths, commandName, optionVerbose, commandVersion)
+			SetCommandVersion(composeFilePaths, commandName, optionVerbose, commandVersion)
 		}
 	}
 
-	project, err := dockerized.GetProject(composeFilePaths)
+	project, err := GetProject(composeFilePaths)
 	if err != nil {
 		return err, 1
 	}
@@ -144,8 +155,10 @@ func RunCli(args []string) (err error, exitCode int) {
 		if optionVerbose {
 			fmt.Printf("Building container image for %s...\n", commandName)
 		}
-		err := dockerized.DockerComposeBuild(composeFilePaths, api.BuildOptions{
+		err := DockerComposeBuild(composeFilePaths, api.BuildOptions{
 			Services: []string{commandName},
+			Pull:     optionBuildPull,
+			NoCache:  optionBuildNoCache,
 		})
 
 		if err != nil {
@@ -226,23 +239,25 @@ func RunCli(args []string) (err error, exitCode int) {
 			fmt.Printf("  This command, if it exists, will not support version switching.\n")
 			fmt.Printf("  See: https://github.com/jessfraz/dockerfiles\n")
 		}
-		return dockerized.DockerRun(image, runOptions, volumes)
+		return DockerRun(image, runOptions, volumes)
 	}
 
-	return dockerized.DockerComposeRun(project, runOptions, volumes, serviceOptions...)
+	return DockerComposeRun(project, runOptions, volumes, serviceOptions...)
 }
 
 func parseArguments(args []string) (map[string]string, string, string, []string) {
 	var options = []string{
-		"--build",
-		"-h",
-		"--help",
-		"-p",
-		"--shell",
-		"--entrypoint",
-		"-v",
-		"--verbose",
-		"--version",
+		OptionBuild,
+		OptionBuildPull,
+		OptionBuildNoCache,
+		OptionHelp,
+		ShortOptionHelp,
+		ShortOptionPort,
+		OptionShell,
+		OptionEntrypoint,
+		ShortOptionVerbose,
+		OptionVerbose,
+		OptionVersion,
 	}
 
 	var optionsWithParameters = []string{

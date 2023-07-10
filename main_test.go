@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"k8s.io/apimachinery/pkg/util/rand"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"testing"
@@ -172,7 +173,7 @@ func (c *Context) WithHome(path string) *Context {
 }
 
 func (c *Context) WithTempHome() *Context {
-	var homePath = dockerized.GetDockerizedRoot() + "/test/home" + strconv.Itoa(rand.Int())
+	var homePath = filepath.Join(dockerized.GetDockerizedRoot(), "test", "home"+strconv.Itoa(rand.Int()))
 	c.WithHome(homePath)
 	return c
 }
@@ -202,7 +203,7 @@ func (c *Context) WithFile(path string, content string) *Context {
 }
 
 func (c *Context) WithHomeFile(path string, content string) *Context {
-	return c.WithFile(c.homePath+"/"+path, content)
+	return c.WithFile(filepath.Join(c.homePath, path), content)
 }
 
 func (c *Context) WithDir(path string) *Context {

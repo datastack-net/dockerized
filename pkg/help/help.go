@@ -31,6 +31,8 @@ func Help(composeFilePaths []string) error {
 
 	fmt.Println("Options:")
 	fmt.Println("      --build       Rebuild the container before running it.")
+	fmt.Println("      --pull        Pull the latest version of the container before building it (with --build).")
+	fmt.Println("      --no-cache    Do not use cache when building the container (with --build).")
 	fmt.Println("      --shell       Start a shell inside the command container. Similar to `docker run --entrypoint=sh`.")
 	fmt.Println("      --entrypoint <entrypoint>")
 	fmt.Println("                    Override the default entrypoint of the command container.")

@@ -63,3 +63,15 @@ dockerized gh auth login
 # Create a PR:
 dockerized gh pr create
 ```
+
+## Dockerized Development
+
+When running from an IDE like Goland, or using the `go run` command, dockerized will have trouble finding the included `.env` file in the root of the project.
+To fix this, you can set up an environment variable `DOCKERIZED_ROOT` that points to the root of the project.
+
+> 🤔 If anyone knows how to 'embed' static files in a go project
+
+```bash
+export DOCKERIZED_ROOT=/path/to/dockerized
+go run main.go --help
+```
