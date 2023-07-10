@@ -269,7 +269,7 @@ func LoadEnvFiles(hostCwd string, optionVerbose bool) error {
 	var envFiles []string
 
 	// Default
-	defaultEnvFile := GetDockerizedRoot() + "/.env"
+	defaultEnvFile := filepath.Join(GetDockerizedRoot(), ".env")
 	envFiles = append(envFiles, defaultEnvFile)
 
 	// Global overrides
