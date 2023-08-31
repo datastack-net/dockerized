@@ -223,9 +223,7 @@ func SetCommandVersion(composeFilePaths []string, commandName string, optionVerb
 
 	var versionVariableExpected = strings.ReplaceAll(strings.ToUpper(commandName), "-", "_") + "_VERSION"
 	var variablesUsed []string
-	for _, variable := range ExtractVariables(rawService) {
-		variablesUsed = append(variablesUsed, variable)
-	}
+	variablesUsed = append(variablesUsed, ExtractVariables(rawService)...)
 
 	if len(variablesUsed) == 0 {
 		fmt.Printf("Error: Version selection for %s is currently not supported.\n", commandName)
@@ -572,19 +570,13 @@ func ExtractVariables(rawService types.ServiceConfig) []string {
 	}
 	if rawService.Build != nil {
 		for _, argValue := range rawService.Build.Args {
-			for _, argValueVariable := range ExtractVariablesFromString(*argValue) {
-				usedVariables = append(usedVariables, argValueVariable)
-			}
+			usedVariables = append(usedVariables, ExtractVariablesFromString(*argValue)...)
 		}
 	}
-	for _, imageVariable := range ExtractVariablesFromString(rawService.Image) {
-		usedVariables = append(usedVariables, imageVariable)
-	}
+	usedVariables = append(usedVariables, ExtractVariablesFromString(rawService.Image)...)
 
 	for _, entryPointArgument := range rawService.Entrypoint {
-		for _, entryPointVariable := range ExtractVariablesFromString(entryPointArgument) {
-			usedVariables = append(usedVariables, entryPointVariable)
-		}
+		usedVariables = append(usedVariables, ExtractVariablesFromString(entryPointArgument)...)
 	}
 
 	usedVariables = unique(usedVariables)
